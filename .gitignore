@@ -1,0 +1,12 @@
+# Dados brutos, notebooks e ETL (473 MB) — não são usados pelo site publicado
+notebooks/
+
+# Config local do Claude Code
+.claude/
+
+# Sistema operacional / editores
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.swp
+.vscode/
