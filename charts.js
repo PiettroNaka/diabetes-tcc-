@@ -1000,8 +1000,8 @@ function renderBubble() {
     options:{ ...baseOpts({ display:false }),
       layout:{ padding:10 },
       scales:{
-        x:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11}}, min:6.5, max:11.8 },
-        y:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Mortalidade /100k hab', color:TICK_COLOR, font:{size:11}}, min:25, max:46 },
+        x:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11}}, min:6, max:12 },
+        y:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}, stepSize:10}, title:{display:true, text:'Mortalidade /100k hab', color:TICK_COLOR, font:{size:11}}, min:10, max:60 },
       },
       plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{
         label: ctx => `${ctx.raw.uf}: prev ${ctx.raw.x}% · mort ${ctx.raw.y}/100k`
