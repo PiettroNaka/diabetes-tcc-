@@ -668,7 +668,7 @@ function renderStateComparison() {
       scales:{
         x:{ grid:{color:GRID_COLOR}, ticks:{ color:TICK_COLOR, font:{size:10}, maxRotation:65, autoSkip:false } },
         y:{ grid:{color:GRID_COLOR}, title:{ display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11} }, min:6, max:12, ticks:{ color:TICK_COLOR, font:{size:11} } },
-        y1:{ position:'right', grid:{drawOnChartArea:false}, ticks:{ color:PALETTE.red, font:{size:11} }, title:{ display:true, text:'Taxa mort./100k', color:PALETTE.red, font:{size:11} }, min:25, max:46 },
+        y1:{ position:'right', grid:{drawOnChartArea:false}, ticks:{ color:PALETTE.red, font:{size:11}, stepSize:10 }, title:{ display:true, text:'Taxa mort./100k', color:PALETTE.red, font:{size:11} }, min:10, max:55 },
       }
     },
   }));
