@@ -674,6 +674,7 @@
 
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">AUC-ROC</span><span class="kpi-value" id="mlAuc">—</span><span class="kpi-sub">poder discriminativo</span></div>
+      <div class="kpi-card"><span class="kpi-label">AP (AUC-PR)</span><span class="kpi-value" id="mlAp">—</span><span class="kpi-sub">precisão média (classe +)</span></div>
       <div class="kpi-card"><span class="kpi-label">Acurácia</span><span class="kpi-value" id="mlAcc">—</span><span class="kpi-sub">conjunto de teste</span></div>
       <div class="kpi-card"><span class="kpi-label">Precisão</span><span class="kpi-value" id="mlPrec">—</span><span class="kpi-sub">VP / (VP+FP)</span></div>
       <div class="kpi-card"><span class="kpi-label">Recall (sensib.)</span><span class="kpi-value" id="mlRec">—</span><span class="kpi-sub">VP / (VP+FN)</span></div>
@@ -789,8 +790,9 @@
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Coeficientes aprendidos pelo modelo (peso padronizado de cada feature)</h3>
-        <p class="chart-src">Valores reais resultantes do treino. Quanto maior o |peso|, maior a influência da variável na previsão. Glicose tende a dominar — coerente com a fisiopatologia do diabetes.</p>
+        <p class="chart-src">Valores reais resultantes do treino. Quanto maior o |peso|, maior a influência da variável na previsão. Glicose tende a dominar — coerente com a fisiopatologia do diabetes. Passe o mouse para ver a razão de chances (OR).</p>
         <div style="position:relative;height:280px"><canvas id="chartCoef" role="img" aria-label="Coeficientes aprendidos pela regressão logística"></canvas></div>
+        <div id="coefOdds" class="chart-insight" style="margin-top:10px"></div>
       </div>
     </div>
 
@@ -805,6 +807,13 @@
         <h3>Curva ROC — <span id="rocAuc">AUC</span></h3>
         <p class="chart-src">Trade-off entre sensibilidade e 1−especificidade (varredura de limiares no teste)</p>
         <div style="position:relative;height:300px"><canvas id="chartROC" role="img" aria-label="Curva ROC do modelo treinado"></canvas></div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <h3>Curva Precisão–Revocação — <span id="prAp">AP</span></h3>
+        <p class="chart-src">Complementa a ROC em cenário de <strong>prevalência baixa</strong>: foca o desempenho sobre a classe positiva (diabéticos), onde a ROC pode ser otimista. A linha tracejada é a <strong>linha de base</strong> (prevalência de positivos no teste) — equivale a um classificador aleatório; a curva precisa ficar acima dela.</p>
+        <div style="position:relative;height:300px"><canvas id="chartPR" role="img" aria-label="Curva Precisão-Revocação do modelo treinado"></canvas></div>
       </div>
     </div>
 
@@ -953,7 +962,7 @@
     <!-- PRINCIPAIS ACHADOS -->
     <h3 style="font-family:'Plus Jakarta Sans';font-size:18px;margin:0 0 12px">Principais achados</h3>
     <div class="kpi-grid">
-      <div class="kpi-card"><span class="kpi-label">Crescimento da prevalência</span><span class="kpi-value">5,3% → 10,2%</span><span class="kpi-sub">Vigitel 2006 → 2023 (quase 2×)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Crescimento da prevalência</span><span class="kpi-value">5,5% → 12,9%</span><span class="kpi-sub">Vigitel 2006 → 2024 (2,3×)</span></div>
       <div class="kpi-card"><span class="kpi-label">Excesso de peso × Diabetes</span><span class="kpi-value" id="achadoR">—</span><span class="kpi-sub">correlação de Pearson</span></div>
       <div class="kpi-card"><span class="kpi-label">Desigualdade social</span><span class="kpi-value">~3×</span><span class="kpi-sub">menor vs maior escolaridade</span></div>
       <div class="kpi-card"><span class="kpi-label">Carga absoluta</span><span class="kpi-value">16,8 mi</span><span class="kpi-sub">6º país do mundo (IDF)</span></div>
@@ -966,7 +975,7 @@
       <div class="chart-card wide">
         <h3>Conclusões</h3>
         <div style="line-height:1.75;font-size:14.5px;margin-top:8px">
-          <p>A análise dos dados públicos evidencia, com sustentação estatística, que o diabetes mellitus configura um problema de saúde pública <strong>crescente, socialmente desigual e economicamente oneroso</strong> no Brasil. A prevalência autorreferida elevou-se de forma estatisticamente significativa entre 2006 e 2023 (H1: tendência linear positiva, p&lt;0,001), em trajetória fortemente correlacionada à da obesidade (H2: r&nbsp;≈&nbsp;0,97, p&lt;0,001). O agravo concentra-se em estratos de maior idade, menor escolaridade e nas unidades federativas mais urbanizadas, o que reforça o papel dos <strong>determinantes sociais da saúde</strong>.</p>
+          <p>A análise dos dados públicos evidencia, com sustentação estatística, que o diabetes mellitus configura um problema de saúde pública <strong>crescente, socialmente desigual e economicamente oneroso</strong> no Brasil. A prevalência autorreferida elevou-se de forma estatisticamente significativa entre 2006 e 2024 (H1: tendência linear positiva, p&lt;0,001), em trajetória fortemente correlacionada à da obesidade (H2: r&nbsp;≈&nbsp;0,93, p&lt;0,001). O agravo concentra-se em estratos de maior idade, menor escolaridade e nas unidades federativas mais urbanizadas, o que reforça o papel dos <strong>determinantes sociais da saúde</strong>.</p>
           <p style="margin-top:10px">No plano da modelagem preditiva, a prova de conceito demonstra ser viável <strong>classificar o risco de diabetes com poder discriminativo adequado</strong> a partir de variáveis clínicas (H4: AUC no conjunto de teste), tendo a glicemia e o índice de massa corporal como preditores de maior peso (H5) — resultado coerente com a fisiopatologia da doença. Tais achados respaldam o potencial de instrumentos de triagem orientados por dados na atenção primária à saúde.</p>
           <p style="margin-top:10px">Quanto à correlação ecológica entre prevalência e mortalidade estaduais (H3), embora significativa, foi classificada apenas como <strong>parcialmente sustentada</strong>, dado que associações em nível agregado não autorizam inferências sobre indivíduos. Conclui-se, em resposta à pergunta de pesquisa, que os dados abertos brasileiros são <strong>adequados para caracterizar e monitorar</strong> o diabetes e para <strong>fundamentar modelos preditivos</strong>, desde que submetidos a tratamento estatístico rigoroso e à explicitação transparente de suas limitações.</p>
         </div>
@@ -982,13 +991,14 @@
           <li>Vigitel cobre apenas capitais; o mapa usa o valor da capital para a UF inteira.</li>
           <li>Correlações estaduais são dados agregados — sujeitas à <strong>falácia ecológica</strong>.</li>
           <li>A projeção OLS ignora autocorrelação temporal (IC otimista).</li>
-          <li>O modelo foi treinado no Pima (benchmark internacional), não em dado brasileiro.</li>
+          <li>O modelo didático foi treinado no Pima (benchmark internacional), não em dado brasileiro — a validação nacional usa os microdados da PNS 2019 (logo acima).</li>
+          <li>Sob prevalência baixa, a alta sensibilidade do classificador tem como custo muitos falsos positivos (precisão apenas moderada) — explicitado pela <strong>curva Precisão–Revocação</strong> e pelo AP na aba de Modelagem.</li>
           <li>Amputações de MMII (SIH) são de todas as causas — o cubo de procedimentos não cruza com o diagnóstico de diabetes.</li>
         </ul>
       </div>
       <div class="chart-card">
         <h3>Trabalhos futuros</h3>
-        <p style="font-size:12.5px;color:var(--ink-3);margin:6px 0 4px"><b>Já implementado:</b> modelo PNS 2019 (Logística/RF/XGBoost com ROC, matriz de confusão e coeficientes), validação cruzada k=5, SARIMA, padronização por idade, recorte por raça/cor, ETL via TabNet e repositório versionado.</p>
+        <p style="font-size:12.5px;color:var(--ink-3);margin:6px 0 4px"><b>Já implementado:</b> modelo PNS 2019 (Logística/RF/XGBoost com ROC, matriz de confusão e coeficientes), validação cruzada k=5, curva Precisão–Revocação (AP) e razão de chances (OR), SARIMA, padronização por idade, recorte por raça/cor, ETL via TabNet e repositório versionado.</p>
         <ul style="margin:8px 0 0 18px;line-height:1.75;font-size:13.5px">
           <li>Análise <strong>espacial</strong> (I de Moran, autocorrelação) e granularidade municipal.</li>
           <li>Padronização por idade também por <strong>UF e por sexo</strong> (feita por região).</li>

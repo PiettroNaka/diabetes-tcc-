@@ -125,11 +125,38 @@ ML.train = function (opts) {
   let auc = 0;
   for (let i = 1; i < roc.length; i++) auc += (roc[i][0] - roc[i - 1][0]) * (roc[i][1] + roc[i - 1][1]) / 2;
 
+  // 6b) Curva Precisão–Revocação (PR) + Average Precision (AP) — avaliação
+  // voltada à classe positiva (importante em prevalência baixa). Varre os
+  // mesmos limiares, do mais alto ao mais baixo (recall crescente).
+  const nPos = yte.reduce((s, v) => s + v, 0);
+  const prBaseline = nPos / yte.length;               // linha de base = prevalência de positivos
+  const thrDesc = thr.slice().sort((a, b) => b - a);  // 1.00 → 0.00
+  const pr = [];
+  let prevRecall = 0, ap = 0;
+  thrDesc.forEach(t => {
+    let tp = 0, fp = 0, fn = 0;
+    scores.forEach((p, i) => {
+      const pred = p >= t ? 1 : 0;
+      if (yte[i] === 1 && pred === 1) tp++;
+      else if (yte[i] === 0 && pred === 1) fp++;
+      else if (yte[i] === 1 && pred === 0) fn++;
+    });
+    const recall = tp / (tp + fn || 1);
+    const prec2 = (tp + fp) ? tp / (tp + fp) : 1;      // sem positivos preditos → precisão = 1 (convenção)
+    ap += (recall - prevRecall) * prec2;               // AP = Σ (Rn − Rn−1)·Pn
+    prevRecall = recall;
+    pr.push([recall, prec2]);                          // [recall, precisão]
+  });
+
   // 7) Persistir modelo
   ML.weights = w; ML.bias = b; ML.means = means; ML.stds = stds; ML.imputeMedian = median;
-  ML.metrics = { acc, prec, rec, spec, f1, auc, nTrain: Xtr.length, nTest: Xte.length };
+  ML.metrics = { acc, prec, rec, spec, f1, auc, ap, nTrain: Xtr.length, nTest: Xte.length };
   ML.confusion = { TP, FN, FP, TN };
   ML.roc = roc;
+  ML.pr = pr;
+  ML.prBaseline = prBaseline;
+  ML.testScores = scores;
+  ML.testLabels = yte;
   ML.trained = true;
   return ML;
 };
