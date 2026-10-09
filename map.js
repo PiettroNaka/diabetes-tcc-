@@ -102,7 +102,7 @@ async function renderBrazilMap() {
     container.innerHTML = ''; // limpa antes de redesenhar (re-render em filtros)
     let features = _topoCacheFeatures;
     if (!features) {
-      const topo = await d3.json('https://cdn.jsdelivr.net/npm/datamaps@0.5.10/src/js/data/bra.topo.json');
+      const topo = await d3.json('vendor/bra.topo.json');
       features = topojson.feature(topo, topo.objects.bra).features;
       _topoCacheFeatures = features;
     }
