@@ -23,6 +23,23 @@ function switchTab(tabId) {
 
   // applyFilters relê os selects, atualiza FILTERS e re-renderiza a aba atual
   applyFilters();
+
+  // Centraliza a aba ativa quando a barra rola na horizontal (mobile/telas estreitas)
+  if (btn && typeof btn.scrollIntoView === 'function') {
+    btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+  updateTabScrollHints();
+}
+
+// Pista visual de rolagem horizontal da barra de abas: acende os degradês
+// de borda conforme há conteúdo oculto à esquerda/direita.
+function updateTabScrollHints() {
+  const nav = document.getElementById('tabNav');
+  const wrap = document.getElementById('tabNavWrap');
+  if (!nav || !wrap) return;
+  const maxScroll = nav.scrollWidth - nav.clientWidth;
+  wrap.classList.toggle('scroll-left', nav.scrollLeft > 4);
+  wrap.classList.toggle('scroll-right', nav.scrollLeft < maxScroll - 4);
 }
 
 // Estado global de filtros — lido pelos renderizadores em charts.js
@@ -143,8 +160,16 @@ document.addEventListener('DOMContentLoaded', () => {
     try { ML.train(); } catch (e) { console.error('Falha ao treinar modelo:', e); }
   }
 
+  // Pista de rolagem da barra de abas: reage a scroll e redimensionamento
+  const nav = document.getElementById('tabNav');
+  if (nav) {
+    nav.addEventListener('scroll', updateTabScrollHints, { passive: true });
+    window.addEventListener('resize', updateTabScrollHints);
+  }
+
   // Renderiza tab inicial
   switchTab('overview');
+  updateTabScrollHints();
 
   // Smooth scroll to content on mobile when tab clicked
   document.querySelectorAll('.tab-btn').forEach(btn => {

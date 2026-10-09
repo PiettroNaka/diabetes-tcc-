@@ -4,9 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diabetes no Brasil — Dashboard Epidemiológico</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230072B2'/%3E%3Ctext x='50%25' y='52%25' font-size='40' text-anchor='middle' dominant-baseline='middle' fill='white' font-family='Arial,sans-serif' font-weight='bold'%3ED%3C/text%3E%3C/svg%3E">
+<!-- Bibliotecas vendorizadas localmente (offline) — sem dependência de CDN/internet -->
+<script src="vendor/chart.umd.js"></script>
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/topojson.min.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -34,7 +36,8 @@
   </div>
 </header>
 
-<nav class="tab-nav" role="navigation" aria-label="Seções do dashboard">
+<div class="tab-nav-wrap" id="tabNavWrap">
+<nav class="tab-nav" id="tabNav" role="navigation" aria-label="Seções do dashboard">
   <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Visão Geral</button>
   <button class="tab-btn" data-tab="prevalence" onclick="switchTab('prevalence')">Prevalência</button>
   <button class="tab-btn" data-tab="mortality" onclick="switchTab('mortality')">Mortalidade</button>
@@ -47,10 +50,11 @@
   <button class="tab-btn" data-tab="ml" onclick="switchTab('ml')">Modelagem Preditiva (ML)</button>
   <button class="tab-btn" data-tab="sintese" onclick="switchTab('sintese')">Síntese &amp; Conclusões</button>
 </nav>
+</div>
 
 <div class="filters-bar">
   <label id="f-year">Período (até o ano): <select id="filter-year" onchange="applyFilters()">
-    <option value="all">Série completa (até 2023)</option>
+    <option value="all">Série completa (até 2024)</option>
     <option value="2022">2022</option>
     <option value="2021">2021</option>
     <option value="2020">2020</option>
@@ -136,7 +140,7 @@
           <span><span class="leg-dot" style="background:#009E73"></span> Masculino (%)</span>
           <span><span class="leg-dot" style="background:rgba(0,114,178,.2)"></span> IC 95% (aprox.)</span>
         </div>
-        <div style="position:relative;height:280px"><canvas id="chartOverviewTrend" role="img" aria-label="Evolução da prevalência de diabetes no Brasil de 2006 a 2023 com intervalo de confiança aproximado"></canvas></div>
+        <div style="position:relative;height:280px"><canvas id="chartOverviewTrend" role="img" aria-label="Evolução da prevalência de diabetes no Brasil de 2006 a 2024 com intervalo de confiança aproximado"></canvas></div>
         <div class="chart-note"><i>Sobre o IC:</i> banda calculada por erro-padrão binomial com n efetivo estimado (~25.000, após efeito de desenho). É uma <strong>aproximação</strong> — os IC oficiais do Vigitel constam nos relatórios do Ministério da Saúde e seriam usados na versão final. (Aparece com o filtro de sexo em "Ambos".)</div>
       </div>
     </div>
@@ -218,9 +222,9 @@
         <div class="chart-insight"><b>Leitura:</b> mulheres têm prevalência referida um pouco maior — em parte por maior procura por diagnóstico (viés de detecção).</div>
       </div>
       <div class="chart-card">
-        <h3>Tendência temporal por sexo (2006–2023)</h3>
-        <p class="chart-src">Fonte: Vigitel 2006–2023</p>
-        <div style="position:relative;height:260px"><canvas id="chartSexTrend" role="img" aria-label="Tendência de prevalência por sexo de 2006 a 2023"></canvas></div>
+        <h3>Tendência temporal por sexo (2006–2024)</h3>
+        <p class="chart-src">Fonte: Vigitel 2006–2024</p>
+        <div style="position:relative;height:260px"><canvas id="chartSexTrend" role="img" aria-label="Tendência de prevalência por sexo de 2006 a 2024"></canvas></div>
         <div class="chart-insight"><b>Leitura:</b> ambos os sexos sobem de forma sustentada desde 2006 — tendência estrutural, não flutuação pontual.</div>
       </div>
     </div>
@@ -341,7 +345,7 @@
   <section id="tab-riskfactors" class="tab-section">
     <div class="section-header">
       <h2>Fatores de Risco para Diabetes</h2>
-      <p>Obesidade, sedentarismo, alimentação, tabagismo — Vigitel 2023 e PNS 2019</p>
+      <p>Obesidade, sedentarismo, alimentação, tabagismo — Vigitel 2024 e PNS 2019</p>
     </div>
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">Obesidade (IMC≥30)</span><span class="kpi-value">25,7%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span><span class="kpi-trend up">↑ 118% desde 2006</span></div>
@@ -556,7 +560,7 @@
       <div class="stat-hero">
         <span class="stat-hero-label">r — Excesso de peso × Diabetes</span>
         <span class="stat-hero-value" id="kpiCorrObDi">—</span>
-        <span class="stat-hero-sub">Pearson · Vigitel 2006–2023</span>
+        <span class="stat-hero-sub">Pearson · Vigitel 2006–2024</span>
         <div class="stat-hero-viz"><canvas id="miniCorrObDi" role="img" aria-label="Mini dispersão obesidade e diabetes"></canvas></div>
       </div>
       <div class="stat-hero">
@@ -574,7 +578,7 @@
       <div class="stat-hero">
         <span class="stat-hero-label">CAGR prevalência</span>
         <span class="stat-hero-value" id="kpiCagr">—</span>
-        <span class="stat-hero-sub">crescimento anual 2006–2023</span>
+        <span class="stat-hero-sub">crescimento anual 2006–2024</span>
         <div class="stat-hero-viz"><canvas id="miniCagr" role="img" aria-label="Mini série temporal da prevalência"></canvas></div>
       </div>
       <div class="stat-hero">
@@ -670,6 +674,7 @@
 
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">AUC-ROC</span><span class="kpi-value" id="mlAuc">—</span><span class="kpi-sub">poder discriminativo</span></div>
+      <div class="kpi-card"><span class="kpi-label">AP (AUC-PR)</span><span class="kpi-value" id="mlAp">—</span><span class="kpi-sub">precisão média (classe +)</span></div>
       <div class="kpi-card"><span class="kpi-label">Acurácia</span><span class="kpi-value" id="mlAcc">—</span><span class="kpi-sub">conjunto de teste</span></div>
       <div class="kpi-card"><span class="kpi-label">Precisão</span><span class="kpi-value" id="mlPrec">—</span><span class="kpi-sub">VP / (VP+FP)</span></div>
       <div class="kpi-card"><span class="kpi-label">Recall (sensib.)</span><span class="kpi-value" id="mlRec">—</span><span class="kpi-sub">VP / (VP+FN)</span></div>
@@ -785,8 +790,9 @@
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Coeficientes aprendidos pelo modelo (peso padronizado de cada feature)</h3>
-        <p class="chart-src">Valores reais resultantes do treino. Quanto maior o |peso|, maior a influência da variável na previsão. Glicose tende a dominar — coerente com a fisiopatologia do diabetes.</p>
+        <p class="chart-src">Valores reais resultantes do treino. Quanto maior o |peso|, maior a influência da variável na previsão. Glicose tende a dominar — coerente com a fisiopatologia do diabetes. Passe o mouse para ver a razão de chances (OR).</p>
         <div style="position:relative;height:280px"><canvas id="chartCoef" role="img" aria-label="Coeficientes aprendidos pela regressão logística"></canvas></div>
+        <div id="coefOdds" class="chart-insight" style="margin-top:10px"></div>
       </div>
     </div>
 
@@ -801,6 +807,13 @@
         <h3>Curva ROC — <span id="rocAuc">AUC</span></h3>
         <p class="chart-src">Trade-off entre sensibilidade e 1−especificidade (varredura de limiares no teste)</p>
         <div style="position:relative;height:300px"><canvas id="chartROC" role="img" aria-label="Curva ROC do modelo treinado"></canvas></div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <h3>Curva Precisão–Revocação — <span id="prAp">AP</span></h3>
+        <p class="chart-src">Complementa a ROC em cenário de <strong>prevalência baixa</strong>: foca o desempenho sobre a classe positiva (diabéticos), onde a ROC pode ser otimista. A linha tracejada é a <strong>linha de base</strong> (prevalência de positivos no teste) — equivale a um classificador aleatório; a curva precisa ficar acima dela.</p>
+        <div style="position:relative;height:300px"><canvas id="chartPR" role="img" aria-label="Curva Precisão-Revocação do modelo treinado"></canvas></div>
       </div>
     </div>
 
@@ -896,7 +909,7 @@
       <div class="chart-card">
         <h3>Objetivos específicos</h3>
         <ol style="margin:8px 0 0 18px;line-height:1.8;font-size:14px">
-          <li><strong>Caracterizar</strong> a evolução temporal da prevalência e da mortalidade por diabetes (2006–2023).</li>
+          <li><strong>Caracterizar</strong> a evolução temporal da prevalência e da mortalidade por diabetes (2006–2024).</li>
           <li><strong>Analisar</strong> a distribuição geográfica e por subgrupos (sexo, escolaridade e faixa etária).</li>
           <li><strong>Quantificar</strong> a associação entre fatores de risco e diabetes por inferência estatística (correlação com intervalo de confiança e p-valor).</li>
           <li><strong>Desenvolver e avaliar</strong> um classificador de risco por regressão logística, reportando métricas de desempenho no conjunto de teste.</li>
@@ -912,7 +925,7 @@
         <thead><tr><th style="width:30%">Hipótese</th><th>Como foi testada</th><th>Resultado</th><th>Status</th></tr></thead>
         <tbody>
           <tr>
-            <td><strong>H1.</strong> A prevalência de diabetes cresceu de forma significativa entre 2006–2023.</td>
+            <td><strong>H1.</strong> A prevalência de diabetes cresceu de forma significativa entre 2006–2024.</td>
             <td>Regressão linear (OLS) da prevalência Vigitel sobre o ano + teste t do coeficiente.</td>
             <td id="h1Stat">—</td>
             <td><span class="hyp-badge" id="h1Badge">—</span></td>
@@ -949,7 +962,7 @@
     <!-- PRINCIPAIS ACHADOS -->
     <h3 style="font-family:'Plus Jakarta Sans';font-size:18px;margin:0 0 12px">Principais achados</h3>
     <div class="kpi-grid">
-      <div class="kpi-card"><span class="kpi-label">Crescimento da prevalência</span><span class="kpi-value">5,3% → 10,2%</span><span class="kpi-sub">Vigitel 2006 → 2023 (quase 2×)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Crescimento da prevalência</span><span class="kpi-value">5,5% → 12,9%</span><span class="kpi-sub">Vigitel 2006 → 2024 (2,3×)</span></div>
       <div class="kpi-card"><span class="kpi-label">Excesso de peso × Diabetes</span><span class="kpi-value" id="achadoR">—</span><span class="kpi-sub">correlação de Pearson</span></div>
       <div class="kpi-card"><span class="kpi-label">Desigualdade social</span><span class="kpi-value">~3×</span><span class="kpi-sub">menor vs maior escolaridade</span></div>
       <div class="kpi-card"><span class="kpi-label">Carga absoluta</span><span class="kpi-value">16,8 mi</span><span class="kpi-sub">6º país do mundo (IDF)</span></div>
@@ -962,7 +975,7 @@
       <div class="chart-card wide">
         <h3>Conclusões</h3>
         <div style="line-height:1.75;font-size:14.5px;margin-top:8px">
-          <p>A análise dos dados públicos evidencia, com sustentação estatística, que o diabetes mellitus configura um problema de saúde pública <strong>crescente, socialmente desigual e economicamente oneroso</strong> no Brasil. A prevalência autorreferida elevou-se de forma estatisticamente significativa entre 2006 e 2023 (H1: tendência linear positiva, p&lt;0,001), em trajetória fortemente correlacionada à da obesidade (H2: r&nbsp;≈&nbsp;0,97, p&lt;0,001). O agravo concentra-se em estratos de maior idade, menor escolaridade e nas unidades federativas mais urbanizadas, o que reforça o papel dos <strong>determinantes sociais da saúde</strong>.</p>
+          <p>A análise dos dados públicos evidencia, com sustentação estatística, que o diabetes mellitus configura um problema de saúde pública <strong>crescente, socialmente desigual e economicamente oneroso</strong> no Brasil. A prevalência autorreferida elevou-se de forma estatisticamente significativa entre 2006 e 2024 (H1: tendência linear positiva, p&lt;0,001), em trajetória fortemente correlacionada à da obesidade (H2: r&nbsp;≈&nbsp;0,93, p&lt;0,001). O agravo concentra-se em estratos de maior idade, menor escolaridade e nas unidades federativas mais urbanizadas, o que reforça o papel dos <strong>determinantes sociais da saúde</strong>.</p>
           <p style="margin-top:10px">No plano da modelagem preditiva, a prova de conceito demonstra ser viável <strong>classificar o risco de diabetes com poder discriminativo adequado</strong> a partir de variáveis clínicas (H4: AUC no conjunto de teste), tendo a glicemia e o índice de massa corporal como preditores de maior peso (H5) — resultado coerente com a fisiopatologia da doença. Tais achados respaldam o potencial de instrumentos de triagem orientados por dados na atenção primária à saúde.</p>
           <p style="margin-top:10px">Quanto à correlação ecológica entre prevalência e mortalidade estaduais (H3), embora significativa, foi classificada apenas como <strong>parcialmente sustentada</strong>, dado que associações em nível agregado não autorizam inferências sobre indivíduos. Conclui-se, em resposta à pergunta de pesquisa, que os dados abertos brasileiros são <strong>adequados para caracterizar e monitorar</strong> o diabetes e para <strong>fundamentar modelos preditivos</strong>, desde que submetidos a tratamento estatístico rigoroso e à explicitação transparente de suas limitações.</p>
         </div>
@@ -978,13 +991,14 @@
           <li>Vigitel cobre apenas capitais; o mapa usa o valor da capital para a UF inteira.</li>
           <li>Correlações estaduais são dados agregados — sujeitas à <strong>falácia ecológica</strong>.</li>
           <li>A projeção OLS ignora autocorrelação temporal (IC otimista).</li>
-          <li>O modelo foi treinado no Pima (benchmark internacional), não em dado brasileiro.</li>
+          <li>O modelo didático foi treinado no Pima (benchmark internacional), não em dado brasileiro — a validação nacional usa os microdados da PNS 2019 (logo acima).</li>
+          <li>Sob prevalência baixa, a alta sensibilidade do classificador tem como custo muitos falsos positivos (precisão apenas moderada) — explicitado pela <strong>curva Precisão–Revocação</strong> e pelo AP na aba de Modelagem.</li>
           <li>Amputações de MMII (SIH) são de todas as causas — o cubo de procedimentos não cruza com o diagnóstico de diabetes.</li>
         </ul>
       </div>
       <div class="chart-card">
         <h3>Trabalhos futuros</h3>
-        <p style="font-size:12.5px;color:var(--ink-3);margin:6px 0 4px"><b>Já implementado:</b> modelo PNS 2019 (Logística/RF/XGBoost com ROC, matriz de confusão e coeficientes), validação cruzada k=5, SARIMA, padronização por idade, recorte por raça/cor, ETL via TabNet e repositório versionado.</p>
+        <p style="font-size:12.5px;color:var(--ink-3);margin:6px 0 4px"><b>Já implementado:</b> modelo PNS 2019 (Logística/RF/XGBoost com ROC, matriz de confusão e coeficientes), validação cruzada k=5, curva Precisão–Revocação (AP) e razão de chances (OR), SARIMA, padronização por idade, recorte por raça/cor, ETL via TabNet e repositório versionado.</p>
         <ul style="margin:8px 0 0 18px;line-height:1.75;font-size:13.5px">
           <li>Análise <strong>espacial</strong> (I de Moran, autocorrelação) e granularidade municipal.</li>
           <li>Padronização por idade também por <strong>UF e por sexo</strong> (feita por região).</li>

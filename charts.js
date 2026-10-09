@@ -1766,6 +1766,30 @@ function renderROC() {
   }));
 }
 
+// Curva Precisão–Revocação (PR) — complementa a ROC em prevalência baixa
+function renderPRCurve() {
+  const id = 'chartPR'; destroyChart(id);
+  if (!ML.trained) ML.train();
+  if (!ML.pr) return;
+  const pr = ML.pr.map(p => ({ x: p[0], y: p[1] }));         // x=recall, y=precisão
+  const base = ML.prBaseline;
+  setText('prAp', 'AP = ' + ML.metrics.ap.toFixed(3).replace('.', ','));
+  saveChart(id, new Chart(document.getElementById(id), {
+    type: 'line',
+    data: { datasets: [
+      { label: 'Precisão–Revocação', data: pr, borderColor: PALETTE.green, backgroundColor: 'rgba(0,158,115,.12)', fill: true, tension: .2, borderWidth: 2.5, pointRadius: 2 },
+      { label: `Linha de base (${(base*100).toFixed(0)}%)`, data: [{ x: 0, y: base }, { x: 1, y: base }], borderColor: PALETTE.gray, borderDash: [5, 4], borderWidth: 1.5, pointRadius: 0, fill: false },
+    ]},
+    options: { ...baseOpts({ display: true }),
+      scales: {
+        x: { type: 'linear', min: 0, max: 1, grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } }, title: { display: true, text: 'Revocação / Sensibilidade (TPR)', color: TICK_COLOR, font: { size: 11 } } },
+        y: { min: 0, max: 1, grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } }, title: { display: true, text: 'Precisão (VP / VP+FP)', color: TICK_COLOR, font: { size: 11 } } },
+      },
+      plugins: { ...baseOpts().plugins, tooltip: { callbacks: { label: ctx => `Revocação ${ctx.raw.x.toFixed(2)} · Precisão ${ctx.raw.y.toFixed(2)}` } } }
+    },
+  }));
+}
+
 // KPIs + coeficientes do modelo treinado
 function renderMlMetrics() {
   if (!ML.trained) ML.train();
@@ -1777,10 +1801,12 @@ function renderMlMetrics() {
   setText('mlRec', pct(m.rec));
   setText('mlF1', m.f1.toFixed(3).replace('.', ','));
   setText('mlSpec', pct(m.spec));
+  if (m.ap != null) setText('mlAp', m.ap.toFixed(3).replace('.', ','));
 
-  // gráfico de coeficientes aprendidos
+  // gráfico de coeficientes aprendidos — com razão de chances (OR = e^coef)
   const id = 'chartCoef'; destroyChart(id);
-  const pairs = ML.featNames.map((n,j)=>({ n, w: ML.weights[j] })).sort((a,b)=> Math.abs(b.w)-Math.abs(a.w));
+  const pairs = ML.featNames.map((n,j)=>({ n, w: ML.weights[j], or: Math.exp(ML.weights[j]) }))
+    .sort((a,b)=> Math.abs(b.w)-Math.abs(a.w));
   saveChart(id, new Chart(document.getElementById(id), {
     type:'bar', indexAxis:'y',
     data:{ labels: pairs.map(p=>p.n), datasets:[
@@ -1792,9 +1818,25 @@ function renderMlMetrics() {
         y:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}} },
         x:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'coeficiente (log-odds, padronizado)', color:TICK_COLOR, font:{size:11}} },
       },
-      plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{ label: ctx=> 'peso = '+ctx.raw } } }
+      plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{
+        label: ctx => 'peso (log-odds) = ' + ctx.raw.toString().replace('.', ','),
+        afterLabel: ctx => { const p = pairs[ctx.dataIndex];
+          return 'OR = ' + p.or.toFixed(2).replace('.', ',') + '× por +1 desvio-padrão'; }
+      } } }
     },
   }));
+
+  // Razão de chances (odds ratio) dos 3 preditores dominantes, em texto claro
+  const el = document.getElementById('coefOdds');
+  if (el) {
+    const top = pairs.slice(0, 3).map(p => {
+      const dir = p.or >= 1 ? 'multiplica' : 'reduz';
+      const fat = p.or >= 1 ? p.or : 1 / p.or;
+      return `<b>${p.n}</b>: OR ${p.or.toFixed(2).replace('.', ',')}× — cada aumento de 1 desvio-padrão ${dir} a chance de diabetes por ${fat.toFixed(2).replace('.', ',')}×`;
+    }).join(' · ');
+    el.innerHTML = `<b>Razão de chances (OR = e<sup>coef</sup>):</b> ${top}. ` +
+      `<span style="color:var(--ink-3)">OR &gt; 1 = fator de risco; OR &lt; 1 = protetor. Como as variáveis estão padronizadas, o OR é por <em>+1 desvio-padrão</em> da variável.</span>`;
+  }
 }
 
 function renderConfMatrix() {
@@ -1949,6 +1991,7 @@ const TAB_RENDERERS = {
     renderSarima();
     renderConfMatrix();
     renderROC();
+    renderPRCurve();
     computeRisk();
   },
 };
