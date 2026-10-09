@@ -36,7 +36,8 @@
   </div>
 </header>
 
-<nav class="tab-nav" role="navigation" aria-label="Seções do dashboard">
+<div class="tab-nav-wrap" id="tabNavWrap">
+<nav class="tab-nav" id="tabNav" role="navigation" aria-label="Seções do dashboard">
   <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Visão Geral</button>
   <button class="tab-btn" data-tab="prevalence" onclick="switchTab('prevalence')">Prevalência</button>
   <button class="tab-btn" data-tab="mortality" onclick="switchTab('mortality')">Mortalidade</button>
@@ -49,10 +50,11 @@
   <button class="tab-btn" data-tab="ml" onclick="switchTab('ml')">Modelagem Preditiva (ML)</button>
   <button class="tab-btn" data-tab="sintese" onclick="switchTab('sintese')">Síntese &amp; Conclusões</button>
 </nav>
+</div>
 
 <div class="filters-bar">
   <label id="f-year">Período (até o ano): <select id="filter-year" onchange="applyFilters()">
-    <option value="all">Série completa (até 2023)</option>
+    <option value="all">Série completa (até 2024)</option>
     <option value="2022">2022</option>
     <option value="2021">2021</option>
     <option value="2020">2020</option>
@@ -138,7 +140,7 @@
           <span><span class="leg-dot" style="background:#009E73"></span> Masculino (%)</span>
           <span><span class="leg-dot" style="background:rgba(0,114,178,.2)"></span> IC 95% (aprox.)</span>
         </div>
-        <div style="position:relative;height:280px"><canvas id="chartOverviewTrend" role="img" aria-label="Evolução da prevalência de diabetes no Brasil de 2006 a 2023 com intervalo de confiança aproximado"></canvas></div>
+        <div style="position:relative;height:280px"><canvas id="chartOverviewTrend" role="img" aria-label="Evolução da prevalência de diabetes no Brasil de 2006 a 2024 com intervalo de confiança aproximado"></canvas></div>
         <div class="chart-note"><i>Sobre o IC:</i> banda calculada por erro-padrão binomial com n efetivo estimado (~25.000, após efeito de desenho). É uma <strong>aproximação</strong> — os IC oficiais do Vigitel constam nos relatórios do Ministério da Saúde e seriam usados na versão final. (Aparece com o filtro de sexo em "Ambos".)</div>
       </div>
     </div>
@@ -220,9 +222,9 @@
         <div class="chart-insight"><b>Leitura:</b> mulheres têm prevalência referida um pouco maior — em parte por maior procura por diagnóstico (viés de detecção).</div>
       </div>
       <div class="chart-card">
-        <h3>Tendência temporal por sexo (2006–2023)</h3>
-        <p class="chart-src">Fonte: Vigitel 2006–2023</p>
-        <div style="position:relative;height:260px"><canvas id="chartSexTrend" role="img" aria-label="Tendência de prevalência por sexo de 2006 a 2023"></canvas></div>
+        <h3>Tendência temporal por sexo (2006–2024)</h3>
+        <p class="chart-src">Fonte: Vigitel 2006–2024</p>
+        <div style="position:relative;height:260px"><canvas id="chartSexTrend" role="img" aria-label="Tendência de prevalência por sexo de 2006 a 2024"></canvas></div>
         <div class="chart-insight"><b>Leitura:</b> ambos os sexos sobem de forma sustentada desde 2006 — tendência estrutural, não flutuação pontual.</div>
       </div>
     </div>
@@ -343,7 +345,7 @@
   <section id="tab-riskfactors" class="tab-section">
     <div class="section-header">
       <h2>Fatores de Risco para Diabetes</h2>
-      <p>Obesidade, sedentarismo, alimentação, tabagismo — Vigitel 2023 e PNS 2019</p>
+      <p>Obesidade, sedentarismo, alimentação, tabagismo — Vigitel 2024 e PNS 2019</p>
     </div>
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">Obesidade (IMC≥30)</span><span class="kpi-value">25,7%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span><span class="kpi-trend up">↑ 118% desde 2006</span></div>
@@ -558,7 +560,7 @@
       <div class="stat-hero">
         <span class="stat-hero-label">r — Excesso de peso × Diabetes</span>
         <span class="stat-hero-value" id="kpiCorrObDi">—</span>
-        <span class="stat-hero-sub">Pearson · Vigitel 2006–2023</span>
+        <span class="stat-hero-sub">Pearson · Vigitel 2006–2024</span>
         <div class="stat-hero-viz"><canvas id="miniCorrObDi" role="img" aria-label="Mini dispersão obesidade e diabetes"></canvas></div>
       </div>
       <div class="stat-hero">
@@ -576,7 +578,7 @@
       <div class="stat-hero">
         <span class="stat-hero-label">CAGR prevalência</span>
         <span class="stat-hero-value" id="kpiCagr">—</span>
-        <span class="stat-hero-sub">crescimento anual 2006–2023</span>
+        <span class="stat-hero-sub">crescimento anual 2006–2024</span>
         <div class="stat-hero-viz"><canvas id="miniCagr" role="img" aria-label="Mini série temporal da prevalência"></canvas></div>
       </div>
       <div class="stat-hero">
@@ -898,7 +900,7 @@
       <div class="chart-card">
         <h3>Objetivos específicos</h3>
         <ol style="margin:8px 0 0 18px;line-height:1.8;font-size:14px">
-          <li><strong>Caracterizar</strong> a evolução temporal da prevalência e da mortalidade por diabetes (2006–2023).</li>
+          <li><strong>Caracterizar</strong> a evolução temporal da prevalência e da mortalidade por diabetes (2006–2024).</li>
           <li><strong>Analisar</strong> a distribuição geográfica e por subgrupos (sexo, escolaridade e faixa etária).</li>
           <li><strong>Quantificar</strong> a associação entre fatores de risco e diabetes por inferência estatística (correlação com intervalo de confiança e p-valor).</li>
           <li><strong>Desenvolver e avaliar</strong> um classificador de risco por regressão logística, reportando métricas de desempenho no conjunto de teste.</li>
@@ -914,7 +916,7 @@
         <thead><tr><th style="width:30%">Hipótese</th><th>Como foi testada</th><th>Resultado</th><th>Status</th></tr></thead>
         <tbody>
           <tr>
-            <td><strong>H1.</strong> A prevalência de diabetes cresceu de forma significativa entre 2006–2023.</td>
+            <td><strong>H1.</strong> A prevalência de diabetes cresceu de forma significativa entre 2006–2024.</td>
             <td>Regressão linear (OLS) da prevalência Vigitel sobre o ano + teste t do coeficiente.</td>
             <td id="h1Stat">—</td>
             <td><span class="hyp-badge" id="h1Badge">—</span></td>
