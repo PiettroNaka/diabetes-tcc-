@@ -171,10 +171,12 @@ const DATA = {
     milhoes:[536.6, 642.7, 783.2],
   },
 
+  // DADO REAL (IDF Diabetes Atlas, 10ª ed. 2021) — adultos 20–79 com diabetes, por país.
+  // Ordenado decrescente: o Brasil é o 6º do mundo (atrás de China, Índia, Paquistão, EUA e Indonésia).
   idfTopPaises: {
-    paises: ['China','Índia','EUA','Paquistão','Brasil','México','Indonésia','Egito','Bangladesh','Japão'],
-    milhoes:[140.9, 74.2,  32.2, 33.0,       16.8,   14.1,   19.5,     10.9,   13.1,      11.0],
-    cores:  Array(10).fill('#0072B2').map((c,i)=> i===4?'#D55E00':c),
+    paises: ['China','Índia','Paquistão','EUA','Indonésia','Brasil','México','Bangladesh','Japão','Egito'],
+    milhoes:[140.9,  74.2,  33.0,        32.2, 19.5,        16.8,    14.1,    13.1,        11.0,   10.9],
+    cores:  Array(10).fill('#0072B2').map((c,i)=> i===5?'#D55E00':c),
   },
 
   // ── PREVALÊNCIA POR ESTADO (Vigitel 2023) ────────────────────────────────

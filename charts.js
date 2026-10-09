@@ -1056,7 +1056,7 @@ function kpiSparkConfig() {
       { kind:'line', data:M.obitos, color:C.red },
       { kind:'line', data:I.total, color:C.blue },
       { kind:'line', data:I.custototal, color:C.amber },
-      { kind:'bar',  data:[140.9,74.2,33,32.2,16.8], colors:['#cbd5e1','#cbd5e1','#cbd5e1','#cbd5e1',C.red] },
+      { kind:'bar',  data:[140.9,74.2,33,32.2,19.5,16.8], colors:['#cbd5e1','#cbd5e1','#cbd5e1','#cbd5e1','#cbd5e1',C.red] },
     ],
     prevalence: [
       { kind:'meter', value:8.1, max:12, color:C.teal },
