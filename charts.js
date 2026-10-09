@@ -497,6 +497,56 @@ function renderMortalityComparison() {
   }));
 }
 
+// Taxa BRUTA vs PADRONIZADA POR IDADE (método direto) — por região
+function renderStandardizedRates() {
+  const id = 'chartStandardized'; destroyChart(id);
+  const d = DATA.mortalidadePadronizada; if (!document.getElementById(id)) return;
+  saveChart(id, new Chart(document.getElementById(id), {
+    type: 'bar',
+    data: { labels: d.labels, datasets: [
+      { label: 'Taxa bruta', data: d.bruta, backgroundColor: '#94a3b8cc', borderRadius: 3 },
+      { label: 'Padronizada por idade', data: d.padronizada, backgroundColor: PALETTE.red + 'cc', borderRadius: 3 },
+    ]},
+    options: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }),
+      scales: { ...baseOpts().scales,
+        y: { ...baseOpts().scales.y, title: { display: true, text: 'Óbitos / 100k hab', color: TICK_COLOR, font: { size: 11 } } } },
+      plugins: { ...baseOpts().plugins, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}/100k` } } }
+    },
+  }));
+}
+
+// Óbitos por diabetes segundo raça/cor (composição)
+function renderMortalityRace() {
+  const id = 'chartMortalityRace'; destroyChart(id);
+  const d = DATA.mortalidadeRaca; if (!document.getElementById(id)) return;
+  const tot = d.obitos.reduce((a, b) => a + b, 0);
+  saveChart(id, new Chart(document.getElementById(id), {
+    type: 'bar', indexAxis: 'y',
+    data: { labels: d.labels, datasets: [{ label: 'Óbitos', data: d.obitos, backgroundColor: d.cores.map(c => c + 'cc'), borderRadius: 3 }] },
+    options: { ...baseOpts(),
+      scales: { y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } } },
+        x: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 10 } }, title: { display: true, text: 'Nº de óbitos (2025)', color: TICK_COLOR, font: { size: 11 } } } },
+      plugins: { ...baseOpts().plugins, tooltip: { callbacks: { label: ctx => `${ctx.raw.toLocaleString('pt-BR')} (${(100 * ctx.raw / tot).toFixed(1)}%)` } } }
+    },
+  }));
+}
+
+// Prevalência de DM autorreferido por raça/cor — PNS 2019 (ponderada)
+function renderPnsRaca() {
+  const id = 'chartPnsRaca'; destroyChart(id);
+  const d = DATA.pnsRaca; if (!document.getElementById(id)) return;
+  saveChart(id, new Chart(document.getElementById(id), {
+    type: 'bar',
+    data: { labels: d.labels, datasets: [{ label: 'Prevalência (%)', data: d.prev,
+      backgroundColor: d.labels.map(l => l === 'Amarela' ? PALETTE.red + 'cc' : PALETTE.blue + 'cc'), borderRadius: 3 }] },
+    options: { ...baseOpts({ display: false }),
+      scales: { ...baseOpts().scales,
+        y: { ...baseOpts().scales.y, title: { display: true, text: 'Prevalência (%)', color: TICK_COLOR, font: { size: 11 } }, min: 0 } },
+      plugins: { ...baseOpts().plugins, tooltip: { callbacks: { label: (ctx, i) => `${ctx.raw}%  (n=${DATA.pnsRaca.n[ctx.dataIndex].toLocaleString('pt-BR')})` } } }
+    },
+  }));
+}
+
 // ─────────────────────────────────────────────────────────────
 // INTERNAÇÕES
 // ─────────────────────────────────────────────────────────────
@@ -1395,11 +1445,38 @@ function buildPnsComparison(d) {
     const m = d.modelos[n];
     return `<tr><td style="text-align:left">${n}</td><td>${m.auc_cv_media} ± ${m.auc_cv_dp}</td><td>${m.auc_teste}</td><td>${m.f1_teste}</td></tr>`;
   }).join('');
+  // matriz de confusão (modelo principal) + métricas derivadas
+  const cm = d.matriz_confusao, hasCM = !!cm;
+  const sens = hasCM ? cm.tp / (cm.tp + cm.fn) : 0;
+  const spec = hasCM ? cm.tn / (cm.tn + cm.fp) : 0;
+  const prec = hasCM ? cm.tp / (cm.tp + cm.fp) : 0;
+  const pct = x => (100 * x).toFixed(0) + '%';
+  const cmBlock = hasCM ? `
+      <div class="chart-card">
+        <h3>Matriz de confusão — ${d.modelo_principal} (teste, n=${Number(d.n_teste).toLocaleString('pt-BR')})</h3>
+        <p class="chart-src">Limiar 0,5 · classes balanceadas (class_weight)</p>
+        <table class="data-table" style="margin-top:6px">
+          <thead><tr><th></th><th>Previsto: não-DM</th><th>Previsto: DM</th></tr></thead>
+          <tbody>
+            <tr><td style="text-align:left"><b>Real: não-DM</b></td><td style="background:rgba(0,158,115,.18)">${cm.tn} (VN)</td><td style="background:rgba(213,94,0,.12)">${cm.fp} (FP)</td></tr>
+            <tr><td style="text-align:left"><b>Real: DM</b></td><td style="background:rgba(213,94,0,.12)">${cm.fn} (FN)</td><td style="background:rgba(0,158,115,.18)">${cm.tp} (VP)</td></tr>
+          </tbody>
+        </table>
+        <div class="chart-insight" style="margin-top:8px"><b>Sensibilidade</b> ${pct(sens)} (capta ${pct(sens)} dos diabéticos) · <b>Especificidade</b> ${pct(spec)} · <b>Precisão</b> ${pct(prec)}. Como triagem, o modelo prioriza <em>não deixar passar</em> casos (recall alto) ao custo de muitos falsos positivos — comportamento esperado numa doença de baixa prevalência.</div>
+      </div>` : '';
+  const coefBlock = d.coef_odds_por_dp ? `
+      <div class="chart-card">
+        <h3>Razão de chances por preditor — ${d.modelo_principal}</h3>
+        <p class="chart-src">OR por +1 desvio-padrão (coeficientes padronizados) · PNS 2019</p>
+        <div style="position:relative;height:280px"><canvas id="chartPnsCoef" role="img" aria-label="Razão de chances por variável no modelo PNS"></canvas></div>
+        <div class="chart-insight"><b>Leitura:</b> a <b>idade</b> é o fator dominante (OR ≈ ${d.coef_odds_por_dp.idade} por desvio-padrão), seguida de hipertensão e IMC — coerente com a fisiopatologia do DM2.</div>
+      </div>` : '';
   host.innerHTML = `
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">Amostra (n)</span><span class="kpi-value">${Number(d.n_amostra).toLocaleString('pt-BR')}</span><span class="kpi-sub">${d.fonte}</span></div>
       <div class="kpi-card"><span class="kpi-label">Prevalência amostral</span><span class="kpi-value">${d.prevalencia_amostral_pct}%</span><span class="kpi-sub">DM autorreferido</span></div>
       <div class="kpi-card"><span class="kpi-label">Melhor AUC (teste)</span><span class="kpi-value">${melhor.toFixed(3).replace('.', ',')}</span><span class="kpi-sub">entre os 3 modelos</span></div>
+      ${hasCM ? `<div class="kpi-card"><span class="kpi-label">Sensibilidade</span><span class="kpi-value">${pct(sens)}</span><span class="kpi-sub">${d.modelo_principal}</span></div>` : ''}
     </div>
     <div class="charts-row">
       <div class="chart-card">
@@ -1408,15 +1485,24 @@ function buildPnsComparison(d) {
         <div style="position:relative;height:280px"><canvas id="chartPnsAuc" role="img" aria-label="AUC por modelo na PNS"></canvas></div>
       </div>
       <div class="chart-card">
+        <h3>Curva ROC — 3 modelos (conjunto de teste)</h3>
+        <p class="chart-src">TPR × FPR · PNS 2019 — população brasileira</p>
+        <div style="position:relative;height:280px"><canvas id="chartPnsRoc" role="img" aria-label="Curvas ROC dos modelos na PNS"></canvas></div>
+      </div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
         <h3>Importância das variáveis (Random Forest)</h3>
         <p class="chart-src">PNS 2019 — população brasileira</p>
         <div style="position:relative;height:280px"><canvas id="chartPnsImp" role="img" aria-label="Importância das variáveis na PNS"></canvas></div>
       </div>
+      ${coefBlock}
     </div>
+    <div class="charts-row">${cmBlock}</div>
     <div class="table-section">
       <h3>Métricas comparativas</h3>
       <table class="data-table"><thead><tr><th>Modelo</th><th>AUC (CV: média ± dp)</th><th>AUC (teste)</th><th>F1 (teste)</th></tr></thead><tbody>${rows}</tbody></table>
-      <p style="font-size:11px;color:var(--ink-3);margin-top:8px">Números reais gerados por <code>notebooks/modelagem_pns.ipynb</code> sobre os microdados da PNS 2019 (IBGE/Fiocruz).</p>
+      <p style="font-size:11px;color:var(--ink-3);margin-top:8px">Números reais gerados por <code>notebooks/rodar_pns.py</code> sobre os microdados da PNS 2019 (IBGE/Fiocruz) — split estratificado 70/30, seed fixa, validação cruzada k=5.</p>
     </div>`;
 
   destroyChart('chartPnsAuc');
@@ -1441,6 +1527,45 @@ function buildPnsComparison(d) {
       y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } } },
       x: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 10 } }, title: { display: true, text: 'importância (RF)', color: TICK_COLOR, font: { size: 10 } } } } }
   }));
+
+  // ROC dos 3 modelos (conjunto de teste)
+  if (d.roc && d.roc_grid && document.getElementById('chartPnsRoc')) {
+    const cores = { 'Regressão Logística': PALETTE.blue, 'Random Forest': PALETTE.green, 'XGBoost': PALETTE.amber };
+    const dsets = Object.keys(d.roc).map(n => ({
+      label: `${n} (AUC ${d.modelos[n].auc_teste})`,
+      data: d.roc_grid.map((x, i) => ({ x, y: d.roc[n][i] })),
+      borderColor: cores[n] || PALETTE.purple, backgroundColor: 'transparent',
+      borderWidth: 2, pointRadius: 0, tension: .2,
+    }));
+    dsets.push({ label: 'Aleatório', data: [{ x: 0, y: 0 }, { x: 1, y: 1 }], borderColor: '#9aa3af', borderDash: [5, 4], borderWidth: 1, pointRadius: 0 });
+    destroyChart('chartPnsRoc');
+    saveChart('chartPnsRoc', new Chart(document.getElementById('chartPnsRoc'), {
+      type: 'line',
+      data: { datasets: dsets },
+      options: { ...baseOpts({ display: true, position: 'bottom', labels: { font: { size: 9 }, color: TICK_COLOR, boxWidth: 12 } }),
+        parsing: false,
+        scales: {
+          x: { type: 'linear', min: 0, max: 1, grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 10 } }, title: { display: true, text: '1 − Especificidade (FPR)', color: TICK_COLOR, font: { size: 10 } } },
+          y: { min: 0, max: 1, grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 10 } }, title: { display: true, text: 'Sensibilidade (TPR)', color: TICK_COLOR, font: { size: 10 } } },
+        } }
+    }));
+  }
+
+  // Coeficientes (razão de chances por desvio-padrão) — modelo principal
+  if (d.coef_odds_por_dp && document.getElementById('chartPnsCoef')) {
+    const ck = Object.keys(d.coef_odds_por_dp).sort((a, b) => d.coef_odds_por_dp[b] - d.coef_odds_por_dp[a]);
+    const nomeVar = { idade: 'Idade', hipertensao: 'Hipertensão', imc: 'IMC', sexo_fem: 'Sexo feminino' };
+    destroyChart('chartPnsCoef');
+    saveChart('chartPnsCoef', new Chart(document.getElementById('chartPnsCoef'), {
+      type: 'bar', indexAxis: 'y',
+      data: { labels: ck.map(k => nomeVar[k] || k), datasets: [{ label: 'OR por +1 DP', data: ck.map(k => d.coef_odds_por_dp[k]),
+        backgroundColor: ck.map(k => d.coef_odds_por_dp[k] >= 1 ? PALETTE.red + 'cc' : PALETTE.blue + 'cc'), borderRadius: 3 }] },
+      options: { ...baseOpts(), scales: {
+        y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } } },
+        x: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 10 } }, title: { display: true, text: 'razão de chances (OR) — ref. 1,0', color: TICK_COLOR, font: { size: 10 } } } },
+        plugins: { ...baseOpts().plugins, tooltip: { callbacks: { label: ctx => `OR ${ctx.raw} por +1 desvio-padrão` } } } }
+    }));
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1766,7 +1891,9 @@ const TAB_RENDERERS = {
     renderMortalityTrend();
     renderMortalityAge();
     renderMortalityRegion();
+    renderStandardizedRates();
     renderMortalityCid();
+    renderMortalityRace();
     renderMortalityComparison();
   },
   hospitalization: () => {
@@ -1814,6 +1941,7 @@ const TAB_RENDERERS = {
     renderMlMetrics();
     renderEcological();
     renderPnsComparison();
+    renderPnsRaca();
     renderForecastCI();
     renderDecompMain();
     renderDecompSeasonal();

@@ -278,6 +278,20 @@
         <div class="chart-insight"><b>Leitura:</b> o diabetes está entre as principais causas de morte no país — acima de DPOC e câncer de pulmão — e ainda subestima, pois costuma entrar como causa associada, não básica.</div>
       </div>
     </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3>Taxa bruta × padronizada por idade — por região (2025)</h3>
+        <p class="chart-src">Padronização direta (método direto) · óbitos SIM 2025 ÷ pop. IBGE/SVS 2024, por faixa etária · padrão = Brasil</p>
+        <div style="position:relative;height:280px"><canvas id="chartStandardized" role="img" aria-label="Taxa de mortalidade bruta versus padronizada por idade, por região"></canvas></div>
+        <div class="chart-insight"><b>Leitura (ponto técnico):</b> a padronização <strong>remove o efeito da estrutura etária</strong>. O <strong>Norte</strong> tem a <em>menor</em> taxa bruta (população jovem), mas a <em>maior</em> padronizada — ou seja, <strong>em cada idade morre-se mais de diabetes no Norte</strong> (pior acesso/controle). A comparação bruta esconde essa desigualdade; a padronizada a revela.</div>
+      </div>
+      <div class="chart-card">
+        <h3>Óbitos por diabetes segundo raça/cor (2025)</h3>
+        <p class="chart-src">Fonte: SIM/DATASUS 2025 (variável Cor/raça). Composição — não é taxa.</p>
+        <div style="position:relative;height:280px"><canvas id="chartMortalityRace" role="img" aria-label="Óbitos por diabetes segundo raça ou cor"></canvas></div>
+        <div class="chart-insight"><b>Leitura:</b> a composição por raça/cor reflete o tamanho e a idade de cada grupo — por isso <strong>não deve ser lida como risco</strong>. Para risco comparável, veja a <em>prevalência por raça/cor da PNS</em> (aba Modelagem).</div>
+      </div>
+    </div>
   </section>
 
   <!-- ===== TAB: INTERNAÇÕES ===== -->
@@ -439,6 +453,22 @@
     </div>
     <div class="info-banner">
       <strong>Por que a PNS importa:</strong> diferente do Vigitel (telefônico, apenas capitais), a PNS é <strong>domiciliar e nacionalmente representativa</strong> — inclui interior e zona rural. É a melhor estimativa real da prevalência no país. Realizada pelo IBGE em parceria com a Fiocruz/Ministério da Saúde em 2013 e 2019 (próxima edição prevista).
+    </div>
+
+    <div class="table-section">
+      <h3>Afinal, quantos diabéticos há no Brasil? — reconciliando as fontes</h3>
+      <p style="font-size:13px;color:var(--ink-2);margin:4px 0 10px">Os números divergem na mídia (de ~12 mi a ~20 mi) porque <strong>medem coisas diferentes</strong>. Não há contradição — há definições, universos e métodos distintos:</p>
+      <table class="data-table">
+        <thead><tr><th>Fonte</th><th>Número</th><th>O que mede</th><th>Universo / método</th></tr></thead>
+        <tbody>
+          <tr><td style="text-align:left">Vigitel 2024</td><td><b>12,9%</b> dos adultos</td><td>DM diagnosticado, autorreferido</td><td>Capitais + DF · telefônico · 18+</td></tr>
+          <tr><td style="text-align:left">PNS 2019</td><td><b>7,7%</b> (~12 mi)</td><td>DM diagnosticado, autorreferido</td><td>Nacional (incl. rural) · domiciliar · 18+</td></tr>
+          <tr><td style="text-align:left">PNS 2019 + HbA1c</td><td><b>~10,2%</b></td><td>DM diagnosticado <em>+ não diagnosticado</em> (laboratório)</td><td>Subamostra com coleta de sangue</td></tr>
+          <tr><td style="text-align:left">IDF Atlas 2021</td><td><b>16,8 mi</b></td><td>Estimativa modelada (diagnosticado + oculto)</td><td>Modelo · adultos 20–79 · 6º do mundo</td></tr>
+          <tr><td style="text-align:left">Estimativa MS/SBD</td><td><b>~20 mi</b></td><td>Projeção de carga total da doença</td><td>Modelo demográfico atualizado</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px;color:var(--ink-3);margin-top:8px"><b>Como ler:</b> quanto mais o método captura o <em>diabetes oculto</em> (não diagnosticado, ~metade dos casos) e quanto maior a faixa etária, maior o número. Vigitel &gt; PNS porque capitais têm mais acesso a diagnóstico; IDF &gt; PNS porque estima também os casos não diagnosticados. <strong>Triangular as fontes</strong>, em vez de escolher uma, é a prática correta.</p>
     </div>
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">Prevalência DM (PNS 2019)</span><span class="kpi-value">7,7%</span><span class="kpi-sub">diagnóstico médico referido</span><span class="kpi-trend up">↑ 24% vs 2013</span></div>
@@ -635,7 +665,7 @@
       <p>Forecast com intervalo de confiança · decomposição temporal · classificador de risco (regressão logística) · avaliação de modelo — Capítulo 5 do TCC</p>
     </div>
     <div class="info-banner">
-      <strong>Modelo treinado de verdade, sem números fabricados.</strong> A regressão logística é treinada <strong>ao vivo no navegador</strong> (gradiente descendente) sobre o <strong>Pima Indians Diabetes Dataset</strong> (NIDDK — 768 pacientes reais). Pipeline: imputação de ausentes (mediana) → padronização z-score → split estratificado 70/30 → treino → avaliação no conjunto de teste. Todas as métricas abaixo (AUC, matriz de confusão, ROC) são <strong>saída real</strong> do modelo, reproduzíveis (seed fixa). <em>Ressalva honesta:</em> é um dataset-benchmark internacional, usado para demonstrar o pipeline; o microdado brasileiro (PNS 2019) exige processamento offline e é o próximo passo (Cap. 6).
+      <strong>Modelo treinado de verdade, sem números fabricados.</strong> A regressão logística é treinada <strong>ao vivo no navegador</strong> (gradiente descendente) sobre o <strong>Pima Indians Diabetes Dataset</strong> (NIDDK — 768 pacientes reais). Pipeline: imputação de ausentes (mediana) → padronização z-score → split estratificado 70/30 → treino → avaliação no conjunto de teste. Todas as métricas abaixo (AUC, matriz de confusão, ROC) são <strong>saída real</strong> do modelo, reproduzíveis (seed fixa). <em>Dois modelos, dois papéis:</em> o Pima (benchmark internacional) demonstra o pipeline de forma didática e interativa; logo abaixo, o <strong>modelo brasileiro treinado sobre os microdados da PNS 2019</strong> (Logística × RF × XGBoost, com ROC, matriz de confusão e coeficientes) dá a validação com dados nacionais reais.
     </div>
 
     <div class="kpi-grid">
@@ -802,12 +832,26 @@
       </div>
     </div>
 
-    <!-- COMPARAÇÃO DE MODELOS (carregado de pns_results.js) -->
+    <!-- MODELO BRASILEIRO (PNS 2019) — carregado de pns_results.js -->
     <div class="section-header" style="margin-top:2rem">
-      <h2>Comparação de modelos — Logística × Random Forest × XGBoost</h2>
-      <p>Resultados reais com validação cruzada (k=5), gerados em Python. A fonte dos dados aparece nos cards abaixo. Para os números nacionais, rode <code>notebooks/modelagem_pns.ipynb</code> com o microdado da PNS.</p>
+      <h2>Modelo preditivo brasileiro — PNS 2019 (IBGE/Fiocruz)</h2>
+      <p>Classificador de risco de diabetes treinado sobre os <strong>microdados reais da PNS 2019</strong> (n=6.089, subamostra de antropometria) — <strong>Regressão Logística × Random Forest × XGBoost</strong>, com validação cruzada k=5, matriz de confusão, curva ROC e coeficientes. Gerado em Python (scikit-learn) por <code>notebooks/rodar_pns.py</code>.</p>
     </div>
     <div id="pnsComparison"></div>
+
+    <!-- DETERMINANTES: prevalência por raça/cor (PNS) -->
+    <div class="section-header" style="margin-top:2rem">
+      <h2>Determinantes sociais — prevalência por raça/cor</h2>
+      <p>Prevalência de diabetes autorreferido segundo raça/cor, estimada dos <strong>microdados da PNS 2019</strong> com o peso amostral do morador selecionado (reanálise ponderada, adultos 18+).</p>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <h3>Prevalência de diabetes por raça/cor — PNS 2019 (ponderada)</h3>
+        <p class="chart-src">Fonte: microdados PNS 2019 (IBGE/Fiocruz), peso V00291 · reanálise própria (notebooks/rodar_pns.py)</p>
+        <div style="position:relative;height:280px"><canvas id="chartPnsRaca" role="img" aria-label="Prevalência de diabetes por raça ou cor na PNS 2019"></canvas></div>
+        <div class="chart-insight"><b>Leitura:</b> a prevalência é semelhante na maioria dos grupos (8–9%), mas a população <strong>amarela</strong> se destaca (13,4%) — padrão compatível com o maior risco de DM2 descrito em pessoas de ascendência asiática. Diferente da mortalidade bruta, esta é uma medida de risco <em>comparável</em> (inquérito ponderado).</div>
+      </div>
+    </div>
 
     <div class="table-section">
       <h3>Roadmap de modelagem — próximos passos (TCC Cap. 5–6)</h3>
@@ -816,8 +860,8 @@
         <tbody>
           <tr><td>Baseline</td><td>Regressão logística (treinada)</td><td>Classificar risco — Pima dataset real</td><td>✔ Treinado e avaliado</td></tr>
           <tr><td>Modelo populacional</td><td>Regressão linear múltipla + LOOCV</td><td>Prever prevalência (dados agregados)</td><td>✔ Treinado e avaliado</td></tr>
-          <tr><td>Dado nacional individual</td><td>Microdados PNS 2019 (IBGE)</td><td>Re-treinar com população brasileira</td><td>✔ Notebook pronto (<code>modelagem_pns.ipynb</code>)</td></tr>
-          <tr><td>Modelos avançados</td><td>Random Forest / XGBoost</td><td>Capturar não-linearidades e interações</td><td>✔ Notebook pronto (comparação + k-fold)</td></tr>
+          <tr><td>Dado nacional individual</td><td>Microdados PNS 2019 (IBGE)</td><td>Re-treinar com população brasileira</td><td>✔ Integrado ao painel (ROC, matriz de confusão, coeficientes)</td></tr>
+          <tr><td>Modelos avançados</td><td>Random Forest / XGBoost</td><td>Capturar não-linearidades e interações</td><td>✔ Integrado — 3 modelos com validação cruzada k=5</td></tr>
           <tr><td>Séries temporais</td><td>SARIMA / Prophet</td><td>Prever internações com sazonalidade</td><td>Planejado (Parte D)</td></tr>
           <tr><td>Explicabilidade</td><td>SHAP / importância de features</td><td>Interpretar decisões do modelo</td><td>Parcial (coef. + importância RF)</td></tr>
         </tbody>
@@ -940,13 +984,12 @@
       </div>
       <div class="chart-card">
         <h3>Trabalhos futuros</h3>
+        <p style="font-size:12.5px;color:var(--ink-3);margin:6px 0 4px"><b>Já implementado:</b> modelo PNS 2019 (Logística/RF/XGBoost com ROC, matriz de confusão e coeficientes), validação cruzada k=5, SARIMA, padronização por idade, recorte por raça/cor, ETL via TabNet e repositório versionado.</p>
         <ul style="margin:8px 0 0 18px;line-height:1.75;font-size:13.5px">
-          <li>Re-treinar o modelo com <strong>microdados da PNS 2019</strong> (população brasileira, pesos amostrais).</li>
-          <li><strong>Validação cruzada (k-fold)</strong> e comparação com Random Forest / XGBoost.</li>
-          <li>Substituir a projeção por <strong>SARIMA / Prophet</strong> com testes de tendência (Mann-Kendall).</li>
-          <li>Análise <strong>espacial</strong> (I de Moran) e granularidade municipal.</li>
-          <li>Pipeline de <strong>ETL reproduzível</strong> a partir dos arquivos brutos do DATASUS.</li>
-          <li>Publicação do código em <strong>repositório versionado</strong> com ambiente reproduzível.</li>
+          <li>Análise <strong>espacial</strong> (I de Moran, autocorrelação) e granularidade municipal.</li>
+          <li>Padronização por idade também por <strong>UF e por sexo</strong> (feita por região).</li>
+          <li>Incorporar <strong>diabetes não diagnosticado</strong> (HbA1c/glicemia) quando a PNS 2024/2025 for divulgada.</li>
+          <li>Modelos de <strong>sobrevivência</strong> e séries com variáveis exógenas (SARIMAX).</li>
         </ul>
       </div>
     </div>
@@ -963,12 +1006,12 @@
   </div>
 </footer>
 
-<script src="data.js?v=27"></script>
-<script src="pima.js?v=27"></script>
-<script src="ml.js?v=27"></script>
-<script src="serie_mensal.js?v=27"></script>
-<script src="charts.js?v=27"></script>
-<script src="map.js?v=27"></script>
-<script src="app.js?v=27"></script>
+<script src="data.js?v=28"></script>
+<script src="pima.js?v=28"></script>
+<script src="ml.js?v=28"></script>
+<script src="serie_mensal.js?v=28"></script>
+<script src="charts.js?v=28"></script>
+<script src="map.js?v=28"></script>
+<script src="app.js?v=28"></script>
 </body>
 </html>

@@ -95,6 +95,35 @@ const DATA = {
     taxa: [30.4, 39.3, 28.3, 33.3, 41.9],
   },
 
+  // DADO REAL: taxa de mortalidade por diabetes BRUTA vs PADRONIZADA POR IDADE
+  // (método direto). Óbitos SIM 2025 por região×faixa ÷ população IBGE/SVS 2024
+  // por região×faixa; padrão = estrutura etária nacional. Revela o viés da idade:
+  // o Norte (pop. jovem) tem a MENOR taxa bruta mas a MAIOR padronizada.
+  mortalidadePadronizada: {
+    labels: ['Norte','Nordeste','Centro-Oeste','Sudeste','Sul'],
+    bruta:        [28.2, 37.6, 27.0, 31.9, 40.3],
+    padronizada:  [41.8, 39.4, 31.6, 29.2, 36.9],
+  },
+
+  // DADO REAL (SIM/TabNet 2025, Cor/raça): composição dos óbitos por diabetes.
+  // Soma = 72.151 (exclui 898 ignorados ao exibir %). NÃO é taxa — reflete também
+  // o tamanho e a estrutura etária de cada grupo (ver prevalência PNS por raça).
+  mortalidadeRaca: {
+    labels: ['Branca','Parda','Preta','Amarela','Indígena'],
+    obitos: [34858, 28011, 7658, 502, 224],
+    cores:  ['#0072B2','#E69F00','#009E73','#CC79A7','#D55E00'],
+  },
+
+  // DADO REAL: prevalência de DM autorreferido por raça/cor — reanálise ponderada
+  // dos MICRODADOS da PNS 2019 (peso do morador selecionado, adultos 18+, n=82.349).
+  // Fonte: notebooks/rodar_pns.py (recorte por raça). Amarela se destaca (13,4%).
+  pnsRaca: {
+    labels: ['Branca','Preta','Amarela','Parda','Indígena'],
+    prev:   [8.7, 8.8, 13.4, 8.3, 8.4],
+    n:      [30815, 9343, 639, 40948, 597],
+    total:  8.6,
+  },
+
   // DADO REAL (SIM/TabNet 2025, Categoria CID-10, Grupo=47): distribuição dos óbitos
   // por diabetes segundo subtipo E10–E14. Soma dos absolutos = 72.151 (total 2025).
   // E14 (não especificado) ainda domina — melhorou vs 2024 (era 61,9%).

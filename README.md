@@ -59,6 +59,42 @@ app.js            — navegação, filtros e exportação CSV
 ROTEIRO_DEFESA.md — roteiro de apresentação da banca
 ```
 
+## Metodologia e reprodutibilidade
+
+### Extração dos dados do DATASUS (TabNet)
+O FTP do DATASUS fica indisponível em muitos ambientes, então os dados foram extraídos do **TabNet** por requisições HTTP POST (via `curl`), parseando o HTML de resposta. Scripts em `notebooks/` (fora deste repositório por tamanho — ~473 MB com os microdados):
+
+| Script | Base (def TabNet) | Saída |
+|--------|-------------------|-------|
+| `baixar_anual_mortalidade.py` | `sim/cnv/obt10br.def` (SIM) | óbitos anuais por diabetes (E10–E14, Grupo 47) |
+| `baixar_sim_dim.py` | `sim/cnv/obt10br.def` / `obt10uf.def` | óbitos por faixa etária, região, UF, CID, raça/cor |
+| `baixar_sih.py` | `sih/cnv/niuf.def` / `qiuf.def` (SIH) | internações e custo (Lista Morb 124) e amputações de MMII |
+| `rodar_pns.py` | microdados PNS 2019 (IBGE) | modelos (Logística/RF/XGBoost), ROC, matriz de confusão, prevalência por raça |
+| `rodar_sarima.py` | série mensal SIM | decomposição e SARIMA |
+| população | `ibge/cnv/popsvs2024br.def` | denominadores por região × faixa etária (padronização) |
+
+### Dicionário de dados (principais blocos de `data.js`)
+
+| Bloco | Conteúdo | Fonte / ano |
+|-------|----------|-------------|
+| `vigitel2024` | prevalência de DM, excesso de peso, hipertensão | Vigitel 2006–2024 (SVSA/MS) |
+| `mortalidade` | óbitos anuais por diabetes | SIM/DATASUS 2000–2025 (prelim.) |
+| `mortalidadeFaixaEtaria` / `Regiao` / `CID` / `Raca` | óbitos por faixa, região, subtipo E10–E14, raça | SIM 2025 |
+| `mortalidadePadronizada` | taxa bruta × **padronizada por idade** (método direto) | SIM 2025 ÷ pop IBGE/SVS 2024 |
+| `internacoes` | internações e custo (AIH) + 2026 parcial (jan–jul) | SIH/SUS 2010–2026 |
+| `estadosPrevalencia` | prevalência (Vigitel capital) e mortalidade por UF | Vigitel 2023 + SIM 2025 + Censo 2022 |
+| `pns` / `pnsRegiao` / `pnsRaca` | prevalência nacional, por região e por raça/cor | PNS 2019 (microdados) |
+| `idfTopPaises` / `idfGlobal` | ranking e projeções mundiais | IDF Diabetes Atlas |
+
+### Padronização por idade (método direto)
+Taxa padronizada de cada região = Σ (taxa específica por faixa etária × peso da faixa na **população-padrão nacional**). Remove o efeito da estrutura etária, permitindo comparar regiões com perfis demográficos diferentes.
+
+### Modelos de machine learning
+- **Pima (interativo):** regressão logística treinada ao vivo no navegador (gradiente descendente) sobre o Pima Indians Diabetes Dataset (NIDDK) — demonstra o pipeline de ponta a ponta.
+- **PNS 2019 (nacional):** Logística × Random Forest × XGBoost em Python (scikit-learn), validação cruzada k=5, split estratificado 70/30, seed fixa. Exporta AUC, curva ROC, matriz de confusão e coeficientes (`pns_results.js`).
+
+> **Nota:** todas as séries são **dados reais**; estimativas e projeções (ex.: IDF, custo 2030) estão sinalizadas como tal. Nenhum dado é sintético.
+
 ---
 
-*TCC — Ciência de Dados · IESB · 2026*
+*TCC — Ciência de Dados e Inteligência Artificial · IESB · 2026*
