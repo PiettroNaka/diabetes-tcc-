@@ -102,8 +102,8 @@
       </div>
       <div class="kpi-card">
         <span class="kpi-label">Mortes por diabetes</span>
-        <span class="kpi-value">71.995</span>
-        <span class="kpi-sub">DATASUS/SIM 2024 (prelim.)</span>
+        <span class="kpi-value">72.151</span>
+        <span class="kpi-sub">DATASUS/SIM 2025 (prelim.)</span>
         <span class="kpi-trend up">↑ 21% vs 2015</span>
       </div>
       <div class="kpi-card">
@@ -230,15 +230,15 @@
   <section id="tab-mortality" class="tab-section">
     <div class="section-header">
       <h2>Mortalidade por Diabetes — DATASUS/SIM</h2>
-      <p>Sistema de Informações sobre Mortalidade — CID-10: E10–E14 · dado real do TabNet, óbitos por residência (2024 preliminar)</p>
+      <p>Sistema de Informações sobre Mortalidade — CID-10: E10–E14 · dado real do TabNet, óbitos por residência (2025 preliminar)</p>
     </div>
     <div class="kpi-grid">
-      <div class="kpi-card"><span class="kpi-label">Óbitos (2024)</span><span class="kpi-value">71.995</span><span class="kpi-sub">SIM/DATASUS (preliminar)</span><span class="kpi-trend up">↑ 21% vs 2015</span></div>
+      <div class="kpi-card"><span class="kpi-label">Óbitos (2025)</span><span class="kpi-value">72.151</span><span class="kpi-sub">SIM/DATASUS (preliminar)</span><span class="kpi-trend up">↑ 21% vs 2015</span></div>
       <div class="kpi-card"><span class="kpi-label">Pico — 2021 (COVID)</span><span class="kpi-value">78.258</span><span class="kpi-sub">maior valor da série</span></div>
       <div class="kpi-card"><span class="kpi-label">Óbitos (2000)</span><span class="kpi-value">35.284</span><span class="kpi-sub">dobrou em ~20 anos</span></div>
       <div class="kpi-card"><span class="kpi-label">Idade média do óbito</span><span class="kpi-value">≈ 69 anos</span><span class="kpi-sub">SIM (predomínio 60+)</span></div>
       <div class="kpi-card"><span class="kpi-label">% feminino</span><span class="kpi-value">≈ 52%</span><span class="kpi-sub">ligeiro predomínio</span></div>
-      <div class="kpi-card"><span class="kpi-label">Total 2000–2024</span><span class="kpi-value">1,4 mi</span><span class="kpi-sub">óbitos acumulados</span></div>
+      <div class="kpi-card"><span class="kpi-label">Total 2000–2025</span><span class="kpi-value">1,5 mi</span><span class="kpi-sub">óbitos acumulados</span></div>
     </div>
     <div class="charts-row">
       <div class="chart-card wide">
@@ -247,34 +247,34 @@
         <div class="legend-row">
           <span><span class="leg-dot" style="background:#D55E00"></span> Total de óbitos</span>
         </div>
-        <div style="position:relative;height:280px"><canvas id="chartMortalityTrend" role="img" aria-label="Óbitos por diabetes no Brasil de 2000 a 2024"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> os óbitos mais que dobraram (35 mil→72 mil); o pico de 2020–2021 reflete a maior letalidade da COVID-19 em pessoas com diabetes, com leve queda em 2023–2024.</div>
+        <div style="position:relative;height:280px"><canvas id="chartMortalityTrend" role="img" aria-label="Óbitos por diabetes no Brasil de 2000 a 2025"></canvas></div>
+        <div class="chart-insight"><b>Leitura:</b> os óbitos mais que dobraram (35 mil→72 mil); o pico de 2020–2021 reflete a maior letalidade da COVID-19 em pessoas com diabetes, com recuo pós-pandemia e estabilização em ~72 mil em 2024–2025 (preliminar).</div>
       </div>
     </div>
     <div class="charts-row">
       <div class="chart-card">
-        <h3>Óbitos por faixa etária (2024)</h3>
-        <p class="chart-src">Fonte: DATASUS/SIM via TabNet — 2024 (preliminar), por residência</p>
-        <div style="position:relative;height:260px"><canvas id="chartMortalityAge" role="img" aria-label="Óbitos por diabetes por faixa etária em 2024"></canvas></div>
+        <h3>Óbitos por faixa etária (2025)</h3>
+        <p class="chart-src">Fonte: DATASUS/SIM via TabNet — 2025 (preliminar), por residência</p>
+        <div style="position:relative;height:260px"><canvas id="chartMortalityAge" role="img" aria-label="Óbitos por diabetes por faixa etária em 2025"></canvas></div>
       </div>
       <div class="chart-card">
-        <h3>Taxa bruta de mortalidade por região (por 100k hab, 2024)</h3>
-        <p class="chart-src">Óbitos reais SIM/TabNet 2024 ÷ população IBGE 2022. Taxa <strong>bruta</strong> (não padronizada por idade).</p>
-        <div style="position:relative;height:260px"><canvas id="chartMortalityRegion" role="img" aria-label="Taxa bruta de mortalidade por diabetes por região em 2024"></canvas></div>
+        <h3>Taxa bruta de mortalidade por região (por 100k hab, 2025)</h3>
+        <p class="chart-src">Óbitos reais SIM/TabNet 2025 ÷ população IBGE 2022. Taxa <strong>bruta</strong> (não padronizada por idade).</p>
+        <div style="position:relative;height:260px"><canvas id="chartMortalityRegion" role="img" aria-label="Taxa bruta de mortalidade por diabetes por região em 2025"></canvas></div>
       </div>
       <div class="chart-card">
-        <h3>Tipo de DM nos óbitos (CID-10, 2024)</h3>
-        <p class="chart-src">Fonte: SIM/DATASUS 2024 (categoria CID-10, E10–E14)</p>
+        <h3>Tipo de DM nos óbitos (CID-10, 2025)</h3>
+        <p class="chart-src">Fonte: SIM/DATASUS 2025 (categoria CID-10, E10–E14)</p>
         <div class="legend-row" id="legendMortalityCid"></div>
-        <div style="position:relative;height:260px"><canvas id="chartMortalityCid" role="img" aria-label="Distribuição dos tipos de diabetes nos óbitos por CID-10 em 2024"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> o E14 (DM não especificado) é a <strong>maioria</strong> dos óbitos (62%) — forte sinal de subespecificação no preenchimento das declarações de óbito.</div>
+        <div style="position:relative;height:260px"><canvas id="chartMortalityCid" role="img" aria-label="Distribuição dos tipos de diabetes nos óbitos por CID-10 em 2025"></canvas></div>
+        <div class="chart-insight"><b>Leitura:</b> o E14 (DM não especificado) ainda é a <strong>maioria</strong> dos óbitos (58%, ante 62% em 2024) — forte sinal de subespecificação no preenchimento das declarações de óbito, com leve melhora.</div>
       </div>
     </div>
     <div class="charts-row">
       <div class="chart-card wide">
-        <h3>Mortalidade por diabetes vs. outras causas selecionadas (2024)</h3>
-        <p class="chart-src">Fonte: SIM/DATASUS 2024 (Causa CID-BR-10, óbitos por residência)</p>
-        <div style="position:relative;height:260px"><canvas id="chartMortalityComparison" role="img" aria-label="Comparativo de óbitos por diversas causas em 2024"></canvas></div>
+        <h3>Mortalidade por diabetes vs. outras causas selecionadas (2025)</h3>
+        <p class="chart-src">Fonte: SIM/DATASUS 2025 (Causa CID-BR-10, óbitos por residência)</p>
+        <div style="position:relative;height:260px"><canvas id="chartMortalityComparison" role="img" aria-label="Comparativo de óbitos por diversas causas em 2025"></canvas></div>
         <div class="chart-insight"><b>Leitura:</b> o diabetes está entre as principais causas de morte no país — acima de DPOC e câncer de pulmão — e ainda subestima, pois costuma entrar como causa associada, não básica.</div>
       </div>
     </div>
@@ -287,12 +287,12 @@
       <p>Sistema de Informações Hospitalares do SUS — internações com diagnóstico principal de diabetes (Lista Morb CID-10) · dado real do TabNet · série até 2025, com 2026 parcial</p>
     </div>
     <div class="kpi-grid">
-      <div class="kpi-card"><span class="kpi-label">Internações/ano (2025)</span><span class="kpi-value">153.055</span><span class="kpi-sub">SIH/SUS (real)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Internações/ano (2025)</span><span class="kpi-value">153.116</span><span class="kpi-sub">SIH/SUS (real)</span></div>
       <div class="kpi-card"><span class="kpi-label">Diária média</span><span class="kpi-value">419</span><span class="kpi-sub">internações/dia (2025)</span></div>
       <div class="kpi-card"><span class="kpi-label">Custo total (2025)</span><span class="kpi-value">R$ 175,2 mi</span><span class="kpi-sub">Valor AIH — SIH</span></div>
       <div class="kpi-card"><span class="kpi-label">Custo médio/internação</span><span class="kpi-value">R$ 1.145</span><span class="kpi-sub">valor total ÷ internações</span></div>
       <div class="kpi-card"><span class="kpi-label">Pico de custo</span><span class="kpi-value">↑ 111%</span><span class="kpi-sub">R$ 83 mi (2010) → 175 mi (2025)</span></div>
-      <div class="kpi-card"><span class="kpi-label">2026 (jan–mai)</span><span class="kpi-value">64.306</span><span class="kpi-sub">parcial · R$ 75,7 mi (real)</span></div>
+      <div class="kpi-card"><span class="kpi-label">2026 (jan–jul)</span><span class="kpi-value">91.830</span><span class="kpi-sub">parcial · R$ 108,9 mi (real)</span></div>
     </div>
     <div class="charts-row">
       <div class="chart-card wide">
@@ -330,8 +330,8 @@
       <p>Obesidade, sedentarismo, alimentação, tabagismo — Vigitel 2023 e PNS 2019</p>
     </div>
     <div class="kpi-grid">
-      <div class="kpi-card"><span class="kpi-label">Obesidade (IMC≥30)</span><span class="kpi-value">24,3%</span><span class="kpi-sub">Vigitel 2023 (oficial)</span><span class="kpi-trend up">↑ 106% desde 2006</span></div>
-      <div class="kpi-card"><span class="kpi-label">Excesso de peso (IMC≥25)</span><span class="kpi-value">61,4%</span><span class="kpi-sub">Vigitel 2023 (oficial)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Obesidade (IMC≥30)</span><span class="kpi-value">25,7%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span><span class="kpi-trend up">↑ 118% desde 2006</span></div>
+      <div class="kpi-card"><span class="kpi-label">Excesso de peso (IMC≥25)</span><span class="kpi-value">62,6%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
       <div class="kpi-card"><span class="kpi-label">Fisicamente inativos</span><span class="kpi-value">9,4%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
       <div class="kpi-card"><span class="kpi-label">Consumo abusivo de álcool</span><span class="kpi-value">20,4%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
       <div class="kpi-card"><span class="kpi-label">Fumantes</span><span class="kpi-value">11,5%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span><span class="kpi-trend down">↓ 4,2 pp desde 2006</span></div>
@@ -384,7 +384,7 @@
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Comparativo estadual — prevalência (%) e taxa de mortalidade (por 100k hab)</h3>
-        <p class="chart-src">Fonte: prevalência Vigitel 2023 (capitais) + mortalidade SIM/DATASUS 2024 ÷ Censo IBGE 2022</p>
+        <p class="chart-src">Fonte: prevalência Vigitel 2023 (capitais) + mortalidade SIM/DATASUS 2025 ÷ Censo IBGE 2022</p>
         <div style="position:relative;height:360px"><canvas id="chartStateComparison" role="img" aria-label="Comparativo de prevalência e mortalidade por estado"></canvas></div>
         <div class="chart-insight"><b>Leitura:</b> prevalência e mortalidade caminham juntas entre as UFs — a relação formal (r, IC, p) está na aba Análise Estatística.</div>
       </div>
@@ -963,12 +963,12 @@
   </div>
 </footer>
 
-<script src="data.js?v=26"></script>
-<script src="pima.js?v=26"></script>
-<script src="ml.js?v=26"></script>
-<script src="serie_mensal.js?v=26"></script>
-<script src="charts.js?v=26"></script>
-<script src="map.js?v=26"></script>
-<script src="app.js?v=26"></script>
+<script src="data.js?v=27"></script>
+<script src="pima.js?v=27"></script>
+<script src="ml.js?v=27"></script>
+<script src="serie_mensal.js?v=27"></script>
+<script src="charts.js?v=27"></script>
+<script src="map.js?v=27"></script>
+<script src="app.js?v=27"></script>
 </body>
 </html>

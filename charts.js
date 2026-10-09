@@ -485,7 +485,7 @@ function renderMortalityComparison() {
     type: 'bar',
     data: {
       labels: d.causas,
-      datasets: [{ label: 'Óbitos (2024)', data: d.obitos, backgroundColor: d.cores, borderRadius:4 }],
+      datasets: [{ label: 'Óbitos (2025)', data: d.obitos, backgroundColor: d.cores, borderRadius:4 }],
     },
     options: { ...baseOpts(),
       plugins: { ...baseOpts().plugins, tooltip:{ callbacks:{ label: ctx=>'Óbitos: '+ctx.raw.toLocaleString('pt-BR') } } },
@@ -1080,10 +1080,10 @@ function kpiSparkConfig() {
       { kind:'line', data:I.custototal, color:C.amber },
       { kind:'meter', value:1145, max:2000, color:C.amber },
       { kind:'line', data:I.custototal, color:C.amber },
-      { kind:'meter', value:64306, max:160000, color:C.teal },
+      { kind:'meter', value:91830, max:160000, color:C.teal },
     ],
     riskfactors: [
-      { kind:'meter', value:24.3, max:30, color:C.red },
+      { kind:'meter', value:25.7, max:30, color:C.red },
       { kind:'line', data:V.excessoPeso, color:C.amber },
       { kind:'meter', value:9.4, max:25, color:C.amber },
       { kind:'meter', value:20.4, max:30, color:C.purple },

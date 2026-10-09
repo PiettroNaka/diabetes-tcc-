@@ -12,7 +12,7 @@ Documento de apoio para apresentação à banca. Estrutura: para cada aba há (1
 Números-âncora para ter na ponta da língua:
 - **16,8 milhões** de brasileiros com diabetes (IDF/SBD); **6º país do mundo** (1º da América Latina).
 - Prevalência subiu de **5,5% (2006) para 12,9% (2024)** no Vigitel (série oficial 2006–2024).
-- **~72 mil óbitos/ano** (SIM/DATASUS, 2024); pico de ~78 mil em 2021 (COVID).
+- **~72 mil óbitos/ano** (SIM/DATASUS, 2025 preliminar); pico de ~78 mil em 2021 (COVID).
 - **153 mil internações/ano** no SUS (SIH, 2025), custo de **R$ 175 mi**.
 - Custo total do sistema (público + privado) estimado em **~R$ 42 bi** (IDF 2024); projeção de R$ 27 bi para o SUS em 2030.
 

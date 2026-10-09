@@ -77,38 +77,38 @@ const DATA = {
 
   // ── MORTALIDADE — SIM/DATASUS (CID-10 E10–E14) — DADO REAL (TabNet) ──────
   // Óbitos por diabetes, Brasil, por residência. Extraído do DATASUS/SIM via
-  // TabNet (notebooks/baixar_anual_mortalidade.py). 2024 é preliminar.
+  // TabNet (notebooks/baixar_anual_mortalidade.py). 2024–2025 preliminares.
   mortalidade: {
-    anos: [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
-    obitos:[35284,35073,36631,37489,39251,40317,45049,47718,50448,52104,54877,57876,56761,58017,57882,59641,61398,63486,65113,66711,75712,78258,75838,70377,71995],
+    anos: [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
+    obitos:[35284,35073,36631,37489,39251,40317,45049,47718,50448,52104,54877,57876,56761,58017,57882,59641,61398,63486,65113,66711,75712,78258,75838,70377,71995,72151],
   },
 
-  // Real DATASUS/SIM 2024 (TabNet), agregado por residência
+  // Real DATASUS/SIM 2025 (TabNet), agregado por residência. Soma = 72.147 (+4 idade ignorada)
   mortalidadeFaixaEtaria: {
     labels: ['<20','20–39','40–49','50–59','60–69','70–79','80+'],
-    obitos: [178, 1618, 3141, 7570, 15561, 20454, 23470],
+    obitos: [155, 1588, 3175, 7578, 15322, 20746, 23583],
   },
 
-  // Taxa BRUTA de mortalidade (2024): óbitos reais SIM/TabNet ÷ população IBGE 2022
+  // Taxa BRUTA de mortalidade (2025): óbitos reais SIM/TabNet ÷ população IBGE 2022
   mortalidadeRegiao: {
     labels: ['Norte','Nordeste','Centro-Oeste','Sudeste','Sul'],
-    taxa: [28.4, 39.5, 27.3, 33.5, 42.1],
+    taxa: [30.4, 39.3, 28.3, 33.3, 41.9],
   },
 
-  // DADO REAL (SIM/TabNet 2024, Categoria CID-10, Grupo=47): distribuição dos óbitos
-  // por diabetes segundo subtipo E10–E14. Soma dos absolutos = 71.995 (total 2024).
-  // E14 (não especificado) domina — reflexo da qualidade do preenchimento das DO.
+  // DADO REAL (SIM/TabNet 2025, Categoria CID-10, Grupo=47): distribuição dos óbitos
+  // por diabetes segundo subtipo E10–E14. Soma dos absolutos = 72.151 (total 2025).
+  // E14 (não especificado) ainda domina — melhorou vs 2024 (era 61,9%).
   mortalidadeCID: {
     labels: ['E14 — DM não especif.','E11 — DM tipo 2','E10 — DM tipo 1','E12 — relac. desnutrição','E13 — outros'],
-    valores: [61.9, 26.5, 10.9, 0.5, 0.2],
+    valores: [57.6, 30.9, 10.8, 0.5, 0.2],
     cores: ['#999999','#0072B2','#009E73','#D55E00','#E69F00'],
   },
 
-  // DADO REAL (SIM/TabNet 2024, Causa CID-BR-10, óbitos por residência): comparação
+  // DADO REAL (SIM/TabNet 2025, Causa CID-BR-10, óbitos por residência): comparação
   // do diabetes com as principais causas de morte no Brasil.
   mortalidadeComparacao: {
     causas: ['Doenças card.\nisquêmicas','AVC','Pneumonia','Diabetes','DPOC','Neoplasia\npulmão'],
-    obitos: [119687, 106182, 99317, 71995, 57839, 32557],
+    obitos: [116962, 106970, 100304, 72151, 57436, 32430],
     cores:  ['#D55E00','#E69F00','#F0E442','#0072B2','#009E73','#CC79A7'],
   },
 
@@ -117,10 +117,10 @@ const DATA = {
   // Brasil, por ano de processamento. Fonte: notebooks/baixar_sih.py.
   internacoes: {
     anos: [2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
-    total:[148452,148511,142677,140873,139819,138435,128582,131292,133625,136276,124646,128088,137325,138316,139598,153055],
+    total:[148452,148511,142677,140873,139819,138435,128582,131292,133625,136276,124646,128088,137325,138316,139598,153116],
     custototal:[83.2,89.3,86.4,88.4,89.7,92.3,91.3,95.9,100.6,108.2,107.0,112.4,134.3,144.1,153.6,175.2], // R$ mi (Valor_total AIH)
-    // 2026 (jan–mai, parcial): 64.306 internações · R$ 75,7 mi (por processamento)
-    ytd2026: { internacoes: 64306, custoMi: 75.7, meses: 'jan–mai/2026' },
+    // 2026 (jan–jul, parcial): 91.830 internações · R$ 108,9 mi (por processamento)
+    ytd2026: { internacoes: 91830, custoMi: 108.9, meses: 'jan–jul/2026' },
   },
 
   // DADO REAL (TabNet/SIH niuf.def): internações por diabetes (Lista Morb=124),
@@ -184,8 +184,8 @@ const DATA = {
     estados: ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'],
     siglas:  ['Acre','Alagoas','Amazonas','Amapá','Bahia','Ceará','Dist.Fed.','Espírito Santo','Goiás','Maranhão','Minas Gerais','Mato Grosso do Sul','Mato Grosso','Pará','Paraíba','Pernambuco','Piauí','Paraná','Rio de Janeiro','Rio Grande do Norte','Rondônia','Roraima','Rio Grande do Sul','Santa Catarina','Sergipe','São Paulo','Tocantins'],
     prev:    [7.2, 9.7, 7.9, 7.5, 10.2, 9.4, 9.6, 9.9, 10.0, 9.1, 10.5, 9.3, 9.1, 8.3, 9.5, 10.1, 9.8, 10.5, 10.8, 9.8, 7.8, 7.4, 10.1, 9.7, 10.3, 11.2, 8.2],
-    // DADO REAL: taxa bruta = óbitos SIM/TabNet 2024 (por UF, E10–E14) ÷ pop Censo 2022 × 100 mil hab
-    mort:    [14.7,41.3,29.5,24.2,45.1,26.1,17.4,48.5,30.2,38.0,33.3,24.6,31.4,28.0,44.6,41.6,45.0,37.3,41.3,37.2,36.3,15.6,52.3,34.7,35.8,29.5,34.9],
+    // DADO REAL: taxa bruta = óbitos SIM/TabNet 2025 (por UF, E10–E14) ÷ pop Censo 2022 × 100 mil hab
+    mort:    [13.6,40.6,31.0,22.7,45.8,25.1,19.3,51.3,29.3,39.4,32.1,28.0,33.6,31.0,44.0,42.7,43.3,37.7,43.6,31.3,38.7,20.3,51.4,34.6,34.7,28.7,33.4],
     regiao:  ['N','NE','N','N','NE','NE','CO','SE','CO','NE','SE','CO','CO','N','NE','NE','NE','S','SE','NE','N','N','S','S','NE','SE','CO'],
     // População IBGE Censo 2022 (milhões) — alinhada à ordem de 'estados'
     pop:     [0.83,3.13,3.94,0.73,14.14,8.79,2.82,3.83,7.06,6.78,20.54,2.76,3.66,8.12,3.97,9.06,3.27,11.44,16.05,3.30,1.58,0.64,10.88,7.61,2.21,44.41,1.51],
