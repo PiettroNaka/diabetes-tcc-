@@ -111,17 +111,17 @@ function exportData() {
 
   const V = DATA.vigitel2024;   // série oficial real 2006–2024
   V.years.forEach((y, i) => {
-    push('Vigitel', 'Diabetes', y, V.diabetes[i], '%', 'Vigitel/MS 2006-2024');
+    push('Vigitel', 'Diabetes', y, V.diabetes[i], '%', 'Vigitel/MS 2006-2024 (total calculado de M/F oficiais)');
     push('Vigitel', 'Excesso_peso', y, V.excessoPeso[i], '%', 'Vigitel/MS 2006-2024');
-    push('Vigitel', 'Hipertensao', y, V.hipertensao[i], '%', 'Vigitel/MS 2006-2024');
+    push('Vigitel', 'Hipertensao', y, V.hipertensao[i], '%', 'Vigitel/MS 2006-2024 (total calculado de M/F oficiais)');
   });
   DATA.mortalidade.anos.forEach((y, i) => push('Mortalidade', 'Obitos_DM', y, DATA.mortalidade.obitos[i], 'obitos', 'SIM/DATASUS'));
   DATA.internacoes.anos.forEach((y, i) => push('Internacoes', 'Internacoes_SUS', y, DATA.internacoes.total[i], 'internacoes', 'SIH/DATASUS'));
   DATA.internacoes.anos.forEach((y, i) => push('Internacoes', 'Custo_SUS_Rmi', y, DATA.internacoes.custototal[i], 'R$ milhoes', 'SIH/DATASUS'));
   const E = DATA.estadosPrevalencia;
   E.estados.forEach((uf, i) => {
-    push('Estados', 'Prevalencia_' + uf, 2023, E.prev[i], '%', 'Vigitel 2023 (capital)');
-    push('Estados', 'Mortalidade_' + uf, 2024, E.mort[i], '/100k', 'SIM/DATASUS 2024');
+    push('Estados', 'Prevalencia_' + uf, '', E.prev[i], '%', 'Vigitel (capital) - PROVISORIO, em conferencia');
+    push('Estados', 'Mortalidade_' + uf, 2025, E.mort[i], '/100k', 'SIM/DATASUS 2025 / Censo 2022');
     push('Estados', 'Populacao_' + uf, 2022, E.pop[i], 'milhoes', 'IBGE Censo 2022');
   });
 

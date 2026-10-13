@@ -8,30 +8,35 @@ Dashboard interativo sobre a epidemiologia do diabetes no Brasil, desenvolvido c
 
 ## Sobre
 
-Painel web estático (sem backend) que reúne, de forma navegável, os principais indicadores do diabetes no Brasil: prevalência, mortalidade, internações, fatores de risco, complicações, distribuição geográfica e modelagem preditiva. Todos os dados são **reais e rastreáveis** — nenhum valor sintético.
+Painel web estático (sem backend) que reúne, de forma navegável, os principais indicadores do diabetes no Brasil: prevalência, mortalidade, internações, fatores de risco, distribuição geográfica, análise estatística e modelagem preditiva. Todo valor é rastreável à sua fonte e classificado como **oficial**, **preliminar** ou **estimado**; valores ainda em conferência com a fonte oficial aparecem marcados como **provisórios** no painel.
 
 ## Fontes de dados (todas oficiais)
 
 | Fonte | Órgão | Uso | Período |
 |-------|-------|-----|---------|
-| **SIM** | DATASUS/MS | Mortalidade (CID-10 E10–E14) | 1996–2024 |
-| **SIH/SUS** | DATASUS/MS | Internações e procedimentos hospitalares | 2008–2026* |
+| **SIM** | DATASUS/MS | Mortalidade (CID-10 E10–E14) | 2000–2025 (mensal 2015–2020) |
+| **SIH/SUS** | DATASUS/MS | Internações e procedimentos hospitalares | 2010–2026* |
 | **Vigitel** | Ministério da Saúde | Fatores de risco autorreferidos (capitais) | 2006–2024 |
 | **PNS** | IBGE + Fiocruz | Inquérito domiciliar nacional | 2013, 2019 |
 | **IDF Diabetes Atlas** | Federação Internacional de Diabetes | Estimativas globais | 9ª–11ª ed. |
-| **Censo** | IBGE | População (denominadores de taxas) | 2022 |
+| **Censo / estimativas** | IBGE / MS | População (denominadores de taxas) | 2022; 2024 |
+| **Pima Indians Diabetes** | NIDDK | Dados clínicos (benchmark de ML) | — |
+
+*2026 parcial (jan–jul), fora das séries anuais. A ANS/D-TISS foi avaliada (LAI NUP 25072.015811/2026-30) e excluída na auditoria, por não haver dado primário com recorte de diabetes.
 
 Os dados do DATASUS foram extraídos via **TabNet** (os scripts de ETL estão em `notebooks/`, fora deste repositório por tamanho). O modelo de risco é treinado **ao vivo no navegador** sobre o Pima Indians Diabetes Dataset (NIDDK).
 
 ## Abas
 
-Visão Geral · Prevalência · Mortalidade · Internações · Fatores de Risco · Complicações · Distribuição Geográfica · Vigitel · PNS/Fontes · Análise Estatística · Modelagem Preditiva (ML) · Síntese & Conclusões
+Visão Geral · Prevalência · Mortalidade · Internações · Fatores de Risco · Distribuição Geográfica · Vigitel · PNS/Fontes · Análise Estatística · Modelagem Preditiva (ML) · Síntese & Conclusões (11 abas)
 
 ## Tecnologia
 
 - **HTML + CSS + JavaScript** puro (site estático, sem build)
 - **Chart.js 4.4** para gráficos · **D3 + TopoJSON** para o mapa coroplético
-- Estatística implementada em JS: correlação de Pearson (IC de Fisher, p-valor), regressão OLS, decomposição de série temporal, SARIMA
+- Estatística implementada em JS: correlação de Pearson (IC de Fisher, p-valor via beta incompleta), regressão OLS simples e múltipla com LOOCV, decomposição clássica (MM 2×12), regressão logística por gradiente descendente
+- Em Python (fora do repositório): extração TabNet, SARIMA (statsmodels) e modelos sobre a PNS 2019 (scikit-learn, XGBoost)
+- Bibliotecas incorporadas em `vendor/` — funciona sem internet
 - Paleta acessível (Okabe-Ito, segura para daltônicos)
 
 ## Como executar localmente
@@ -42,7 +47,7 @@ Visão Geral · Prevalência · Mortalidade · Internações · Fatores de Risco
 python -m http.server 8000
 ```
 
-Depois abra `http://localhost:8000`. (O mapa usa `fetch` de um CDN, então precisa ser servido por HTTP, não aberto via `file://`.)
+Depois abra `http://localhost:8000`. (O mapa carrega `vendor/bra.topo.json` via `fetch`, então a pasta precisa ser servida por HTTP, não aberta via `file://`.)
 
 ## Estrutura
 
@@ -77,14 +82,14 @@ O FTP do DATASUS fica indisponível em muitos ambientes, então os dados foram e
 
 | Bloco | Conteúdo | Fonte / ano |
 |-------|----------|-------------|
-| `vigitel2024` | prevalência de DM, excesso de peso, hipertensão | Vigitel 2006–2024 (SVSA/MS) |
+| `vigitel2024` / `vigitelDM` | prevalência de DM (por sexo e total), excesso de peso, hipertensão | Vigitel 2006–2024 (SVSA/MS); total de DM e hipertensão = 0,54·fem + 0,46·masc (exato em 2006 e 2024) |
 | `mortalidade` | óbitos anuais por diabetes | SIM/DATASUS 2000–2025 (prelim.) |
 | `mortalidadeFaixaEtaria` / `Regiao` / `CID` / `Raca` | óbitos por faixa, região, subtipo E10–E14, raça | SIM 2025 |
 | `mortalidadePadronizada` | taxa bruta × **padronizada por idade** (método direto) | SIM 2025 ÷ pop IBGE/SVS 2024 |
 | `internacoes` | internações e custo (AIH) + 2026 parcial (jan–jul) | SIH/SUS 2010–2026 |
-| `estadosPrevalencia` | prevalência (Vigitel capital) e mortalidade por UF | Vigitel 2023 + SIM 2025 + Censo 2022 |
-| `pns` / `pnsRegiao` / `pnsRaca` | prevalência nacional, por região e por raça/cor | PNS 2019 (microdados) |
-| `idfTopPaises` / `idfGlobal` | ranking e projeções mundiais | IDF Diabetes Atlas |
+| `estadosPrevalencia` | prevalência (capital — **provisória**, em conferência) e mortalidade por UF; fonte única também do mapa | Vigitel + SIM 2025 + Censo 2022 |
+| `pns` / `pnsRegiao` / `pnsRaca` | prevalência nacional e por sexo (IBGE), por região, e por raça/cor (reanálise dos microdados) | PNS 2013 e 2019 |
+| `idfTopPaises` / `idfGlobal` / `idfEdicoes` / `idfGasto` | ranking (Brasil 15,7 mi, 6º), projeções, edições e gasto em saúde (Brasil US$ 42,9 bi, 3º) | IDF Diabetes Atlas 9ª–11ª ed. |
 
 ### Padronização por idade (método direto)
 Taxa padronizada de cada região = Σ (taxa específica por faixa etária × peso da faixa na **população-padrão nacional**). Remove o efeito da estrutura etária, permitindo comparar regiões com perfis demográficos diferentes.
@@ -93,7 +98,7 @@ Taxa padronizada de cada região = Σ (taxa específica por faixa etária × pes
 - **Pima (interativo):** regressão logística treinada ao vivo no navegador (gradiente descendente) sobre o Pima Indians Diabetes Dataset (NIDDK) — demonstra o pipeline de ponta a ponta.
 - **PNS 2019 (nacional):** Logística × Random Forest × XGBoost em Python (scikit-learn), validação cruzada k=5, split estratificado 70/30, seed fixa. Exporta AUC, curva ROC, matriz de confusão e coeficientes (`pns_results.js`).
 
-> **Nota:** todas as séries são **dados reais**; estimativas e projeções (ex.: IDF, custo 2030) estão sinalizadas como tal. Nenhum dado é sintético.
+> **Nota:** nenhum dado é sintético. Estimativas (IDF, carga por UF, totais calculados do Vigitel) estão sinalizadas como tal, e valores ainda não conferidos com o relatório oficial aparecem como **provisórios**.
 
 ---
 

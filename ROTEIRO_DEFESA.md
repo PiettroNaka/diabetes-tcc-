@@ -1,199 +1,142 @@
 # Roteiro de Defesa — Dashboard Diabetes no Brasil
 **Piettro Pevidor Nakashoji · Ciência de Dados · IESB · 2026**
 
-Documento de apoio para apresentação à banca. Estrutura: para cada aba há (1) o que mostrar, (2) o ponto técnico a destacar, (3) perguntas prováveis e como responder.
+Documento de apoio para a apresentação à banca. Para cada aba: (1) o que mostrar, (2) o ponto técnico a destacar, (3) perguntas prováveis e como responder. Todos os números abaixo conferem com o painel e com o texto do TCC (Capítulos 4 a 6).
 
 ---
 
 ## Abertura (30–60 segundos)
 
-> "Meu trabalho consolida em um único painel interativo os dados sobre diabetes no Brasil, hoje dispersos em múltiplas fontes oficiais — DATASUS, Vigitel, PNS, ANS e IDF. O diferencial não é só visualizar: o painel aplica o ciclo CRISP-DM, com uma camada estatística (correlação, regressão, intervalos de confiança), decomposição de séries temporais e um protótipo de modelo preditivo de risco. Todos os cálculos rodam em tempo real no navegador, a partir das séries documentadas."
+> "Meu trabalho integra, em um único painel interativo, dados públicos sobre o diabetes no Brasil que hoje estão dispersos — SIM e SIH do DATASUS, Vigitel, PNS e Censo do IBGE, além do IDF Atlas como referência internacional. O diferencial não é só visualizar: o painel segue o CRISP-DM, aplica inferência estatística com intervalo de confiança e p-valor, padroniza taxas por idade, modela a série mensal de óbitos com SARIMA e avalia modelos de aprendizado de máquina para o risco de diabetes. As estatísticas e as hipóteses são recalculadas no navegador, a partir dos dados."
 
-Números-âncora para ter na ponta da língua:
-- **16,8 milhões** de brasileiros com diabetes (IDF/SBD); **6º país do mundo** (1º da América Latina).
-- Prevalência subiu de **5,5% (2006) para 12,9% (2024)** no Vigitel (série oficial 2006–2024).
-- **~72 mil óbitos/ano** (SIM/DATASUS, 2025 preliminar); pico de ~78 mil em 2021 (COVID).
-- **153 mil internações/ano** no SUS (SIH, 2025), custo de **R$ 175 mi**.
-- Custo total do sistema (público + privado) estimado em **~R$ 42 bi** (IDF 2024); projeção de R$ 27 bi para o SUS em 2030.
+Números-âncora:
+- Prevalência (Vigitel, capitais): **5,5% (2006) → 12,9% (2024)**, +135%; TCAC **4,8% a.a.**
+- PNS 2019 (nacional, inclui zona rural): **7,7%** (~12,3 mi de adultos); mulheres 8,4%, homens 6,9%.
+- IDF 2021: **15,7 mi** de adultos (20–79), **6º país do mundo**; gasto em saúde **US$ 42,9 bi**, **3º do mundo** (US$ 45,1 bi em 2024).
+- SIM: **72.151 óbitos em 2025** (preliminar); pico de **78.258 em 2021** (COVID); **82,7%** dos óbitos com 60 anos ou mais.
+- SIH: **153.116 internações em 2025**, **R$ 175,2 mi** (só o componente hospitalar do SUS, valores nominais).
 
 ---
 
 ## 1. Visão Geral
+**Mostrar:** KPIs, evolução da prevalência por sexo (com faixa de IC aproximada), projeção global do IDF e ranking de países.
 
-**Mostrar:** KPIs nacionais, evolução da prevalência (2006–2024), tipos de diabetes (cards descritivos), Brasil no ranking mundial.
-
-**Ponto técnico:** é a camada de *Business Understanding* — contextualiza o problema e sua magnitude antes de qualquer análise.
+**Ponto técnico:** o total do Vigitel em cada ano é **calculado** a partir dos valores oficiais por sexo (0,54·fem + 0,46·masc); a ponderação reproduz exatamente os totais oficiais de 2006 (5,5%) e 2024 (12,9%). Diga isso antes que perguntem.
 
 **Perguntas prováveis:**
-- *"De onde vêm os 16,8 milhões?"* → Estimativa IDF Diabetes Atlas / SBD; é projeção para adultos 20–79 anos, diferente do diagnóstico autorreferido do Vigitel/PNS.
-- *"Por que 90% é tipo 2?"* → O DM2 é associado a estilo de vida e envelhecimento; o DM1 é autoimune e bem mais raro. Isso justifica o foco em fatores de risco modificáveis.
-
----
+- *"De onde vêm os 15,7 milhões?"* → IDF Diabetes Atlas, 10ª ed. (2021): estimativa **modelada**, adultos de 20–79 anos, inclui não diagnosticados. Não é comparável ao autorreferido do Vigitel/PNS. (O antigo "16,8 mi" era da 9ª ed., 2019.)
+- *"Por que a faixa de IC é aproximada?"* → Uso erro-padrão binomial com tamanho efetivo fixo de 25 mil entrevistas (n/deff). Os IC oficiais, com o desenho amostral completo, estão nos relatórios do Vigitel.
 
 ## 2. Prevalência
+**Mostrar:** KPIs de 2024 (total, mulheres 14,3%, homens 11,2%, razão 1,28×, TCAC), recortes por capital, escolaridade, sexo e faixa etária.
 
-**Mostrar:** prevalência por estado/capital, por escolaridade, por sexo e faixa etária.
+**Ponto técnico:** a TCAC usa o **intervalo efetivo de 18 anos** (2006→2024), não o número de observações − 1 (17), porque não houve coleta em 2022.
 
-**Ponto técnico:** o gradiente por **escolaridade** (17,8% no menor nível vs 5,9% no superior) evidencia o **determinante social da saúde** — não é só biologia.
+**Atenção:** os recortes por capital, faixa etária e escolaridade estão marcados no painel como **provisórios, em conferência com o relatório oficial Vigitel 2006–2024**. Não apresente esses números como definitivos até a substituição.
 
-**Perguntas prováveis:**
-- *"Por que prevalência cresce tanto com a idade?"* → Acúmulo de resistência à insulina ao longo da vida + maior tempo de exposição a fatores de risco.
-- *"Mulheres têm mais diabetes?"* → No autorreferido sim, mas em parte por maior procura de diagnóstico (viés de detecção). Bom exemplo de pensamento crítico sobre o dado.
+## 3. Mortalidade (SIM)
+**Mostrar:** série 2000–2025, faixa etária, região (taxa bruta), **bruta × padronizada**, tipo CID-10, raça/cor, comparação com outras causas.
 
----
-
-## 3. Mortalidade (DATASUS/SIM)
-
-**Mostrar:** série de óbitos 2000–2024, óbitos por faixa etária, taxa por região, tipo de DM (CID-10, 2024).
-
-**Ponto técnico:** uso da **causa básica vs. causa associada** — o diabetes mata muito mais como causa associada do que como causa básica (~72 mil em 2024). Isso explica por que a carga real é subestimada nas estatísticas oficiais.
+**Ponto técnico (o mais forte da aba):** padronização por idade pelo método direto. O **Norte** tem a **menor taxa bruta (28,2/100 mil)** e a **maior padronizada (41,8/100 mil)**: a população jovem mascara o risco. A escolha do indicador muda a priorização regional.
 
 **Perguntas prováveis:**
-- *"A taxa é bruta ou padronizada?"* → A taxa por região é padronizada por idade (permite comparar populações com estruturas etárias diferentes). Saber essa distinção é crucial.
-- *"O salto recente tem a ver com COVID?"* → Sim, 2020–2021 têm efeito da pandemia; diabéticos foram grupo de maior letalidade.
+- *"E14 em 57,6% dos óbitos?"* → Subespecificação no preenchimento da declaração de óbito; limita a análise por tipo de diabetes.
+- *"A causa básica subestima?"* → Sim: o diabetes frequentemente aparece como causa associada (Naghavi et al., 2010).
+- *"Raça/cor é risco?"* → Não: os óbitos por raça/cor são **composição**. A medida de risco comparável é a prevalência por raça/cor da PNS (aba Modelagem).
 
----
+## 4. Internações (SIH/SUS)
+**Mostrar:** série 2010–2025 (2026 parcial separado), região, sexo × faixa etária, amputações.
 
-## 4. Internações (DATASUS/SIH)
-
-**Mostrar:** série de internações, complicações, perfil por sexo/idade, amputações.
-
-**Ponto técnico:** o **custo médio × volume** mostra o impacto econômico no SUS. As amputações são o desfecho mais evitável — marcador de qualidade do cuidado primário.
+**Ponto técnico:** 2026 (jan–jul) **não** entra na série anual — comparar ano incompleto com anos completos sugeriria queda falsa. Valores são nominais (sem correção monetária) e só do SUS.
 
 **Perguntas prováveis:**
-- *"Por que a queda em 2020?"* → Suspensão de procedimentos eletivos na pandemia (mesmo fenômeno que aparece na decomposição da aba ML).
+- *"As amputações são todas por diabetes?"* → Não. O cubo de procedimentos do SIH não cruza com o diagnóstico; a série (27,7 mil → 40,8 mil, +47%) é de todas as causas, e isso está explícito no gráfico.
+- *"Queda em 2020?"* → Suspensão de eletivas na pandemia (124,6 mil internações).
 
----
+## 5. Fatores de Risco (Vigitel 2024)
+**Mostrar:** obesidade 25,7% (↑118% desde 2006), excesso de peso 62,6%, hipertensão, inatividade por idade e escolaridade.
 
-## 5. Fatores de Risco (Vigitel)
+**Pergunta provável:** *"Correlação prova causalidade?"* → **Não.** A associação temporal entre excesso de peso e diabetes é ecológica; a relação causal é sustentada pela fisiopatologia e por estudos longitudinais. **A resposta mais importante da defesa.**
 
-**Mostrar:** evolução obesidade × diabetes, sedentarismo, alimentação, risco relativo.
+## 6. Distribuição Geográfica
+**Mostrar:** mapa coroplético (D3 + TopoJSON) e comparativo prevalência × mortalidade por UF.
 
-**Ponto técnico:** as curvas de **obesidade e diabetes sobem em paralelo** — prepara a análise de correlação formal feita na aba Análise. É a transição da estatística descritiva para a inferencial.
+**Pontos técnicos:** o mapa lê **a mesma fonte de dados** dos gráficos (sem cópia própria); classes de **intervalos fixos** (mantêm o significado das cores sob o filtro de região); UFs fora da região filtrada são esmaecidas, não removidas. Limitação: a prevalência da capital representa a UF inteira.
 
-**Perguntas prováveis:**
-- *"Correlação prova causalidade?"* → **Não.** Correlação é associação; a causalidade é sustentada por plausibilidade biológica e estudos longitudinais externos. Esta é a resposta mais importante de toda a defesa — deixe clara.
+## 7. Vigitel
+**Mostrar:** marcos da série (2006 → 2024), evolução conjunta de diabetes, excesso de peso e hipertensão, prevalência por capital (provisória).
 
----
+## 8. PNS / Fontes
+**Mostrar:** tabela "quantos diabéticos há no Brasil?", Vigitel × PNS, PNS por sexo e região, edições do IDF, gasto em saúde (IDF) e catálogo de fontes.
 
-## 6. Complicações
+**Ponto técnico — o mais valorizado:** Vigitel 2019 (8,1%) × PNS 2019 (7,7%) **não é erro**: telefônico/capitais × domiciliar/nacional. E a PNS com exames (2014–15) indica 8,4% quando se inclui o diagnóstico laboratorial (Malta et al., 2019) — o subdiagnóstico existe.
 
-**Mostrar:** prevalência das complicações, amputações, diálise, custo.
+**Pergunta provável:** *"Qual número é o certo?"* → Depende da pergunta: tendência nas capitais → Vigitel; estimativa nacional → PNS; carga total incluindo não diagnosticados → IDF (modelada).
 
-**Ponto técnico:** diabetes é a **principal causa de cegueira evitável e de doença renal em diálise** no Brasil. O custo das complicações é onde está a maior parte do gasto — argumento para prevenção.
+**Fonte excluída:** ANS/D-TISS foi avaliada (pedido LAI NUP 25072.015811/2026-30) e **excluída na auditoria**, por não haver dado primário com recorte de diabetes. Os indicadores estimados de versões antigas foram removidos.
 
----
-
-## 7. Distribuição Geográfica
-
-**Mostrar:** mapa coroplético interativo + comparativo estadual (prevalência × mortalidade, dois eixos).
-
-**Ponto técnico:** escolha de **escala de cores quantizada** e join dos dados por UF com a topologia (TopoJSON). Mencionar que o mapa usa dados das capitais (limitação do Vigitel).
-
-**Perguntas prováveis:**
-- *"Por que o Sudeste tem mais?"* → Combinação de envelhecimento populacional, urbanização e maior acesso a diagnóstico. Norte tem menos prevalência registrada, mas possível **subdiagnóstico** (cuidado: menor número pode ser menos acesso, não menos doença).
-
----
-
-## 8. Saúde Suplementar (ANS / D-TISS)
-
-**Mostrar:** série de procedimentos, internações por UF, procedimentos ambulatoriais, tabela TUSS.
-
-**Ponto técnico:** demonstra domínio da estrutura real dos dados (Padrão TISS, join por `ID_EVENTO`, tabelas TUSS 20/22/63/64). Citar a **limitação documentada**: CID indisponível no ambulatorial por decisão judicial.
-
-**Perguntas prováveis:**
-- *"Esses dados são reais?"* → A estrutura e a disponibilidade vêm da resposta oficial da ANS ao meu pedido via LAI (NUP 25072.015811/2026-30). Os valores no painel são estimativas calibradas enquanto a extração completa dos CSV está em andamento — seja transparente quanto a isso.
-
----
-
-## 9. PNS / Fontes
-
-**Mostrar:** comparativo Vigitel × PNS, evolução PNS, catálogo de 12 fontes.
-
-**Ponto técnico — o mais valorizado:** Vigitel (8,8%) e PNS (7,7%) divergem em 2019 **e isso não é erro**. Vigitel é **telefônico e só de capitais**; PNS é **domiciliar e nacional** (inclui interior e zona rural). Triangular fontes é boa prática de ciência de dados.
-
-**Perguntas prováveis:**
-- *"Qual número é o certo?"* → Depende da pergunta. Para tendência temporal de capitais, Vigitel; para estimativa nacional representativa, PNS. Não existe "o certo" sem o contexto de cobertura e método.
-
----
-
-## 10. Análise Estatística
-
-**Mostrar:** pipeline CRISP-DM, correlações (Pearson), regressão com R², matriz de correlação (heatmap), distribuição por região, bubble multivariado, carga absoluta, tabela descritiva.
+## 9. Análise Estatística
+**Mostrar:** CRISP-DM, correlações com IC e p, projeção OLS, matriz de correlação, distribuição por região, bolhas, carga estimada, estatística descritiva.
 
 **Pontos técnicos:**
-- **Pearson** mede associação linear; valores próximos de 1 indicam forte associação positiva.
-- **R²** = proporção da variância explicada pelo modelo.
-- **CV (coeficiente de variação)** permite comparar dispersão entre séries de escalas diferentes.
-- A **carga absoluta** (prevalência × população) tem nota explícita de que **superestima** (aplica prevalência de adultos à população total) — incluí de propósito para demonstrar honestidade metodológica.
+- **H1:** inclinação **+0,332 pp/ano**, R² = 0,856, p < 0,001 (o teste t da inclinação é idêntico ao teste do r).
+- **H2:** r = **0,930** (excesso de peso × diabetes, n = 18 anos), p < 0,001 — mas séries que crescem juntas compartilham tendência: é **coevolução**, não efeito individual.
+- **H3:** correlação entre UFs → **ecológica** → no máximo "parcial", por regra de decisão explícita (Cap. 2 do TCC). (Valor sujeito à conferência da prevalência por capital.)
+- O p-valor da distribuição t é calculado em JavaScript pela **função beta incompleta regularizada** (Numerical Recipes).
+- A **carga estimada** superestima (prevalência de adultos × população total) e serve apenas para **ordenar** UFs — está escrito no gráfico.
 
-**Perguntas prováveis:**
-- *"Por que Pearson e não Spearman?"* → Pearson assume relação linear; se a banca questionar normalidade/linearidade, Spearman (correlação de postos) seria a alternativa robusta. Tenha isso pronto.
-- *"O bubble chart não tem muita sobreposição?"* → Sim, é uma limitação de legibilidade com 27 UFs; a cor por região e o tooltip mitigam.
+**Pergunta provável:** *"Por que Pearson e não Spearman?"* → Relação aproximadamente linear nas séries; Spearman seria a alternativa robusta a não linearidade e outliers.
 
----
+## 10. Modelagem Preditiva (ML) — a aba que decide a nota
+**Ordem sugerida:** projeção com IC → decomposição → SARIMA → classificador Pima → avaliação → modelo ecológico → modelos da PNS → raça/cor.
 
-## 11. Modelagem Preditiva (ML) — a aba que decide a nota
+### 10a. Projeção com IC (OLS)
+- IC 95% da **resposta média**: `ŷ ± t(0,975;16)·s·√(1/n + (x₀−x̄)²/Sxx)`, com t = 2,120. A banda alarga na extrapolação.
+- Ressalvas: não é intervalo de predição; resíduos autocorrelacionados → IC otimista; a série acelera (2024 acima da reta). É **cenário de referência**, não previsão.
 
-**Mostrar (nesta ordem):** forecast com IC 95% → decomposição → classificador interativo → matriz de confusão + ROC.
+### 10b. Decomposição clássica (óbitos mensais, 2015–2020)
+- Aditiva, tendência por **média móvel 2×12**.
+- **Sazonalidade de inverno:** pico em julho (+674 óbitos/mês) e maio–agosto acima da média; vale em fevereiro (−705).
+- **Anomalia COVID:** resíduos **positivos** em abril (+480) e maio de 2020 (+969, cerca de 4 desvios-padrão) — **excesso de óbitos**, não queda. Em 2020, os óbitos subiram 13,5% em relação a 2019. "O resíduo vira detector de eventos."
 
-### 11a. Forecast com Intervalo de Confiança
-- Regressão **OLS** projetando até 2035.
-- A banda de IC 95% usa `SE = s·√(1/n + (x₀−x̄)²/Sxx)` com `t ≈ 2,12` (df=16).
-- **Ponto-chave:** a banda **alarga conforme nos afastamos da média dos dados** — a incerteza cresce na extrapolação. Mostrar isso visualmente impressiona.
-- *Pergunta provável:* *"Por que não ARIMA?"* → OLS é o baseline interpretável; SARIMA/Prophet estão no roadmap (Cap. 6) para capturar sazonalidade na série mensal.
+### 10c. SARIMA(1,1,1)(1,1,1)₁₂
+- Parcimônia: 72 meses, 59 efetivos após as duas diferenciações. AIC 643,7.
+- **Backtest** nos 12 meses de 2020 (o ano mais difícil): MAPE 9,9%.
+- **Validação externa:** a soma das previsões de 2021 dá **78.462** contra **78.258 observados** no SIM (**erro de 0,3%**). Esse ano não foi usado no ajuste.
+- Reprodutibilidade: reestimei com statsmodels e obtive o mesmo AIC e as mesmas previsões.
 
-### 11b. Decomposição de Série Temporal
-- Modelo **aditivo**: Observado = Tendência + Sazonalidade + Resíduo.
-- Tendência por **média móvel centrada 2×12** (correta para período par de 12 meses).
-- **A ANOMALIA COVID É SEU MELHOR MOMENTO:** o resíduo de abr–jun/2020 (destacado em âmbar) é grande e negativo. Explicação:
-  > "O modelo captura tendência e sazonalidade normais. O que sobra no resíduo é o inesperado. Em abril–junho de 2020 há um resíduo fortemente negativo: as internações por diabetes caíram muito abaixo do esperado. Isso **não** significa menos doença — reflete a **suspensão de procedimentos eletivos, o medo de buscar hospital e a subnotificação** durante o pico da pandemia. Pacientes deixaram de internar, o que provavelmente agravou desfechos depois. É um exemplo de como o resíduo de uma decomposição vira um detector de eventos."
-- *Pergunta provável:* *"Aditivo ou multiplicativo?"* → Usei aditivo porque a amplitude sazonal é aproximadamente constante ao longo dos anos; se ela crescesse proporcionalmente ao nível da série, o multiplicativo seria mais adequado.
+### 10d. Classificador Pima (treinado ao vivo)
+- Pipeline **sem vazamento**: split estratificado 70/30 (semente 42; 537 de treino e 231 de teste) **antes** de tudo → imputação pela mediana do treino (glicose 117, PA 72, pele 28, insulina 125, IMC 32) → z-score com estatísticas do treino → gradiente descendente (η = 0,1; 4.000 épocas).
+- **Convergência verificada:** os coeficientes coincidem com a solução exata de máxima verossimilhança (Newton/IRLS) até a 3ª casa decimal.
+- Resultados no teste: **AUC 0,848**, AP 0,716, acurácia 80,5%, sensibilidade 60,5%, especificidade 91,3%, F1 0,685.
+- OR por desvio-padrão: **glicose 3,18**, IMC 1,87, gestações 1,54, pedigree 1,48 → H5 confirmada.
+- Ressalva: o Pima é benchmark internacional (mulheres Pima). A validação com dados brasileiros é a PNS.
 
-### 11c. Classificador de Risco (Regressão Logística TREINADA)
-- **O modelo é treinado de verdade, ao vivo no navegador**, sobre o **Pima Indians Diabetes Dataset** (NIDDK, 768 pacientes reais). Nenhum número é fabricado.
-- Pipeline completo (cite na ordem): imputação de ausentes pela mediana (no Pima, zeros em glicose/pressão/insulina são "missing") → **padronização z-score com estatística só do treino** (evita *data leakage*) → split **estratificado** 70/30 → **gradiente descendente** (entropia cruzada) → avaliação no teste.
-- Função **sigmoide** transforma o log-odds em probabilidade [0,1]. O gráfico de **contribuição por feature** é explicabilidade (espírito do SHAP).
-- **Coeficientes aprendidos batem com a fisiopatologia:** Glicose domina, seguida de IMC e nº de gestações. Isso é prova de que o modelo aprendeu sinal real, não ruído — ótimo ponto a destacar.
-- **Ressalva honesta (diga antes que perguntem):** é um dataset-benchmark internacional (mulheres Pima), usado para demonstrar o *pipeline*. O re-treino com microdados da **PNS 2019** (população brasileira) é o próximo passo, documentado no roadmap.
-- *Pergunta provável:* *"Por que Pima e não dado brasileiro?"* → Microdado da PNS exige processamento offline com pesos amostrais complexos; o Pima é real, citável e permite um pipeline reproduzível no navegador. A metodologia é idêntica; só troca a base.
+### 10e. Modelos PNS 2019 (n = 6.089; 1.827 de teste; prevalência 9,2%)
+- Logística (AUC teste 0,779; CV 0,770 ± 0,018) ≈ Random Forest (0,746) ≈ XGBoost (0,752) → com 4 preditores, o modelo **linear e interpretável empata ou vence**.
+- Pesos de classe balanceados: sensibilidade 70% × precisão 19% — perfil de **triagem** em baixa prevalência; por isso mostro a curva PR.
+- OR por DP: **idade 2,07**, hipertensão 1,60, IMC 1,26, sexo feminino 1,05.
 
-### 11d. Avaliação do Modelo (números reais, calculados ao vivo)
-- **Matriz de confusão, ROC e AUC são saída real do modelo no conjunto de teste** — recalculados a cada carregamento (seed fixa garante reprodutibilidade). Os valores exibidos no painel são os verdadeiros; confira na hora.
-- **Métricas:** acurácia pode enganar em classes desbalanceadas → por isso reporto também **precisão, recall, F1 e AUC**.
-- **Recall (sensibilidade) é a métrica crítica em saúde:** um falso negativo (não identificar quem tem risco) é mais grave que um falso positivo. Priorizaria recall, ajustando o limiar de decisão abaixo de 0,50 se preciso.
-- **ROC-AUC** (≈ 0,82): probabilidade de o modelo ranquear um positivo acima de um negativo; 0,5 é aleatório, 1,0 é perfeito.
-- *Pergunta provável:* *"Por que a acurária não é altíssima?"* → O Pima é reconhecidamente difícil; AUC ~0,82 com regressão logística é resultado consistente com a literatura. Modelos não-lineares (Random Forest/XGBoost) no roadmap tendem a melhorar — mas perdem interpretabilidade.
-- *Pergunta provável:* *"Por que acurácia sozinha não basta?"* → Se 65% da amostra fosse negativa, um modelo que sempre diz "não" teria 65% de acurácia e seria inútil. Por isso F1 e AUC.
+### 10f. Modelo ecológico
+- Prevalência ~ excesso de peso + hipertensão (n = 18): R² 0,927; R² ajustado 0,917; **RMSE LOOCV 0,66 pp**. Multicolinearidade → interpretar o ajuste, não os coeficientes.
 
 ---
 
 ## Encerramento (30 segundos)
+> "O painel entrega três camadas: dados oficiais integrados e auditados, com a origem de cada número; uma análise estatística que trata padronização, falácia ecológica e autocorrelação; e modelos preditivos avaliados com métricas adequadas e validação externa. As limitações estão no próprio painel, junto dos resultados."
 
-> "O painel entrega três camadas: dados consolidados e confiáveis de todas as fontes oficiais; uma análise estatística que conecta fatores de risco e desfechos; e um protótipo preditivo que aponta o caminho da modelagem do Capítulo 6. As principais limitações estão documentadas no próprio painel — divergência entre fontes, estimativas onde a extração ainda corre, e o caráter demonstrativo do modelo. O próximo passo é treinar os modelos com os microdados completos da PNS e da ANS."
+## Checklist anti-armadilha
+1. **Correlação ≠ causalidade** — e correlação entre séries que crescem juntas pode ser só tendência comum.
+2. **Vigitel ≠ PNS ≠ IDF** — métodos e universos diferentes; triangular.
+3. **Taxa bruta ≠ padronizada** — o Norte inverte de posição.
+4. **Acurácia engana** em classe desbalanceada → AUC, AP, sensibilidade e especificidade.
+5. **IC alarga na extrapolação** e é otimista com autocorrelação.
 
----
-
-## Checklist anti-armadilha (decore estas 5)
-
-1. **Correlação ≠ causalidade.**
-2. **Vigitel ≠ PNS** (telefônico/capitais vs domiciliar/nacional) — divergência é esperada.
-3. **Acurácia engana** em classe desbalanceada → use F1/AUC; em saúde, priorize **recall**.
-4. **Resíduo da decomposição = detector de anomalia** (COVID 2020).
-5. **IC alarga na extrapolação** — a incerteza da projeção cresce com a distância.
-
-## Limitações a admitir proativamente (admitir antes que perguntem passa segurança)
-- Vigitel cobre só capitais; prevalência autorreferida depende de diagnóstico prévio (subestima quem não sabe que tem).
-- Alguns valores da ANS são estimativas enquanto a extração dos CSV via LAI é finalizada — sinalizados no painel.
-- O modelo de ML é **treinado de verdade**, mas sobre o Pima (benchmark internacional); o re-treino com microdados da PNS é o próximo passo.
-- Carga absoluta por UF é aproximação ilustrativa (prevalência de adultos × população total) — declarado no próprio gráfico.
-- A projeção OLS no tempo tem resíduos autocorrelacionados; o IC 95% é otimista (limite inferior da incerteza). Declarado no painel.
-- Os filtros (Ano, Região, Sexo) recortam de verdade os gráficos que têm aquela dimensão; recortes muito pequenos (ex.: região Sul = 3 UFs) reduzem o poder estatístico — e o painel avisa "amostra insuficiente".
-
-## Novidades técnicas desta versão (para destacar à banca)
-- **Modelo treinado ao vivo** (regressão logística, gradiente descendente) sobre dado clínico real — sem números fabricados.
-- **Métricas reais**: matriz de confusão, ROC e AUC computadas no conjunto de teste, reprodutíveis.
-- **Rigor estatístico**: correlações agora com **IC 95% (z de Fisher)** e **p-valor (distribuição t via beta incompleta)**.
-- **Filtros funcionais** (Ano/Região/Sexo) que recortam os dados e **recalculam estatísticas** em tempo real.
-- **Ressalvas metodológicas** visíveis nos gráficos sensíveis (autocorrelação, falácia ecológica, limitação do mapa).
-- **Exportação CSV** dos dados subjacentes.
+## Limitações a admitir antes que perguntem
+- Prevalência autorreferida subestima quem não tem diagnóstico.
+- Vigitel cobre só capitais; o mapa usa a capital para a UF inteira. Recortes por capital/idade/escolaridade em conferência com o relatório oficial.
+- Total do Vigitel calculado a partir dos valores por sexo (exato nas pontas).
+- Reanálise da PNS por raça/cor dá 8,6% no total (oficial: 7,7%) → uso só para comparação relativa entre grupos.
+- Imputação por mediana reduz a variabilidade da insulina (48,7% de zeros) e da prega cutânea.
+- Internações em valores nominais e só no SUS; amputações de todas as causas.
+- Dados do SIM de 2024–2025 preliminares.
