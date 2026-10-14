@@ -106,7 +106,7 @@ const DATA = {
 
   // ── MORTALIDADE — SIM/DATASUS (CID-10 E10–E14) — DADO REAL (TabNet) ──────
   // Óbitos por diabetes, Brasil, por residência. Extraído do DATASUS/SIM via
-  // TabNet (notebooks/baixar_anual_mortalidade.py). 2024–2025 preliminares.
+  // TabNet (reproducao/baixar_anual_mortalidade.py). 2024–2025 preliminares.
   mortalidade: {
     anos: [2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
     obitos:[35284,35073,36631,37489,39251,40317,45049,47718,50448,52104,54877,57876,56761,58017,57882,59641,61398,63486,65113,66711,75712,78258,75838,70377,71995,72151],
@@ -145,7 +145,7 @@ const DATA = {
 
   // DADO REAL: prevalência de DM autorreferido por raça/cor — reanálise ponderada
   // dos MICRODADOS da PNS 2019 (peso do morador selecionado, adultos 18+, n=82.349).
-  // Fonte: notebooks/rodar_pns.py (recorte por raça). Amarela se destaca (13,4%).
+  // Reanálise própria (código do recorte não versionado). Amarela se destaca (13,4%).
   pnsRaca: {
     labels: ['Branca','Preta','Amarela','Parda','Indígena'],
     prev:   [8.7, 8.8, 13.4, 8.3, 8.4],
@@ -172,7 +172,7 @@ const DATA = {
 
   // ── INTERNAÇÕES — SIH/DATASUS ────────────────────────────────────────────
   // DADO REAL (TabNet/SIH): internações e custo por diabetes (Lista Morb CID-10),
-  // Brasil, por ano de processamento. Fonte: notebooks/baixar_sih.py.
+  // Brasil, por ano de processamento. Fonte: reproducao/baixar_sih.py.
   internacoes: {
     anos: [2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
     total:[148452,148511,142677,140873,139819,138435,128582,131292,133625,136276,124646,128088,137325,138316,139598,153116],
@@ -301,7 +301,7 @@ const DATA = {
 
   // NOTA sobre a série mensal: a decomposição e o SARIMA usam a série MENSAL
   // REAL de óbitos por diabetes (DATASUS/SIM 2015–2020), carregada de
-  // serie_mensal.js (window.SERIE_MENSAL), gerada por notebooks/rodar_sarima.py.
+  // serie_mensal.js (window.SERIE_MENSAL), gerada por reproducao/rodar_sarima.py.
   // Nenhuma série sintética é usada.
 
   // NOTA: o modelo de regressão logística e sua avaliação (coeficientes,
