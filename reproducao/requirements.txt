@@ -1,0 +1,10 @@
+# Reprodução dos resultados do TCC (Diabetes no Brasil)
+# Instale com:  pip install -r reproducao/requirements.txt
+numpy>=1.24
+pandas>=2.0
+statsmodels>=0.14      # verificar_sarima.py
+scikit-learn>=1.3      # modelagem_pns.ipynb
+xgboost>=2.0           # modelagem_pns.ipynb
+xlrd>=2.0              # leitura do dicionário da PNS (.xls)
+matplotlib>=3.7        # gráficos do notebook
+jupyter>=1.0

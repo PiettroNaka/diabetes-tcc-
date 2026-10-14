@@ -24,7 +24,7 @@ Painel web estático (sem backend) que reúne, de forma navegável, os principai
 
 *2026 parcial (jan–jul), fora das séries anuais. A ANS/D-TISS foi avaliada (LAI NUP 25072.015811/2026-30) e excluída na auditoria: segundo a resposta da ANS (13/04/2026), a CID é opcional nas internações e não pode ser exigida nos atendimentos ambulatoriais (decisão judicial desde 2010), o que impede isolar o diabetes.
 
-Os dados do DATASUS foram extraídos via **TabNet** (os scripts de ETL estão em `notebooks/`, fora deste repositório por tamanho). O modelo de risco é treinado **ao vivo no navegador** sobre o Pima Indians Diabetes Dataset (NIDDK).
+Os dados do DATASUS foram extraídos via **TabNet** (os scripts de ETL estão em `notebooks/`, fora deste repositório por tamanho). O modelo de risco é treinado **ao vivo no navegador** sobre o Pima Indians Diabetes Dataset (NIDDK). Os resultados do TCC podem ser recalculados a partir dos dados versionados com os scripts de [`reproducao/`](reproducao/).
 
 ## Abas
 
@@ -35,7 +35,7 @@ Visão Geral · Prevalência · Mortalidade · Internações · Fatores de Risco
 - **HTML + CSS + JavaScript** puro (site estático, sem build)
 - **Chart.js 4.4** para gráficos · **D3 + TopoJSON** para o mapa coroplético
 - Estatística implementada em JS: correlação de Pearson (IC de Fisher, p-valor via beta incompleta), regressão OLS simples e múltipla com LOOCV, decomposição clássica (MM 2×12), regressão logística por gradiente descendente
-- Em Python (fora do repositório): extração TabNet, SARIMA (statsmodels) e modelos sobre a PNS 2019 (scikit-learn, XGBoost)
+- Em Python: extração TabNet (scripts locais, fora do repositório), SARIMA (statsmodels) e modelos sobre a PNS 2019 (scikit-learn, XGBoost; *notebook* em `reproducao/`)
 - Bibliotecas incorporadas em `vendor/` — funciona sem internet
 - Paleta acessível (Okabe-Ito, segura para daltônicos)
 
@@ -62,9 +62,21 @@ serie_mensal.js   — série mensal real de óbitos (decomposição/SARIMA)
 pns_results.js    — resultados do modelo sobre microdados da PNS 2019
 app.js            — navegação, filtros e exportação CSV
 ROTEIRO_DEFESA.md — roteiro de apresentação da banca
+reproducao/       — scripts que recalculam os resultados do TCC e notebook da PNS 2019
 ```
 
 ## Metodologia e reprodutibilidade
+
+### Reprodução dos resultados
+A pasta [`reproducao/`](reproducao/) recalcula, a partir dos arquivos versionados, os números apresentados no TCC e confere os modelos:
+
+```bash
+node reproducao/reproduzir_resultados.js   # hipóteses H1–H5, robustez, perfis e métricas (Cap. 6)
+node reproducao/verificar_logistica.js     # gradiente descendente × máxima verossimilhança (Pima)
+python reproducao/verificar_sarima.py      # reestimação do SARIMA (requer reproducao/requirements.txt)
+```
+
+O *notebook* `reproducao/modelagem_pns.ipynb` treina os modelos sobre os microdados da PNS 2019 (não versionados) e exporta `pns_results.js`. Os valores esperados de cada verificação estão em [`reproducao/README.md`](reproducao/README.md).
 
 ### Extração dos dados do DATASUS (TabNet)
 O FTP do DATASUS fica indisponível em muitos ambientes, então os dados foram extraídos do **TabNet** por requisições HTTP POST (via `curl`), parseando o HTML de resposta. Scripts em `notebooks/` (fora deste repositório por tamanho — ~473 MB com os microdados):

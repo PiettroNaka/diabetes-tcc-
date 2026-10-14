@@ -1,6 +1,12 @@
 # Dados brutos, notebooks e ETL (473 MB) — não são usados pelo site publicado
 notebooks/
 
+# Microdados e saídas locais da reprodução (o notebook da PNS grava aqui)
+reproducao/dados_brutos/
+reproducao/pns_results.js
+reproducao/modelos_pns_resultados.json
+reproducao/.ipynb_checkpoints/
+
 # Config local do Claude Code
 .claude/
 
