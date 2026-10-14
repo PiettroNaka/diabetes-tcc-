@@ -24,7 +24,7 @@ Painel web estático (sem backend) que reúne, de forma navegável, os principai
 
 *2026 parcial (jan–jul), fora das séries anuais. A ANS/D-TISS foi avaliada (LAI NUP 25072.015811/2026-30) e excluída na auditoria: segundo a resposta da ANS (13/04/2026), a CID é opcional nas internações e não pode ser exigida nos atendimentos ambulatoriais (decisão judicial desde 2010), o que impede isolar o diabetes.
 
-Os dados do DATASUS foram extraídos via **TabNet** (os scripts de ETL estão em `notebooks/`, fora deste repositório por tamanho). O modelo de risco é treinado **ao vivo no navegador** sobre o Pima Indians Diabetes Dataset (NIDDK). Os resultados do TCC podem ser recalculados a partir dos dados versionados com os scripts de [`reproducao/`](reproducao/).
+Os dados do DATASUS foram extraídos via **TabNet** pelos scripts de [`reproducao/`](reproducao/), que também reúne a modelagem em Python e as verificações que recalculam os resultados do TCC a partir dos dados versionados. O modelo de risco é treinado **ao vivo no navegador** sobre o Pima Indians Diabetes Dataset (NIDDK).
 
 ## Abas
 
@@ -35,7 +35,7 @@ Visão Geral · Prevalência · Mortalidade · Internações · Fatores de Risco
 - **HTML + CSS + JavaScript** puro (site estático, sem build)
 - **Chart.js 4.4** para gráficos · **D3 + TopoJSON** para o mapa coroplético
 - Estatística implementada em JS: correlação de Pearson (IC de Fisher, p-valor via beta incompleta), regressão OLS simples e múltipla com LOOCV, decomposição clássica (MM 2×12), regressão logística por gradiente descendente
-- Em Python: extração TabNet (scripts locais, fora do repositório), SARIMA (statsmodels) e modelos sobre a PNS 2019 (scikit-learn, XGBoost; *notebook* em `reproducao/`)
+- Em Python (`reproducao/`): extração TabNet, SARIMA (statsmodels) e modelos sobre a PNS 2019 (scikit-learn, XGBoost)
 - Bibliotecas incorporadas em `vendor/` — funciona sem internet
 - Paleta acessível (Okabe-Ito, segura para daltônicos)
 
@@ -62,7 +62,7 @@ serie_mensal.js   — série mensal real de óbitos (decomposição/SARIMA)
 pns_results.js    — resultados do modelo sobre microdados da PNS 2019
 app.js            — navegação, filtros e exportação CSV
 ROTEIRO_DEFESA.md — roteiro de apresentação da banca
-reproducao/       — scripts que recalculam os resultados do TCC e notebook da PNS 2019
+reproducao/       — scripts de extração (TabNet) e de modelagem (SARIMA, PNS) e verificações dos resultados do TCC
 ```
 
 ## Metodologia e reprodutibilidade
@@ -76,19 +76,21 @@ node reproducao/verificar_logistica.js     # gradiente descendente × máxima ve
 python reproducao/verificar_sarima.py      # reestimação do SARIMA (requer reproducao/requirements.txt)
 ```
 
-O *notebook* `reproducao/modelagem_pns.ipynb` treina os modelos sobre os microdados da PNS 2019 (não versionados) e exporta `pns_results.js`. Os valores esperados de cada verificação estão em [`reproducao/README.md`](reproducao/README.md).
+Os scripts que geraram os dados e os modelos (`baixar_*.py`, `rodar_sarima.py`, `rodar_pns.py`) estão na mesma pasta. Os microdados da PNS 2019 não são versionados. Os valores esperados de cada verificação estão em [`reproducao/README.md`](reproducao/README.md).
 
 ### Extração dos dados do DATASUS (TabNet)
-O FTP do DATASUS fica indisponível em muitos ambientes, então os dados foram extraídos do **TabNet** por requisições HTTP POST (via `curl`), parseando o HTML de resposta. Scripts em `notebooks/` (fora deste repositório por tamanho — ~473 MB com os microdados):
+O FTP do DATASUS fica indisponível em muitos ambientes, então os dados foram extraídos do **TabNet** por requisições HTTP POST (via `curl`), parseando o HTML de resposta. Scripts em [`reproducao/`](reproducao/); os microdados (~473 MB) não são versionados:
 
 | Script | Base (def TabNet) | Saída |
 |--------|-------------------|-------|
 | `baixar_anual_mortalidade.py` | `sim/cnv/obt10br.def` (SIM) | óbitos anuais por diabetes (E10–E14, Grupo 47) |
 | `baixar_sim_dim.py` | `sim/cnv/obt10br.def` / `obt10uf.def` | óbitos por faixa etária, região, UF, CID, raça/cor |
 | `baixar_sih.py` | `sih/cnv/niuf.def` / `qiuf.def` (SIH) | internações e custo (Lista Morb 124) e amputações de MMII |
-| `rodar_pns.py` | microdados PNS 2019 (IBGE) | modelos (Logística/RF/XGBoost), ROC, matriz de confusão, prevalência por raça |
+| `rodar_pns.py` | microdados PNS 2019 (IBGE) | modelos (Logística/RF/XGBoost), ROC, matriz de confusão, razões de chances |
 | `rodar_sarima.py` | série mensal SIM | decomposição e SARIMA |
 | população | `ibge/cnv/popsvs2024br.def` | denominadores por região × faixa etária (padronização) |
+
+As versões versionadas de `baixar_sim_dim.py` e `baixar_sih.py` mapeiam parte desses recortes (região e faixa etária no SIM; total anual no SIH). Os demais valores estão em `data.js`, com a fonte indicada em cada bloco — detalhes em [`reproducao/README.md`](reproducao/README.md).
 
 ### Dicionário de dados (principais blocos de `data.js`)
 

@@ -1470,7 +1470,7 @@ function showPnsPlaceholder(msg) {
   if (msg) { host.innerHTML = `<div class="info-banner">${msg}</div>`; return; }
   host.innerHTML = `<div class="chart-note" style="font-size:13px">
     <i>Aguardando resultados da PNS.</i> Esta seção é preenchida com os números reais (Regressão Logística × Random Forest × XGBoost)
-    assim que você rodar <code>notebooks/rodar_pns.py</code> — ele gera <code>pns_results.js</code> ao lado do <code>index.html</code>.
+    assim que você rodar <code>reproducao/rodar_pns.py</code> — ele gera <code>pns_results.js</code> ao lado do <code>index.html</code>.
     Depois, recarregue esta página. Enquanto isso, o modelo individual de referência (acima) roda sobre o dataset Pima.</div>`;
 }
 
@@ -1539,7 +1539,7 @@ function buildPnsComparison(d) {
     <div class="table-section">
       <h3>Métricas comparativas</h3>
       <table class="data-table"><thead><tr><th>Modelo</th><th>AUC (CV: média ± dp)</th><th>AUC (teste)</th><th>F1 (teste)</th></tr></thead><tbody>${rows}</tbody></table>
-      <p style="font-size:11px;color:var(--ink-3);margin-top:8px">Números reais gerados por <code>notebooks/rodar_pns.py</code> sobre os microdados da PNS 2019 (IBGE/Fiocruz) — split estratificado 70/30, seed fixa, validação cruzada k=5.</p>
+      <p style="font-size:11px;color:var(--ink-3);margin-top:8px">Números reais gerados por <code>reproducao/rodar_pns.py</code> sobre os microdados da PNS 2019 (IBGE/Fiocruz) — split estratificado 70/30, seed fixa, validação cruzada k=5.</p>
     </div>`;
 
   destroyChart('chartPnsAuc');
@@ -1753,7 +1753,7 @@ function renderDecompResid() {
 function renderSarima() {
   const id = 'chartSarima'; destroyChart(id);
   const S = (typeof window !== 'undefined') ? window.SERIE_MENSAL : null;
-  if (!S || !S.fc_mean) { setText('sarimaCap', 'Série/previsão não carregadas (rode notebooks/rodar_sarima.py).'); return; }
+  if (!S || !S.fc_mean) { setText('sarimaCap', 'Série/previsão não carregadas (rode reproducao/rodar_sarima.py).'); return; }
   const nObs = S.obs_valores.length, nFc = S.fc_mean.length;
   const fmt = l => l.slice(5, 7) + '/' + l.slice(2, 4);
   const labels = S.obs_labels.map(fmt).concat(S.fc_labels.map(fmt));

@@ -15,8 +15,9 @@ from sklearn.pipeline import make_pipeline
 from sklearn.metrics import roc_auc_score, f1_score, roc_curve, confusion_matrix
 from xgboost import XGBClassifier
 
-BASE = pathlib.Path(__file__).resolve().parent.parent
-DADOS = BASE / "notebooks" / "dados_brutos" / "PNS_2019.txt"
+AQUI = pathlib.Path(__file__).resolve().parent          # reproducao/
+BASE = AQUI.parent                                       # raiz do repositório
+DADOS = AQUI / "dados_brutos" / "PNS_2019.txt"
 
 # (posição inicial no SAS, largura) -> colspec base-0 = (ini-1, ini-1+larg)
 SPEC = {
@@ -110,7 +111,7 @@ saida = {
     "matriz_confusao": {"tn": tn, "fp": fp, "fn": fn, "tp": tp},
     "coef_odds_por_dp": odds,   # razão de chances de DM por +1 desvio-padrão de cada preditor
 }
-(BASE / "notebooks" / "modelos_pns_resultados.json").write_text(
+(AQUI / "modelos_pns_resultados.json").write_text(
     json.dumps(saida, ensure_ascii=False, indent=2), encoding="utf-8")
 (BASE / "pns_results.js").write_text(
     "window.PNS_RESULTS = " + json.dumps(saida, ensure_ascii=False) + ";", encoding="utf-8")
