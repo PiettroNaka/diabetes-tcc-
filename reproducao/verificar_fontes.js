@@ -157,8 +157,17 @@ const REGIAO_UF = { Norte: ['AC', 'AM', 'AP', 'PA', 'RO', 'RR', 'TO'], Nordeste:
 }
 // PNS 2019 — saídas da reanálise dos microdados
 {
-  const r = json('pns/pns_raca.json');
-  confere('pnsRaca (prev, n, total)', 'pns/pns_raca.json', [...r.prev, ...r.n, r.total], [...D.pnsRaca.prev, ...D.pnsRaca.n, D.pnsRaca.total]);
+  // execução de rodar_pns.py e rodar_pns_raca.py sobre os microdados reais, no Google Colab
+  const colab = json('pns/verificacao_pns_colab.json');
+  const ibge = colab.raca.especificacao_ibge, anterior = colab.raca.especificacao_painel, original = json('pns/pns_raca.json');
+  confere('pnsRaca (prev, n, total)', 'pns/verificacao_pns_colab.json (definição do IBGE)',
+    [...ibge.prev, ...ibge.n, ibge.total], [...D.pnsRaca.prev, ...D.pnsRaca.n, D.pnsRaca.total]);
+  confere('rodar_pns_raca.py × saída original por raça/cor', 'pns/verificacao_pns_colab.json × pns/pns_raca.json',
+    [...anterior.prev, ...anterior.n, anterior.total], [...original.prev, ...original.n, original.total]);
+  const lr = 'Regressão Logística', rep = colab.pns_results_reproduzido;
+  confere('pns_results.js — regressão logística reexecutada', 'pns/verificacao_pns_colab.json (rodar_pns.py nos microdados)',
+    [rep.n_amostra, rep.n_teste, ...Object.values(rep.modelos[lr]), ...Object.values(rep.matriz_confusao), ...Object.values(rep.coef_odds_por_dp), ...rep.roc[lr]],
+    [PNS.n_amostra, PNS.n_teste, ...Object.values(PNS.modelos[lr]), ...Object.values(PNS.matriz_confusao), ...Object.values(PNS.coef_odds_por_dp), ...PNS.roc[lr]]);
   const log = fs.readFileSync(path.join(FONTES, 'pns', 'pns_run.log'), 'latin1');
   const n = Number(log.match(/Conjunto final[^:]*:\s*(\d+)/)[1]), prev = Number(log.match(/DM:\s*([\d.]+)%/)[1]);
   const aucs = Object.keys(PNS.modelos).map(m => {

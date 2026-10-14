@@ -3,10 +3,12 @@
 Prevalência de diabetes autorreferido por cor ou raça nos microdados da PNS 2019.
 
 RECONSTRUÇÃO: o código original deste recorte não foi preservado. Só a saída dele
-foi guardada (fontes/pns/pns_raca.json), e é ela que alimenta o bloco pnsRaca de
-data.js. Este script refaz o cálculo a partir da descrição do TCC e do painel:
-adultos (18+), peso do morador selecionado com calibração (V00291), estimativa
-ponderada por cor ou raça. Ao final, compara o resultado com a saída original.
+foi guardada (fontes/pns/pns_raca.json). Este script refaz o cálculo a partir da
+descrição do TCC e do painel: adultos (18+), peso do morador selecionado com
+calibração (V00291), estimativa ponderada por cor ou raça. Executado sobre os
+microdados (fontes/pns/verificacao_pns_colab.json), reproduz exatamente a saída
+original na especificação "painel" e o total oficial (7,7%) na especificação
+"ibge", que passou a ser a usada no bloco pnsRaca de data.js.
 
 Calcula duas especificações:
   painel — denominador: quem respondeu à pergunta Q03001 (1 = Sim, 2 = Não),

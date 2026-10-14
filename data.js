@@ -143,14 +143,15 @@ const DATA = {
     cores:  ['#0072B2','#E69F00','#009E73','#CC79A7','#D55E00'],
   },
 
-  // DADO REAL: prevalência de DM autorreferido por raça/cor — reanálise ponderada
-  // dos MICRODADOS da PNS 2019 (peso do morador selecionado, adultos 18+, n=82.349).
-  // Reanálise própria (código do recorte não versionado). Amarela se destaca (13,4%).
+  // DADO REAL: prevalência de DM autorreferido por raça/cor — reanálise ponderada dos
+  // MICRODADOS da PNS 2019 (peso V00291, adultos 18+ com entrevista individual, n=88.531),
+  // com a definição do indicador oficial: reproduz o total do IBGE (7,7%). Fonte:
+  // reproducao/rodar_pns_raca.py, executado sobre os microdados (fontes/pns/verificacao_pns_colab.json).
   pnsRaca: {
     labels: ['Branca','Preta','Amarela','Parda','Indígena'],
-    prev:   [8.7, 8.8, 13.4, 8.3, 8.4],
-    n:      [30815, 9343, 639, 40948, 597],
-    total:  8.6,
+    prev:   [8.0, 7.8, 12.8, 7.3, 7.5],
+    n:      [32409, 10132, 665, 44646, 670],
+    total:  7.7,
   },
 
   // DADO REAL (SIM/TabNet 2025, Categoria CID-10, Grupo=47): distribuição dos óbitos

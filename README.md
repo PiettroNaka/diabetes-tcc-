@@ -73,6 +73,7 @@ A pasta [`reproducao/`](reproducao/) recalcula, a partir dos arquivos versionado
 ```bash
 node reproducao/reproduzir_resultados.js   # hipóteses H1–H5, robustez, perfis e métricas (Cap. 6)
 node reproducao/verificar_logistica.js     # gradiente descendente × máxima verossimilhança (Pima)
+node reproducao/verificar_fontes.js        # data.js × respostas originais do TabNet e da PNS (reproducao/fontes/)
 python reproducao/verificar_sarima.py      # reestimação do SARIMA (requer reproducao/requirements.txt)
 ```
 
@@ -103,7 +104,7 @@ As versões versionadas de `baixar_sim_dim.py` e `baixar_sih.py` mapeiam parte d
 | `mortalidadePadronizada` | taxa bruta × **padronizada por idade** (método direto) | SIM 2025 ÷ pop IBGE/SVS 2024 |
 | `internacoes` | internações e custo (AIH) + 2026 parcial (jan–jul) | SIH/SUS 2010–2026 |
 | `vigitelCidades` / `estadosPrevalencia` | prevalência de DM por capital (2006–2023; 2023 usada por UF) e mortalidade por UF; fonte única também do mapa | Vigitel 2006–2023: morbidade referida (Tab. 2) + SIM 2025 + Censo 2022 |
-| `pns` / `pnsRegiao` / `pnsRaca` | prevalência nacional, por sexo e por região (IBGE, oficial — Gráfico 34 da PNS 2019) e por raça/cor (reanálise dos microdados) | PNS 2013 e 2019 |
+| `pns` / `pnsRegiao` / `pnsRaca` | prevalência nacional, por sexo e por região (IBGE, oficial — Gráfico 34 da PNS 2019) e por raça/cor (reanálise dos microdados com a definição do indicador oficial, que reproduz o total de 7,7%) | PNS 2013 e 2019 |
 | `idfTopPaises` / `idfGlobal` / `idfEdicoes` / `idfGasto` | ranking (Brasil 15,7 mi, 6º), projeções, edições e gasto em saúde (Brasil US$ 42,9 bi, 3º) | IDF Diabetes Atlas 9ª–11ª ed. |
 
 ### Padronização por idade (método direto)
