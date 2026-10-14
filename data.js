@@ -31,28 +31,48 @@ const DATA = {
     hipertensao:  [22.6,23.4,25.3,25.4,24.5,24.6,24.6,24.7,25.6,25.9,26.8,25.8,26.3,26.0,27.2,28.4,30.1,29.7], // Tabela 47
   },
 
-  // ── Vigitel: prevalência por capital ─────────────────────────────────────
-  // ⚠ PROVISÓRIO — valores NÃO conferidos com o relatório oficial e divergentes
-  // do Vigitel publicado (ex.: 2023 oficial: SP 12,1%, DF 12,1%, Porto Alegre 12,0%,
-  // Rio Branco 5,6%). Serão substituídos pelos valores do relatório Vigitel Brasil
-  // 2006–2024 (tabela por capital) — sinalizado no painel como "em conferência".
+  // ── Vigitel: diabetes por capital — DADO OFICIAL ─────────────────────────
+  // "Vigitel Brasil 2006-2023: morbidade referida e autoavaliação de saúde"
+  // (MS/SVSA, 2025), Anexo, Tabela 2: % de adultos com diagnóstico médico de
+  // diabetes por capital, 2006–2023 (sem 2022). Atenção: esta edição usa a
+  // ponderação ANTERIOR à revisão pelo Censo 2022 (total 2023 = 10,2% aqui ×
+  // 11,4% no relatório 2006–2024). Comparações entre capitais seguem válidas.
   vigitelCidades: {
-    capitais: ['Manaus','Belém','Macapá','Porto Velho','Rio Branco','Boa Vista','Palmas',
-               'Fortaleza','Natal','Recife','Maceió','João Pessoa','Aracaju','Salvador','São Luís','Teresina',
-               'Brasília','Goiânia','Campo Grande','Cuiabá',
-               'São Paulo','Rio de Janeiro','Belo Horizonte','Vitória',
-               'Curitiba','Porto Alegre','Florianópolis'],
-    prevalencia: [7.9, 8.3, 7.5, 7.8, 7.2, 7.4, 8.2,
-                  9.4, 9.8,10.1, 9.7, 9.5,10.3,10.2, 9.1, 9.8,
-                  9.6,10.0, 9.3, 9.1,
-                 11.2,10.8,10.5, 9.9,
-                 10.5,10.1, 9.7],
-    pendente: true,
-    regioes: ['N','N','N','N','N','N','N',
-              'NE','NE','NE','NE','NE','NE','NE','NE','NE',
-              'CO','CO','CO','CO',
-              'SE','SE','SE','SE',
-              'S','S','S'],
+    ano: 2023,
+    capitais: ['Manaus','Belém','Macapá','Porto Velho','Rio Branco','Boa Vista','Palmas','Fortaleza','Natal','Recife','Maceió','João Pessoa','Aracaju','Salvador','São Luís','Teresina','Brasília','Goiânia','Campo Grande','Cuiabá','São Paulo','Rio de Janeiro','Belo Horizonte','Vitória','Curitiba','Porto Alegre','Florianópolis'],
+    prevalencia: [8.2, 6.9, 6.8, 6.6, 5.6, 6.9, 8.2, 11.6, 11.8, 8.3, 9.6, 7.2, 9.6, 9.0, 6.0, 10.2, 12.1, 8.8, 9.0, 9.0, 12.1, 11.0, 8.7, 9.6, 9.8, 12.0, 7.2],
+    regioes: ['N','N','N','N','N','N','N','NE','NE','NE','NE','NE','NE','NE','NE','NE','CO','CO','CO','CO','SE','SE','SE','SE','S','S','S'],
+    // série completa por capital (anos 2006–2021 e 2023)
+    anos: [2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023],
+    serie: {
+      'Manaus': [5.0, 4.4, 4.6, 4.2, 4.6, 4.8, 4.9, 5.2, 7.4, 7.2, 5.6, 7.0, 7.4, 6.0, 7.3, 6.7, 8.2],
+      'Belém': [5.6, 4.5, 4.0, 4.5, 5.8, 6.0, 5.5, 5.5, 7.6, 6.3, 6.6, 6.2, 7.0, 6.8, 6.9, 9.3, 6.9],
+      'Macapá': [3.6, 4.4, 4.2, 4.2, 4.9, 5.4, 4.9, 4.6, 5.5, 4.6, 6.3, 6.0, 5.4, 5.2, 4.7, 7.9, 6.8],
+      'Porto Velho': [4.8, 4.8, 5.1, 5.5, 5.2, 4.8, 5.0, 5.3, 5.4, 5.5, 6.8, 7.5, 6.3, 4.6, 5.7, 7.6, 6.6],
+      'Rio Branco': [3.5, 4.0, 4.7, 3.9, 5.5, 5.3, 6.0, 4.6, 6.2, 6.7, 5.8, 6.2, 5.2, 4.9, 4.4, 6.4, 5.6],
+      'Boa Vista': [4.1, 2.0, 3.5, 3.7, 4.8, 4.7, 5.5, 4.6, 5.0, 4.6, 5.3, 8.1, 5.5, 7.0, 6.4, 6.7, 6.9],
+      'Palmas': [3.0, 4.2, 3.0, 4.0, 4.7, 3.2, 4.3, 3.6, 4.1, 3.9, 5.8, 4.5, 5.5, 4.7, 5.6, 8.8, 8.2],
+      'Fortaleza': [4.9, 5.7, 5.9, 5.7, 6.5, 7.2, 6.7, 7.5, 7.4, 6.2, 8.2, 7.6, 9.5, 7.4, 7.3, 9.0, 11.6],
+      'Natal': [5.0, 7.8, 7.3, 6.6, 6.5, 6.8, 8.0, 7.2, 7.8, 7.8, 10.1, 6.8, 7.9, 7.3, 10.5, 8.6, 11.8],
+      'Recife': [5.7, 6.0, 5.8, 7.1, 6.1, 6.4, 7.7, 6.1, 7.4, 7.6, 9.6, 7.3, 7.2, 8.1, 9.3, 8.9, 8.3],
+      'Maceió': [5.7, 5.5, 5.7, 6.8, 7.0, 6.5, 7.3, 7.2, 8.3, 7.3, 8.1, 7.8, 8.4, 8.2, 11.0, 10.7, 9.6],
+      'João Pessoa': [5.5, 5.7, 6.1, 6.5, 5.1, 5.4, 5.9, 6.5, 7.0, 6.2, 7.2, 7.3, 7.2, 6.8, 6.6, 8.7, 7.2],
+      'Aracaju': [4.4, 5.3, 6.6, 5.6, 6.4, 6.2, 6.0, 6.3, 7.2, 7.1, 9.2, 6.9, 6.8, 7.3, 7.0, 9.5, 9.6],
+      'Salvador': [5.2, 5.6, 5.5, 6.4, 4.8, 5.9, 6.0, 5.9, 7.4, 7.4, 8.0, 6.6, 6.3, 6.7, 6.3, 9.0, 9.0],
+      'São Luís': [5.7, 5.2, 3.6, 5.1, 5.4, 5.2, 5.5, 4.9, 4.4, 4.4, 6.8, 5.2, 6.3, 6.4, 6.8, 9.0, 6.0],
+      'Teresina': [4.4, 4.8, 5.3, 5.2, 5.8, 5.8, 5.1, 5.5, 5.4, 6.5, 6.8, 5.6, 6.3, 6.3, 6.4, 9.5, 10.2],
+      'Brasília': [5.2, 4.6, 5.4, 4.0, 5.5, 5.5, 6.6, 5.3, 6.7, 7.0, 8.6, 7.3, 6.7, 7.7, 5.7, 7.9, 12.1],
+      'Goiânia': [5.2, 4.2, 4.4, 6.1, 6.5, 4.8, 5.4, 5.1, 6.2, 7.0, 7.6, 7.2, 6.2, 6.6, 6.3, 6.8, 8.8],
+      'Campo Grande': [4.1, 4.8, 6.9, 6.1, 5.8, 6.5, 6.5, 6.6, 7.7, 7.9, 8.8, 7.7, 7.1, 5.9, 7.7, 8.5, 9.0],
+      'Cuiabá': [4.3, 6.2, 4.8, 5.6, 7.6, 6.1, 6.9, 6.8, 7.4, 6.3, 7.9, 5.8, 6.9, 7.0, 7.5, 10.0, 9.0],
+      'São Paulo': [6.4, 6.7, 7.5, 7.6, 7.8, 6.9, 9.3, 8.2, 9.5, 7.7, 10.0, 8.3, 7.7, 7.9, 8.5, 9.1, 12.1],
+      'Rio de Janeiro': [6.2, 6.0, 7.4, 7.0, 8.4, 6.9, 7.8, 7.4, 9.2, 8.8, 10.4, 8.8, 9.8, 8.3, 11.2, 10.9, 11.0],
+      'Belo Horizonte': [4.2, 5.8, 5.8, 5.7, 6.4, 6.2, 6.6, 7.6, 7.4, 7.5, 10.1, 8.2, 7.5, 8.0, 7.7, 11.3, 8.7],
+      'Vitória': [5.3, 4.6, 4.9, 5.7, 5.5, 6.6, 7.4, 6.7, 8.1, 6.6, 9.7, 8.5, 6.9, 6.4, 7.9, 8.8, 9.6],
+      'Curitiba': [5.5, 5.4, 5.1, 6.3, 7.4, 5.6, 8.4, 6.1, 8.1, 7.2, 9.6, 7.2, 6.8, 7.0, 8.2, 9.3, 9.8],
+      'Porto Alegre': [5.4, 6.9, 6.9, 6.0, 7.1, 6.5, 8.0, 7.8, 8.6, 8.7, 8.5, 8.0, 7.9, 8.6, 10.0, 8.7, 12.0],
+      'Florianópolis': [4.5, 6.1, 4.9, 5.6, 6.5, 6.2, 7.3, 5.5, 8.3, 6.7, 6.7, 5.4, 6.5, 6.1, 7.9, 6.6, 7.2],
+    },
   },
 
   // ── Vigitel: diabetes por nível de instrução — Tabela 51 (oficial) ────────
@@ -220,12 +240,13 @@ const DATA = {
   },
 
   // ── INDICADORES POR UF ───────────────────────────────────────────────────
-  // prev: ⚠ PROVISÓRIO (capital da UF; mesma origem de vigitelCidades — em conferência).
-  // mort: dado real (SIM 2025 ÷ Censo 2022). pop: Censo 2022. Fonte única do mapa.
+  // prev: prevalência de diabetes na CAPITAL da UF, Vigitel 2023 (volume 2006–2023 de
+  //       morbidade referida, Tabela 2 do anexo) — aproximação da UF pela capital.
+  // mort: SIM 2025 ÷ Censo 2022 (taxa bruta). pop: Censo 2022. Fonte única do mapa.
   estadosPrevalencia: {
     estados: ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'],
     siglas:  ['Acre','Alagoas','Amazonas','Amapá','Bahia','Ceará','Dist.Fed.','Espírito Santo','Goiás','Maranhão','Minas Gerais','Mato Grosso do Sul','Mato Grosso','Pará','Paraíba','Pernambuco','Piauí','Paraná','Rio de Janeiro','Rio Grande do Norte','Rondônia','Roraima','Rio Grande do Sul','Santa Catarina','Sergipe','São Paulo','Tocantins'],
-    prev:    [7.2, 9.7, 7.9, 7.5, 10.2, 9.4, 9.6, 9.9, 10.0, 9.1, 10.5, 9.3, 9.1, 8.3, 9.5, 10.1, 9.8, 10.5, 10.8, 9.8, 7.8, 7.4, 10.1, 9.7, 10.3, 11.2, 8.2],
+    prev:    [5.6, 9.6, 8.2, 6.8, 9.0, 11.6, 12.1, 9.6, 8.8, 6.0, 8.7, 9.0, 9.0, 6.9, 7.2, 8.3, 10.2, 9.8, 11.0, 11.8, 6.6, 6.9, 12.0, 7.2, 9.6, 12.1, 8.2],
     // DADO REAL: taxa bruta = óbitos SIM/TabNet 2025 (por UF, E10–E14) ÷ pop Censo 2022 × 100 mil hab
     mort:    [13.6,40.6,31.0,22.7,45.8,25.1,19.3,51.3,29.3,39.4,32.1,28.0,33.6,31.0,44.0,42.7,43.3,37.7,43.6,31.3,38.7,20.3,51.4,34.6,34.7,28.7,33.4],
     regiao:  ['N','NE','N','N','NE','NE','CO','SE','CO','NE','SE','CO','CO','N','NE','NE','NE','S','SE','NE','N','N','S','S','NE','SE','N'],
@@ -248,7 +269,7 @@ const DATA = {
   // Comparativo Vigitel (capitais, telefônico) vs PNS (nacional, domiciliar)
   comparacaoFontes: {
     labels: ['Diabetes (%)', 'Cobertura', 'Método', 'Periodicidade'],
-    vigitel: { prev2019: 8.1, escopo: 'Capitais + DF', metodo: 'Telefônico', freq: 'Anual (2006–2024)' },
+    vigitel: { prev2019: 8.2, escopo: 'Capitais + DF', metodo: 'Telefônico', freq: 'Anual (2006–2024)' },
     pns:     { prev2019: 7.7, escopo: 'Nacional (incl. rural)', metodo: 'Domiciliar', freq: 'Quinquenal (2013, 2019)' },
   },
 

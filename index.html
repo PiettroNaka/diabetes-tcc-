@@ -9,7 +9,7 @@
 <script src="vendor/chart.umd.js"></script>
 <script src="vendor/d3.min.js"></script>
 <script src="vendor/topojson.min.js"></script>
-<link rel="stylesheet" href="style.css?v=30">
+<link rel="stylesheet" href="style.css?v=31">
 </head>
 <body>
 
@@ -203,9 +203,9 @@
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Prevalência por estado (capitais) — Vigitel (%)</h3>
-        <p class="chart-src">Fonte: Vigitel — Ministério da Saúde · <span class="pending">⚠ valores provisórios — em conferência com o relatório oficial do Vigitel</span></p>
+        <p class="chart-src">Fonte: Vigitel 2023 — volume <em>2006–2023: morbidade referida</em>, Tabela 2 (oficial; ponderação anterior à revisão pelo Censo 2022)</p>
         <div style="position:relative;height:380px"><canvas id="chartStatePrevalence" role="img" aria-label="Prevalência de diabetes por estado (capitais)"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> capitais do Sudeste/Sul lideram; o gradiente reflete envelhecimento, urbanização e maior acesso a diagnóstico — não necessariamente mais doença no Norte (possível subdiagnóstico).</div>
+        <div class="chart-insight"><b>Leitura:</b> em 2023, as maiores prevalências foram em <b>São Paulo e Brasília (12,1%)</b>, Porto Alegre (12,0%), Natal (11,8%) e Fortaleza (11,6%); as menores, em <b>Rio Branco (5,6%)</b> e São Luís (6,0%). As capitais do Norte tendem a valores menores — combinação de população mais jovem e possível subdiagnóstico, não necessariamente menos doença.</div>
       </div>
     </div>
     <div class="charts-row">
@@ -393,7 +393,7 @@
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Prevalência de diabetes por estado — capitais (Vigitel, %)</h3>
-        <p class="chart-src">Valores referentes às capitais estaduais · <span class="pending">⚠ valores provisórios — em conferência com o relatório oficial do Vigitel</span></p>
+        <p class="chart-src">Valores das capitais estaduais · Vigitel 2023 — volume <em>2006–2023: morbidade referida</em>, Tabela 2 (oficial; ponderação anterior à revisão pelo Censo 2022)</p>
         <div id="brazilMap" style="width:100%;min-height:480px;display:flex;align-items:center;justify-content:center;"></div>
         <div id="mapLegend" style="margin-top:12px"></div>
         <div class="chart-note"><i>Limitação do mapa:</i> o Vigitel coleta apenas nas capitais. O valor da capital é usado para colorir todo o estado — uma aproximação. Para prevalência por UF completa (incluindo interior), a fonte adequada é a PNS (aba PNS/Fontes).</div>
@@ -402,9 +402,9 @@
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Comparativo estadual — prevalência (%) e taxa de mortalidade (por 100k hab)</h3>
-        <p class="chart-src">Fonte: prevalência Vigitel (capitais, <span class="pending">⚠ valores provisórios — em conferência com o relatório oficial do Vigitel</span>) + mortalidade SIM/DATASUS 2025 ÷ Censo IBGE 2022</p>
+        <p class="chart-src">Fonte: prevalência na capital (Vigitel 2023, oficial) + mortalidade SIM/DATASUS 2025 ÷ Censo IBGE 2022</p>
         <div style="position:relative;height:360px"><canvas id="chartStateComparison" role="img" aria-label="Comparativo de prevalência e mortalidade por estado"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> prevalência e mortalidade caminham juntas entre as UFs — a relação formal (r, IC, p) está na aba Análise Estatística.</div>
+        <div class="chart-insight"><b>Leitura:</b> prevalência e mortalidade <b>não</b> caminham juntas entre as UFs — ES e RS têm a mortalidade mais alta, mas prevalências distintas; DF e SP têm alta prevalência e mortalidade baixa. A relação formal (r, IC, p) está na aba Análise Estatística.</div>
       </div>
     </div>
   </section>
@@ -422,7 +422,7 @@
       <div class="kpi-card"><span class="kpi-label">DM — 2006</span><span class="kpi-value">5,5%</span><span class="kpi-sub">1ª edição Vigitel</span></div>
       <div class="kpi-card"><span class="kpi-label">DM — 2010</span><span class="kpi-value">6,9%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
       <div class="kpi-card"><span class="kpi-label">DM — 2015</span><span class="kpi-value">7,8%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
-      <div class="kpi-card"><span class="kpi-label">DM — 2019</span><span class="kpi-value">8,1%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
+      <div class="kpi-card"><span class="kpi-label">DM — 2019</span><span class="kpi-value">8,2%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
       <div class="kpi-card"><span class="kpi-label">DM — 2021</span><span class="kpi-value">10,3%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
       <div class="kpi-card"><span class="kpi-label">DM — 2024</span><span class="kpi-value">12,9%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
     </div>
@@ -442,9 +442,9 @@
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>DM por capital (Vigitel)</h3>
-        <p class="chart-src">26 capitais + DF · <span class="pending">⚠ valores provisórios — em conferência com o relatório oficial do Vigitel</span></p>
+        <p class="chart-src">26 capitais + DF, 2023 · Vigitel 2023 — volume <em>2006–2023: morbidade referida</em>, Tabela 2 (oficial; ponderação anterior à revisão pelo Censo 2022)</p>
         <div style="position:relative;height:500px"><canvas id="chartVigitelCidades" role="img" aria-label="Prevalência de diabetes por capital brasileira"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> cores por região mostram o gradiente Sul/Sudeste &gt; Norte; use o filtro de Região para isolar cada bloco.</div>
+        <div class="chart-insight"><b>Leitura:</b> a variação entre capitais é grande (5,6% a 12,1%) e não segue só a região: Natal e Fortaleza estão entre as mais altas, e Florianópolis entre as mais baixas. Use o filtro de Região para isolar cada bloco.</div>
       </div>
     </div>
   </section>
@@ -487,7 +487,7 @@
         <h3>Vigitel vs PNS — prevalência de DM (2019, %)</h3>
         <p class="chart-src">Vigitel (capitais, telefônico) vs PNS (nacional, domiciliar)</p>
         <div style="position:relative;height:240px"><canvas id="chartFontesComp" role="img" aria-label="Comparação de prevalência de diabetes entre Vigitel e PNS"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> a diferença Vigitel (8,1%) × PNS (7,7%) não é erro — é método: telefônico/capitais vs domiciliar/nacional. Triangular fontes é boa prática.</div>
+        <div class="chart-insight"><b>Leitura:</b> a diferença Vigitel (8,2%) × PNS (7,7%) não é erro — é método: telefônico/capitais vs domiciliar/nacional. Triangular fontes é boa prática.</div>
       </div>
       <div class="chart-card">
         <h3>PNS — evolução 2013 → 2019 por sexo (%)</h3>
@@ -630,7 +630,7 @@
       </div>
       <div class="chart-card">
         <h3>Distribuição da prevalência por região (min–média–máx)</h3>
-        <p class="chart-src">Amplitude das UFs em cada região · Vigitel (capitais) · <span class="pending">⚠ valores provisórios — em conferência com o relatório oficial do Vigitel</span></p>
+        <p class="chart-src">Amplitude das capitais em cada região · Vigitel 2023 (oficial)</p>
         <div style="position:relative;height:300px"><canvas id="chartDistRegion" role="img" aria-label="Distribuição da prevalência por região mostrando mínimo média e máximo"></canvas></div>
       </div>
     </div>
@@ -914,14 +914,13 @@
             <tr><td><b>OE2</b></td><td style="text-align:left"><strong>Identificar, avaliar e auditar as fontes</strong>, incorporando apenas indicadores rastreáveis e sinalizando valores preliminares e estimados.</td><td style="text-align:left">PNS / Fontes (catálogo; ANS avaliada e excluída)</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
             <tr><td><b>OE3</b></td><td style="text-align:left"><strong>Construir um processo reprodutível</strong> de extração, tratamento e consolidação (TabNet, microdados da PNS, taxas brutas e padronizadas).</td><td style="text-align:left">Mortalidade · Exportar CSV</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
             <tr><td><b>OE4</b></td><td style="text-align:left"><strong>Caracterizar a evolução temporal</strong> da prevalência, da mortalidade e das internações, testando a tendência (H1) e projetando a prevalência.</td><td style="text-align:left">Visão Geral · Mortalidade · Internações · Análise</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
-            <tr><td><b>OE5</b></td><td style="text-align:left"><strong>Analisar a distribuição geográfica e por subgrupos</strong> (região, UF, capital, sexo, idade, escolaridade, raça/cor), com padronização por idade.</td><td style="text-align:left">Prevalência · Distribuição Geográfica · Mortalidade</td><td><span class="hyp-badge hyp-part">Em conferência</span></td></tr>
+            <tr><td><b>OE5</b></td><td style="text-align:left"><strong>Analisar a distribuição geográfica e por subgrupos</strong> (região, UF, capital, sexo, idade, escolaridade, raça/cor), com padronização por idade.</td><td style="text-align:left">Prevalência · Distribuição Geográfica · Mortalidade</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
             <tr><td><b>OE6</b></td><td style="text-align:left"><strong>Quantificar associações</strong> por inferência estatística (H2, H3), com IC 95% e p-valor, e regressão múltipla validada por LOOCV.</td><td style="text-align:left">Análise Estatística · Modelagem</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
             <tr><td><b>OE7</b></td><td style="text-align:left"><strong>Modelar a série mensal de óbitos</strong>: decomposição, SARIMA e avaliação por backtest (RMSE, MAPE).</td><td style="text-align:left">Modelagem Preditiva</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
             <tr><td><b>OE8</b></td><td style="text-align:left"><strong>Desenvolver e avaliar modelos de ML</strong>: logística no navegador (Pima) e logística × Random Forest × XGBoost (PNS 2019), com AUC, AP, matriz de confusão e OR (H4, H5).</td><td style="text-align:left">Modelagem Preditiva</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
             <tr><td><b>OE9</b></td><td style="text-align:left"><strong>Disponibilizar o dashboard</strong> interativo, acessível e reprodutível, com filtros, notas metodológicas, exportação e avaliação automática das hipóteses.</td><td style="text-align:left">Todas as abas</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
         </tbody>
       </table>
-      <p style="font-size:11px;color:var(--ink-3);margin-top:8px">OE5 em conferência: os recortes do Vigitel por capital, faixa etária e escolaridade estão sendo substituídos pelos valores do relatório oficial Vigitel Brasil 2006–2024. As demais análises do OE5 (região, raça/cor, padronização por idade) usam dado oficial.</p>
     </div>
 
     <!-- HIPÓTESES (avaliadas ao vivo) -->
@@ -983,7 +982,7 @@
         <div style="line-height:1.75;font-size:14.5px;margin-top:8px">
           <p>A análise dos dados públicos evidencia, com sustentação estatística, que o diabetes mellitus configura um problema de saúde pública <strong>crescente, socialmente desigual e economicamente oneroso</strong> no Brasil. A prevalência autorreferida elevou-se de forma estatisticamente significativa entre 2006 e 2024 (H1: tendência linear positiva, p&lt;0,001), em trajetória fortemente correlacionada à do excesso de peso (H2: r&nbsp;≈&nbsp;0,93, p&lt;0,001). O agravo concentra-se nas idades mais avançadas (82,7% dos óbitos ocorrem a partir dos 60 anos) e nos grupos de menor escolaridade, e a padronização por idade revela maior mortalidade no Norte — evidências do papel dos <strong>determinantes sociais da saúde</strong>.</p>
           <p style="margin-top:10px">No plano da modelagem preditiva, a prova de conceito demonstra ser viável <strong>classificar o risco de diabetes com poder discriminativo adequado</strong> a partir de variáveis clínicas (H4: AUC no conjunto de teste), tendo a glicemia e o índice de massa corporal como preditores de maior peso (H5) — resultado coerente com a fisiopatologia da doença. Tais achados respaldam o potencial de instrumentos de triagem orientados por dados na atenção primária à saúde.</p>
-          <p style="margin-top:10px">Quanto à correlação ecológica entre prevalência e mortalidade estaduais (H3), embora significativa, foi classificada apenas como <strong>parcialmente sustentada</strong>, dado que associações em nível agregado não autorizam inferências sobre indivíduos. Conclui-se, em resposta à pergunta de pesquisa, que os dados abertos brasileiros são <strong>adequados para caracterizar e monitorar</strong> o diabetes e para <strong>fundamentar modelos preditivos</strong>, desde que submetidos a tratamento estatístico rigoroso e à explicitação transparente de suas limitações.</p>
+          <p style="margin-top:10px">A correlação ecológica entre prevalência e mortalidade estaduais (H3) <strong>não foi sustentada</strong>: com os valores oficiais das capitais, a associação é fraca e não significativa — a mortalidade por UF reflete também a estrutura etária, o acesso ao diagnóstico e ao cuidado, e a prevalência da capital representa mal o interior. Além disso, associações em nível agregado não autorizam inferências sobre indivíduos. Conclui-se, em resposta à pergunta de pesquisa, que os dados abertos brasileiros são <strong>adequados para caracterizar e monitorar</strong> o diabetes e para <strong>fundamentar modelos preditivos</strong>, desde que submetidos a tratamento estatístico rigoroso e à explicitação transparente de suas limitações.</p>
         </div>
       </div>
     </div>
@@ -1026,12 +1025,12 @@
   </div>
 </footer>
 
-<script src="data.js?v=30"></script>
-<script src="pima.js?v=30"></script>
-<script src="ml.js?v=30"></script>
-<script src="serie_mensal.js?v=30"></script>
-<script src="charts.js?v=30"></script>
-<script src="map.js?v=30"></script>
-<script src="app.js?v=30"></script>
+<script src="data.js?v=31"></script>
+<script src="pima.js?v=31"></script>
+<script src="ml.js?v=31"></script>
+<script src="serie_mensal.js?v=31"></script>
+<script src="charts.js?v=31"></script>
+<script src="map.js?v=31"></script>
+<script src="app.js?v=31"></script>
 </body>
 </html>

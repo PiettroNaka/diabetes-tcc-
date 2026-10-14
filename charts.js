@@ -343,7 +343,7 @@ function renderStatePrevalence() {
     },
     options: { ...baseOpts(),
       scales: { ...baseOpts().scales,
-        y: { ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:6, max:12 },
+        y: { ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:4, max:13 },
         x: { ...baseOpts().scales.x, ticks:{ color: TICK_COLOR, font:{size:10}, maxRotation:65, autoSkip:false } }
       },
       plugins: { ...baseOpts().plugins,
@@ -736,7 +736,7 @@ function renderStateComparison() {
     options: { ...baseOpts({ display:false }),
       scales:{
         x:{ grid:{color:GRID_COLOR}, ticks:{ color:TICK_COLOR, font:{size:10}, maxRotation:65, autoSkip:false } },
-        y:{ grid:{color:GRID_COLOR}, title:{ display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11} }, min:6, max:12, ticks:{ color:TICK_COLOR, font:{size:11} } },
+        y:{ grid:{color:GRID_COLOR}, title:{ display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11} }, min:4, max:13, ticks:{ color:TICK_COLOR, font:{size:11} } },
         y1:{ position:'right', grid:{drawOnChartArea:false}, ticks:{ color:PALETTE.red, font:{size:11}, stepSize:10 }, title:{ display:true, text:'Taxa mort./100k', color:PALETTE.red, font:{size:11} }, min:10, max:55 },
       }
     },
@@ -787,7 +787,7 @@ function renderVigitelCidades() {
     options: { ...baseOpts(),
       scales:{
         y:{ grid:{color:GRID_COLOR}, ticks:{ color:TICK_COLOR, font:{size:10} } },
-        x:{ grid:{color:GRID_COLOR}, ticks:{ color:TICK_COLOR, font:{size:11} }, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:6, max:12 }
+        x:{ grid:{color:GRID_COLOR}, ticks:{ color:TICK_COLOR, font:{size:11} }, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:4, max:13 }
       }
     },
   }));
@@ -1040,7 +1040,7 @@ function renderDistRegion() {
     options:{ ...baseOpts({ display:false }),
       scales:{
         x:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:10}} },
-        y:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11}}, min:6 },
+        y:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11}}, min:4 },
       },
       plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{
         label: ctx => ctx.datasetIndex===0
@@ -1071,7 +1071,7 @@ function renderBubble() {
     options:{ ...baseOpts({ display:false }),
       layout:{ padding:10 },
       scales:{
-        x:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11}}, min:6, max:12 },
+        x:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11}}, min:4, max:13 },
         y:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}, stepSize:10}, title:{display:true, text:'Mortalidade /100k hab', color:TICK_COLOR, font:{size:11}}, min:10, max:60 },
       },
       plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{
@@ -1304,7 +1304,7 @@ function renderAnaliseMinis() {
   saveChart(id, new Chart(document.getElementById(id), {
     type:'bar',
     data:{ labels: sorted.map((_,i)=>i), datasets:[{ data: sorted, backgroundColor: sorted.map(v=> v>=m?PALETTE.red+'cc':PALETTE.blue+'aa'), borderRadius:1, barPercentage:1, categoryPercentage:1 }] },
-    options: sparkOpts({ scales:{ x:{display:false}, y:{ display:false, min:6 } } }),
+    options: sparkOpts({ scales:{ x:{display:false}, y:{ display:false, min:4 } } }),
   }));
 }
 
@@ -1312,7 +1312,7 @@ function renderStatsTable() {
   const tbody = document.getElementById('statsTableBody'); if (!tbody) return;
   const idx = stIdx(), E = DATA.estadosPrevalencia;
   const series = [
-    { nome:'Prevalência DM por UF (%) — provisório', a: idx.map(i=>E.prev[i]), dec:1 },
+    { nome:'Prevalência DM na capital (%) 2023', a: idx.map(i=>E.prev[i]), dec:1 },
     { nome:'Mortalidade por UF (/100k)',        a: idx.map(i=>E.mort[i]), dec:1 },
     { nome:'Prevalência DM Vigitel (%) 2006–24',a: DATA.vigitel2024.diabetes,    dec:1 },
     { nome:'Excesso de peso Vigitel (%) 2006–24',a: DATA.vigitel2024.excessoPeso, dec:1 },
@@ -1358,7 +1358,7 @@ function renderSintese() {
 
   // H3 — prevalência × mortalidade por UF (significativa, mas ecológica → no máximo "parcial")
   const rPM = Stats.pearson(E.prev, E.mort), pPM = Stats.corrP(rPM, E.prev.length);
-  setText('h3Stat', `r = ${rPM.toFixed(3).replace('.', ',')} · ${fmtP(pPM)} · n = ${E.prev.length} UFs (dado agregado)` + (DATA.vigitelCidades.pendente ? ' · ⚠ prevalência provisória, em conferência' : ''));
+  setText('h3Stat', `r = ${rPM.toFixed(3).replace('.', ',')} · ${fmtP(pPM)} · n = ${E.prev.length} UFs (dado agregado)` + ' · prevalência da capital, Vigitel 2023');
   setBadge('h3Badge', (rPM > 0 && pPM < 0.05) ? 'part' : 'no');
 
   // H4 — AUC do modelo treinado

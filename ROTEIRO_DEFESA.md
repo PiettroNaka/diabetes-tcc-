@@ -32,7 +32,7 @@ Números-âncora:
 
 **Ponto técnico:** a TCAC usa o **intervalo efetivo de 18 anos** (2006→2024), não o número de observações − 1 (17), porque não houve coleta em 2022.
 
-**Faixa etária e instrução (oficiais, Tabela 51):** 65+ chega a **31,4%** em 2024 (+0,57 pp/ano); sem instrução/fundamental incompleto **24,0%** × superior completo **9,0%** (2,7×). **Atenção:** a prevalência **por capital** ainda está marcada como provisória — o relatório 2006–2024 não traz diabetes por capital.
+**Faixa etária e instrução (oficiais, Tabela 51):** 65+ chega a **31,4%** em 2024 (+0,57 pp/ano); sem instrução/fundamental incompleto **24,0%** × superior completo **9,0%** (2,7×). **Capitais (oficial, Vigitel 2023, volume de morbidade referida):** maiores em São Paulo e Brasília (12,1%), Porto Alegre (12,0%), Natal (11,8%) e Fortaleza (11,6%); menor em Rio Branco (5,6%). Esse volume usa a ponderação anterior ao Censo 2022 (total 2023 = 10,2% × 11,4% no relatório 2006–2024) — diga isso se perguntarem por que os números não batem.
 
 ## 3. Mortalidade (SIM)
 **Mostrar:** série 2000–2025, faixa etária, região (taxa bruta), **bruta × padronizada**, tipo CID-10, raça/cor, comparação com outras causas.
@@ -64,7 +64,7 @@ Números-âncora:
 **Pontos técnicos:** o mapa lê **a mesma fonte de dados** dos gráficos (sem cópia própria); classes de **intervalos fixos** (mantêm o significado das cores sob o filtro de região); UFs fora da região filtrada são esmaecidas, não removidas. Limitação: a prevalência da capital representa a UF inteira.
 
 ## 7. Vigitel
-**Mostrar:** marcos da série (2006 → 2024), evolução conjunta de diabetes, excesso de peso e hipertensão, prevalência por capital (provisória — fonte por capital ainda em conferência).
+**Mostrar:** marcos da série (2006 → 2024), evolução conjunta de diabetes, excesso de peso e hipertensão, prevalência por capital em 2023 (oficial).
 
 ## 8. PNS / Fontes
 **Mostrar:** tabela "quantos diabéticos há no Brasil?", Vigitel × PNS, PNS por sexo e região, edições do IDF, gasto em saúde (IDF) e catálogo de fontes.
@@ -81,7 +81,7 @@ Números-âncora:
 **Pontos técnicos:**
 - **H1:** inclinação **+0,333 pp/ano**, R² = 0,861, p < 0,001 — o próprio relatório (Tabela 52, mesmo método: regressão do indicador sobre o ano) publica **+0,35 pp/ano (IC 0,25–0,44)**. Validação cruzada com a fonte oficial.
 - **H2:** r = **0,933** (excesso de peso × diabetes, n = 18 anos), p < 0,001 — mas séries que crescem juntas compartilham tendência: é **coevolução**, não efeito individual.
-- **H3:** correlação entre UFs → **ecológica** → no máximo "parcial", por regra de decisão explícita (Cap. 2 do TCC). (Valor sujeito à conferência da prevalência por capital.)
+- **H3: refutada.** Com a prevalência oficial das capitais, r = **0,185** (p = 0,35; IC 95% −0,21 a 0,53; Spearman 0,16). Prevalência autorreferida na capital e mortalidade bruta da UF medem coisas diferentes: a mortalidade depende da estrutura etária, do acesso ao cuidado e do interior, que a capital não representa. **Ponto forte da defesa:** a versão anterior do painel, com valores não verificados, mostrava r = 0,51 — a auditoria dos dados mudou a conclusão, e isso é ciência de dados funcionando.
 - O p-valor da distribuição t é calculado em JavaScript pela **função beta incompleta regularizada** (Numerical Recipes).
 - A **carga estimada** superestima (prevalência de adultos × população total) e serve apenas para **ordenar** UFs — está escrito no gráfico.
 
@@ -134,7 +134,7 @@ Números-âncora:
 
 ## Limitações a admitir antes que perguntem
 - Prevalência autorreferida subestima quem não tem diagnóstico.
-- Vigitel cobre só capitais; o mapa usa a capital para a UF inteira. A prevalência por capital está em conferência.
+- Vigitel cobre só capitais; o mapa usa a capital para a UF inteira. A prevalência por capital (2023) usa a ponderação anterior ao Censo 2022.
 - O relatório não cruza idade/instrução com sexo e não ajusta o gradiente de instrução por idade.
 - Reanálise da PNS por raça/cor dá 8,6% no total (oficial: 7,7%) → uso só para comparação relativa entre grupos.
 - Imputação por mediana reduz a variabilidade da insulina (48,7% de zeros) e da prega cutânea.

@@ -88,7 +88,7 @@ O FTP do DATASUS fica indisponível em muitos ambientes, então os dados foram e
 | `mortalidadeFaixaEtaria` / `Regiao` / `CID` / `Raca` | óbitos por faixa, região, subtipo E10–E14, raça | SIM 2025 |
 | `mortalidadePadronizada` | taxa bruta × **padronizada por idade** (método direto) | SIM 2025 ÷ pop IBGE/SVS 2024 |
 | `internacoes` | internações e custo (AIH) + 2026 parcial (jan–jul) | SIH/SUS 2010–2026 |
-| `estadosPrevalencia` | prevalência (capital — **provisória**, em conferência) e mortalidade por UF; fonte única também do mapa | Vigitel + SIM 2025 + Censo 2022 |
+| `vigitelCidades` / `estadosPrevalencia` | prevalência de DM por capital (2006–2023; 2023 usada por UF) e mortalidade por UF; fonte única também do mapa | Vigitel 2006–2023: morbidade referida (Tab. 2) + SIM 2025 + Censo 2022 |
 | `pns` / `pnsRegiao` / `pnsRaca` | prevalência nacional e por sexo (IBGE), por região, e por raça/cor (reanálise dos microdados) | PNS 2013 e 2019 |
 | `idfTopPaises` / `idfGlobal` / `idfEdicoes` / `idfGasto` | ranking (Brasil 15,7 mi, 6º), projeções, edições e gasto em saúde (Brasil US$ 42,9 bi, 3º) | IDF Diabetes Atlas 9ª–11ª ed. |
 
@@ -99,7 +99,7 @@ Taxa padronizada de cada região = Σ (taxa específica por faixa etária × pes
 - **Pima (interativo):** regressão logística treinada ao vivo no navegador (gradiente descendente) sobre o Pima Indians Diabetes Dataset (NIDDK) — demonstra o pipeline de ponta a ponta.
 - **PNS 2019 (nacional):** Logística × Random Forest × XGBoost em Python (scikit-learn), validação cruzada k=5, split estratificado 70/30, seed fixa. Exporta AUC, curva ROC, matriz de confusão e coeficientes (`pns_results.js`).
 
-> **Nota:** nenhum dado é sintético. Estimativas (IDF, carga por UF) estão sinalizadas como tal, e valores ainda não conferidos com o relatório oficial aparecem como **provisórios**.
+> **Nota:** nenhum dado é sintético. Estimativas (IDF, carga por UF) estão sinalizadas como tal.
 
 ---
 

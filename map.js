@@ -17,11 +17,11 @@ const MAP_DATA = (function () {
 
 // Cores para escala de prevalência
 const COLOR_SCALE = [
-  { min: 0,    max: 8.0,  fill: '#bfdbfe', label: '< 8,0%' },
-  { min: 8.0,  max: 9.0,  fill: '#93c5fd', label: '8,0 – 9,0%' },
-  { min: 9.0,  max: 10.0, fill: '#3b82f6', label: '9,0 – 10,0%' },
-  { min: 10.0, max: 10.5, fill: '#1d4ed8', label: '10,0 – 10,5%' },
-  { min: 10.5, max: 99,   fill: '#1e3a8a', label: '> 10,5%' },
+  { min: 0,    max: 7.0,  fill: '#bfdbfe', label: '< 7,0%' },
+  { min: 7.0,  max: 8.5,  fill: '#93c5fd', label: '7,0 – 8,4%' },
+  { min: 8.5,  max: 10.0, fill: '#3b82f6', label: '8,5 – 9,9%' },
+  { min: 10.0, max: 11.5, fill: '#1d4ed8', label: '10,0 – 11,4%' },
+  { min: 11.5, max: 99,   fill: '#1e3a8a', label: '≥ 11,5%' },
 ];
 
 function getColor(prev) {
@@ -39,7 +39,7 @@ function buildMapLegend() {
         <span style="font-size:11px;color:#475569;">${c.label}</span>
       </span>`
     ).join('') +
-    `<span style="font-size:11px;color:#94a3b8;margin-left:12px">* prevalência da capital (Vigitel) — valores provisórios, em conferência com o relatório oficial</span>`;
+    `<span style="font-size:11px;color:#94a3b8;margin-left:12px">* prevalência da capital — Vigitel 2023 (volume 2006–2023, morbidade referida)</span>`;
 }
 
 // nome completo da região -> código de filtro
@@ -152,7 +152,7 @@ async function renderBrazilMap() {
         const info = MAP_DATA[ufCode(d)];
         if (!info) return '#475569';
         if (!stateActive(info)) return '#94a3b8';
-        return info.prev >= 10.0 ? '#fff' : '#03426b';
+        return info.prev >= 8.5 ? '#fff' : '#03426b';
       })
       .attr('font-weight', '600')
       .attr('pointer-events', 'none')

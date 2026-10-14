@@ -120,7 +120,7 @@ function exportData() {
   DATA.internacoes.anos.forEach((y, i) => push('Internacoes', 'Custo_SUS_Rmi', y, DATA.internacoes.custototal[i], 'R$ milhoes', 'SIH/DATASUS'));
   const E = DATA.estadosPrevalencia;
   E.estados.forEach((uf, i) => {
-    push('Estados', 'Prevalencia_' + uf, '', E.prev[i], '%', 'Vigitel (capital) - PROVISORIO, em conferencia');
+    push('Estados', 'Prevalencia_' + uf, 2023, E.prev[i], '%', 'Vigitel 2006-2023 morbidade referida, Tab. 2 (capital)');
     push('Estados', 'Mortalidade_' + uf, 2025, E.mort[i], '/100k', 'SIM/DATASUS 2025 / Censo 2022');
     push('Estados', 'Populacao_' + uf, 2022, E.pop[i], 'milhoes', 'IBGE Censo 2022');
   });
