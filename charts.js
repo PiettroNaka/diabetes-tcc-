@@ -1364,11 +1364,14 @@ function renderSintese() {
 
   // H2 — excesso de peso × diabetes (Pearson + p)
   const rOD = Stats.pearson(V.excessoPeso, V.diabetes), pOD = Stats.corrP(rOD, V.excessoPeso.length);
-  setText('h2Stat', `r = ${rOD.toFixed(3).replace('.', ',')} · ${fmtP(pOD)} · n = ${V.excessoPeso.length}`);
+  // robustez: correlação dos resíduos após remover a tendência linear de cada série
+  const detr = a => { const g = Stats.linreg(V.years, a); return a.map((v, i) => v - g.predict(V.years[i])); };
+  const rDet = Stats.pearson(detr(V.excessoPeso), detr(V.diabetes)), pDet = Stats.corrP(rDet, V.years.length);
+  setText('h2Stat', `r = ${rOD.toFixed(3).replace('.', ',')} · ${fmtP(pOD)} · n = ${V.excessoPeso.length} · sem a tendência comum: r = ${br(rDet, 2)} (${fmtP(pDet)})`);
   setBadge('h2Badge', (rOD >= 0.7 && pOD < 0.05) ? 'ok' : (rOD >= 0.4 && pOD < 0.05 ? 'part' : 'no'));
   setText('achadoR', 'r = ' + rOD.toFixed(2).replace('.', ','));
 
-  // H3 — prevalência × mortalidade por UF (significativa, mas ecológica → no máximo "parcial")
+  // H3 — prevalência × mortalidade por UF (ecológica → no máximo "parcial", mesmo se significativa)
   const rPM = Stats.pearson(E.prev, E.mort), pPM = Stats.corrP(rPM, E.prev.length);
   setText('h3Stat', `r = ${rPM.toFixed(3).replace('.', ',')} · ${fmtP(pPM)} · n = ${E.prev.length} UFs (dado agregado)` + ' · prevalência da capital, Vigitel 2023');
   setBadge('h3Badge', (rPM > 0 && pPM < 0.05) ? 'part' : 'no');

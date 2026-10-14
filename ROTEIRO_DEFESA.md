@@ -69,7 +69,9 @@ Números-âncora:
 ## 8. PNS / Fontes
 **Mostrar:** tabela "quantos diabéticos há no Brasil?", Vigitel × PNS, PNS por sexo e região, edições do IDF, gasto em saúde (IDF) e catálogo de fontes.
 
-**Ponto técnico — o mais valorizado:** Vigitel 2019 (8,1%) × PNS 2019 (7,7%) **não é erro**: telefônico/capitais × domiciliar/nacional. E a PNS com exames (2014–15) indica 8,4% quando se inclui o diagnóstico laboratorial (Malta et al., 2019) — o subdiagnóstico existe.
+**Ponto técnico — o mais valorizado:** Vigitel 2019 (8,2%) × PNS 2019 (7,7%) **não é erro**: telefônico/capitais × domiciliar/nacional. E a PNS com exames (2014–15) indica 8,4% quando se inclui o diagnóstico laboratorial (Malta et al., 2019) — o subdiagnóstico existe.
+
+**PNS por região (IBGE 2020, Gráfico 34 — oficial):** Norte 5,5% · Nordeste 7,2% · Centro-Oeste 7,2% · Sul 7,9% · Sudeste 8,5%; urbano 7,9% × rural 6,3%. A mesma publicação: **6,2% dos adultos nunca mediram a glicemia (12,9% na zona rural)** — prova direta de que o acesso ao diagnóstico afeta a prevalência referida. (Os valores regionais de versões anteriores do painel não conferiam e foram substituídos.)
 
 **Pergunta provável:** *"Qual número é o certo?"* → Depende da pergunta: tendência nas capitais → Vigitel; estimativa nacional → PNS; carga total incluindo não diagnosticados → IDF (modelada).
 
@@ -80,8 +82,8 @@ Números-âncora:
 
 **Pontos técnicos:**
 - **H1:** inclinação **+0,333 pp/ano**, R² = 0,861, p < 0,001 — o próprio relatório (Tabela 52, mesmo método: regressão do indicador sobre o ano) publica **+0,35 pp/ano (IC 0,25–0,44)**. Validação cruzada com a fonte oficial.
-- **H2:** r = **0,933** (excesso de peso × diabetes, n = 18 anos), p < 0,001 — mas séries que crescem juntas compartilham tendência: é **coevolução**, não efeito individual.
-- **H3: refutada.** Com a prevalência oficial das capitais, r = **0,185** (p = 0,35; IC 95% −0,21 a 0,53; Spearman 0,16). Prevalência autorreferida na capital e mortalidade bruta da UF medem coisas diferentes: a mortalidade depende da estrutura etária, do acesso ao cuidado e do interior, que a capital não representa. **Ponto forte da defesa:** a versão anterior do painel, com valores não verificados, mostrava r = 0,51 — a auditoria dos dados mudou a conclusão, e isso é ciência de dados funcionando.
+- **H2:** r = **0,933** (excesso de peso × diabetes, n = 18 anos), p < 0,001 — mas séries que crescem juntas compartilham tendência. **Teste de robustez:** removida a tendência linear, r = 0,27 (p = 0,28); em primeiras diferenças, r = 0,28. É **coevolução**, não efeito individual — o efeito do IMC aparece nos modelos com dado individual (PNS e Pima). Curiosidade: hipertensão × diabetes continua correlacionada sem a tendência (r = 0,64, p = 0,004) — ambos são *diagnósticos referidos*, então oscilam juntos com a amostra e o acesso ao serviço.
+- **H3: refutada.** Com a prevalência oficial das capitais, r = **0,185** (p = 0,35; IC 95% −0,21 a 0,53; Spearman 0,16; sem o DF 0,32, p = 0,11). **O Norte explica:** menor prevalência referida (capitais e PNS), mas maior mortalidade padronizada (41,8) e maior taxa de internações por habitante (97,9/100 mil × 75,4 no país). Prevalência autorreferida na capital e mortalidade bruta da UF medem coisas diferentes: a mortalidade depende da estrutura etária, do acesso ao cuidado e do interior, que a capital não representa. **Ponto forte da defesa:** a versão anterior do painel, com valores não verificados, mostrava r = 0,51 — a auditoria dos dados mudou a conclusão, e isso é ciência de dados funcionando.
 - O p-valor da distribuição t é calculado em JavaScript pela **função beta incompleta regularizada** (Numerical Recipes).
 - A **carga estimada** superestima (prevalência de adultos × população total) e serve apenas para **ordenar** UFs — está escrito no gráfico.
 
@@ -96,12 +98,13 @@ Números-âncora:
 
 ### 10b. Decomposição clássica (óbitos mensais, 2015–2020)
 - Aditiva, tendência por **média móvel 2×12**.
-- **Sazonalidade de inverno:** pico em julho (+674 óbitos/mês) e maio–agosto acima da média; vale em fevereiro (−705).
+- **Sazonalidade de inverno:** pico em julho (+674 óbitos/mês) e maio–agosto acima da média; vale em fevereiro (−705) — mas cerca de −380 disso é só **efeito calendário** (fevereiro tem menos dias). Em óbitos/dia: 192 em julho × 161 em novembro (+19%).
 - **Anomalia COVID:** resíduos **positivos** em abril (+480) e maio de 2020 (+969, cerca de 4 desvios-padrão) — **excesso de óbitos**, não queda. Em 2020, os óbitos subiram 13,5% em relação a 2019. "O resíduo vira detector de eventos."
 
 ### 10c. SARIMA(1,1,1)(1,1,1)₁₂
 - Parcimônia: 72 meses, 59 efetivos após as duas diferenciações. AIC 643,7.
-- **Backtest** nos 12 meses de 2020 (o ano mais difícil): MAPE 9,9%.
+- **Backtest** nos 12 meses de 2020 (o ano mais difícil): MAPE 9,9%, RMSE 775 — contra MAPE 12,0% e RMSE 910 da **previsão sazonal ingênua** (repetir 2019): o SARIMA reduz o RMSE em 15%.
+- Ressalva honesta: o acerto de 2021 se beneficia de a pandemia ter mantido a mortalidade alta; em 2022–2023 os óbitos caíram, então o modelo precisa ser reestimado com dados novos.
 - **Validação externa:** a soma das previsões de 2021 dá **78.462** contra **78.258 observados** no SIM (**erro de 0,3%**). Esse ano não foi usado no ajuste.
 - Reprodutibilidade: reestimei com statsmodels e obtive o mesmo AIC e as mesmas previsões.
 
@@ -118,7 +121,7 @@ Números-âncora:
 - OR por DP: **idade 2,07**, hipertensão 1,60, IMC 1,26, sexo feminino 1,05.
 
 ### 10f. Modelo ecológico
-- Prevalência ~ excesso de peso + hipertensão (n = 18): R² 0,927; R² ajustado 0,917; **RMSE LOOCV 0,66 pp**. Multicolinearidade → interpretar o ajuste, não os coeficientes.
+- Prevalência ~ excesso de peso + hipertensão (n = 18): R² 0,927; R² ajustado 0,917; **RMSE LOOCV 0,66 pp** — contra 0,83 da tendência linear e 2,04 da média (ganho de 21% sobre a reta; incluir o ano não melhora). Multicolinearidade (VIF 5,3) → interpretar o ajuste, não os coeficientes.
 
 ---
 

@@ -9,7 +9,7 @@
 <script src="vendor/chart.umd.js"></script>
 <script src="vendor/d3.min.js"></script>
 <script src="vendor/topojson.min.js"></script>
-<link rel="stylesheet" href="style.css?v=33">
+<link rel="stylesheet" href="style.css?v=34">
 </head>
 <body>
 
@@ -969,7 +969,7 @@
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">Crescimento da prevalência</span><span class="kpi-value">5,5% → 12,9%</span><span class="kpi-sub">Vigitel 2006 → 2024 (2,3×)</span></div>
       <div class="kpi-card"><span class="kpi-label">Excesso de peso × Diabetes</span><span class="kpi-value" id="achadoR">—</span><span class="kpi-sub">correlação de Pearson</span></div>
-      <div class="kpi-card"><span class="kpi-label">Mortalidade padronizada — Norte</span><span class="kpi-value">41,8</span><span class="kpi-sub">/100 mil: menor taxa bruta, maior padronizada</span></div>
+      <div class="kpi-card"><span class="kpi-label">Mortalidade padronizada — Norte</span><span class="kpi-value">41,8</span><span class="kpi-sub">/100 mil: uma das menores taxas brutas, a maior padronizada</span></div>
       <div class="kpi-card"><span class="kpi-label">Adultos com diabetes</span><span class="kpi-value">15,7 mi</span><span class="kpi-sub">6º país do mundo (IDF 2021)</span></div>
       <div class="kpi-card"><span class="kpi-label">Desempenho do modelo</span><span class="kpi-value" id="achadoAuc">—</span><span class="kpi-sub">AUC no conjunto de teste</span></div>
       <div class="kpi-card"><span class="kpi-label">Gasto em saúde com DM</span><span class="kpi-value">US$ 42,9 bi</span><span class="kpi-sub">3º do mundo (IDF 2021)</span></div>
@@ -980,9 +980,9 @@
       <div class="chart-card wide">
         <h3>Conclusões</h3>
         <div style="line-height:1.75;font-size:14.5px;margin-top:8px">
-          <p>A análise dos dados públicos evidencia, com sustentação estatística, que o diabetes mellitus configura um problema de saúde pública <strong>crescente, socialmente desigual e economicamente oneroso</strong> no Brasil. A prevalência autorreferida elevou-se de forma estatisticamente significativa entre 2006 e 2024 (H1: tendência linear positiva, p&lt;0,001), em trajetória fortemente correlacionada à do excesso de peso (H2: r&nbsp;≈&nbsp;0,93, p&lt;0,001). O agravo concentra-se nas idades mais avançadas (82,7% dos óbitos ocorrem a partir dos 60 anos) e nos grupos de menor escolaridade, e a padronização por idade revela maior mortalidade no Norte — evidências do papel dos <strong>determinantes sociais da saúde</strong>.</p>
+          <p>A análise dos dados públicos evidencia, com sustentação estatística, que o diabetes mellitus configura um problema de saúde pública <strong>crescente, socialmente desigual e economicamente oneroso</strong> no Brasil. A prevalência autorreferida mais que dobrou entre 2006 e 2024 (H1: tendência linear positiva, p&lt;0,001, confirmada pelo relatório oficial) e <strong>acelerou desde 2019</strong> (0,90 p.p./ano, ante cerca de 0,25 antes), de modo que a projeção linear é conservadora. A trajetória acompanha a do excesso de peso (H2: r&nbsp;≈&nbsp;0,93, p&lt;0,001), mas essa correlação reflete sobretudo a <strong>tendência comum</strong> às duas séries: removida a tendência, r&nbsp;≈&nbsp;0,27 (não significativo) — os dados agregados mostram coevolução, não efeito. O agravo concentra-se nas idades mais avançadas (82,7% dos óbitos ocorrem a partir dos 60 anos) e nos grupos de menor escolaridade, e a padronização por idade revela maior mortalidade no Norte — evidências do papel dos <strong>determinantes sociais da saúde</strong>.</p>
           <p style="margin-top:10px">No plano da modelagem preditiva, a prova de conceito demonstra ser viável <strong>classificar o risco de diabetes com poder discriminativo adequado</strong> a partir de variáveis clínicas (H4: AUC no conjunto de teste), tendo a glicemia e o índice de massa corporal como preditores de maior peso (H5) — resultado coerente com a fisiopatologia da doença. Tais achados respaldam o potencial de instrumentos de triagem orientados por dados na atenção primária à saúde.</p>
-          <p style="margin-top:10px">A correlação ecológica entre prevalência e mortalidade estaduais (H3) <strong>não foi sustentada</strong>: com os valores oficiais das capitais, a associação é fraca e não significativa — a mortalidade por UF reflete também a estrutura etária, o acesso ao diagnóstico e ao cuidado, e a prevalência da capital representa mal o interior. Além disso, associações em nível agregado não autorizam inferências sobre indivíduos. Conclui-se, em resposta à pergunta de pesquisa, que os dados abertos brasileiros são <strong>adequados para caracterizar e monitorar</strong> o diabetes e para <strong>fundamentar modelos preditivos</strong>, desde que submetidos a tratamento estatístico rigoroso e à explicitação transparente de suas limitações.</p>
+          <p style="margin-top:10px">A correlação ecológica entre prevalência e mortalidade estaduais (H3) <strong>não foi sustentada</strong>: com os valores oficiais das capitais, a associação é fraca e não significativa — a mortalidade por UF reflete também a estrutura etária, o acesso ao diagnóstico e ao cuidado, e a prevalência da capital representa mal o interior. O <strong>Norte</strong> resume o problema: tem a menor prevalência referida (capitais e PNS), mas a maior mortalidade padronizada e a maior taxa de internações por habitante — padrão compatível com lacunas no diagnóstico e no controle da doença. Além disso, associações em nível agregado não autorizam inferências sobre indivíduos. Conclui-se, em resposta à pergunta de pesquisa, que os dados abertos brasileiros são <strong>adequados para caracterizar e monitorar</strong> o diabetes e para <strong>fundamentar modelos preditivos</strong>, desde que submetidos a tratamento estatístico rigoroso e à explicitação transparente de suas limitações.</p>
         </div>
       </div>
     </div>
@@ -999,16 +999,20 @@
           <li>O modelo didático foi treinado no Pima (benchmark internacional), não em dado brasileiro — a validação nacional usa os microdados da PNS 2019 (logo acima).</li>
           <li>Sob prevalência baixa, a alta sensibilidade do classificador tem como custo muitos falsos positivos (precisão apenas moderada) — explicitado pela <strong>curva Precisão–Revocação</strong> e pelo AP na aba de Modelagem.</li>
           <li>Amputações de MMII (SIH) são de todas as causas — o cubo de procedimentos não cruza com o diagnóstico de diabetes.</li>
+          <li>Óbitos: 57,6% codificados como diabetes não especificado (E14); a causa básica subestima a mortalidade associada; 2024–2025 preliminares.</li>
+          <li>Séries anuais curtas (18 anos) e com tendência comum: correlações temporais não separam o efeito de cada fator.</li>
         </ul>
       </div>
       <div class="chart-card">
         <h3>Trabalhos futuros</h3>
         <p style="font-size:12.5px;color:var(--ink-3);margin:6px 0 4px"><b>Já implementado:</b> modelo PNS 2019 (Logística/RF/XGBoost com ROC, matriz de confusão e coeficientes), validação cruzada k=5, curva Precisão–Revocação (AP) e razão de chances (OR), SARIMA, padronização por idade, recorte por raça/cor, ETL via TabNet e repositório versionado.</p>
         <ul style="margin:8px 0 0 18px;line-height:1.75;font-size:13.5px">
-          <li>Análise <strong>espacial</strong> (I de Moran, autocorrelação) e granularidade municipal.</li>
-          <li>Padronização por idade também por <strong>UF e por sexo</strong> (feita por região).</li>
-          <li>Incorporar <strong>diabetes não diagnosticado</strong> (HbA1c/glicemia) quando a PNS 2024/2025 for divulgada.</li>
-          <li>Modelos de <strong>sobrevivência</strong> e séries com variáveis exógenas (SARIMAX).</li>
+          <li>Mortalidade por <strong>causas múltiplas</strong> e taxas padronizadas por idade para cada ano e cada UF.</li>
+          <li>Microdados do SIH/SUS para ligar procedimentos a diagnósticos (amputações por diabetes) e analisar internações por residência.</li>
+          <li>Estimativas para <strong>todas as UFs</strong> (pequenas áreas, PNS + Vigitel) e gradientes de escolaridade ajustados por idade.</li>
+          <li>Incorporar <strong>diabetes não diagnosticado</strong> (exames laboratoriais) — chave para explicar o caso do Norte.</li>
+          <li>Modelos: mais preditores da PNS, imputação múltipla, <strong>calibração</strong>, limiar por custo e validação externa.</li>
+          <li>Painel: atualização automática dos dados, análise espacial e avaliação de usabilidade com gestores.</li>
         </ul>
       </div>
     </div>
@@ -1025,12 +1029,12 @@
   </div>
 </footer>
 
-<script src="data.js?v=33"></script>
-<script src="pima.js?v=33"></script>
-<script src="ml.js?v=33"></script>
-<script src="serie_mensal.js?v=33"></script>
-<script src="charts.js?v=33"></script>
-<script src="map.js?v=33"></script>
-<script src="app.js?v=33"></script>
+<script src="data.js?v=34"></script>
+<script src="pima.js?v=34"></script>
+<script src="ml.js?v=34"></script>
+<script src="serie_mensal.js?v=34"></script>
+<script src="charts.js?v=34"></script>
+<script src="map.js?v=34"></script>
+<script src="app.js?v=34"></script>
 </body>
 </html>
