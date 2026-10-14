@@ -1,6 +1,6 @@
 # Reprodução e verificação dos resultados
 
-Esta pasta reúne duas coisas: os *scripts* que produziram os dados e os modelos do TCC, e as verificações que permitem conferir os números publicados a partir dos arquivos versionados no repositório.
+Esta pasta reúne três coisas: os *scripts* que produziram os dados e os modelos do TCC, as respostas originais das fontes (`fontes/`) e as verificações que permitem conferir os números publicados a partir delas.
 
 ## Scripts originais (extração e modelagem)
 
@@ -41,6 +41,21 @@ Os *scripts* estão como foram recebidos do autor; o histórico do git registra 
 
 Os dois *scripts* da PNS leem o peso amostral, mas nenhum o usa no treinamento. Os modelos são ajustados sem ponderação, e o desbalanceamento das classes é tratado por `class_weight='balanced'`.
 
+## Respostas originais das fontes (`fontes/`)
+
+| Pasta | Conteúdo |
+|-------|----------|
+| `fontes/tabnet/` | 15 tabelas HTML devolvidas pelo TabNet (SIM, SIH/SUS e população), como foram salvas na extração. Cada página registra, ao final, a consulta enviada: arquivo `.def`, linha, coluna, incremento, filtros e período |
+| `fontes/sih/` | Saídas do `baixar_sih.py` (internações e valor total por ano) |
+| `fontes/sim/` | Série mensal de óbitos 2015–2020, entrada do `rodar_sarima.py` |
+| `fontes/pns/` | Saídas da reanálise dos microdados da PNS 2019: prevalência por cor ou raça (`pns_raca.json`) e registro da execução do `rodar_pns.py` (`pns_run.log`) |
+
+`verificar_fontes.js` lê essas respostas e confere, bloco a bloco, os valores de `data.js`, `serie_mensal.js` e `pns_results.js`. As taxas por UF, por região e padronizadas por idade são recalculadas a partir das contagens. A conferência inclui também a coerência entre extrações: a soma dos 12 meses da série mensal reproduz o total anual de cada ano de 2015 a 2020.
+
+```bash
+node reproducao/verificar_fontes.js     # 20 de 20 blocos conferem com as fontes
+```
+
 ## Verificações a partir dos dados versionados
 
 | Arquivo | O que faz | Requer |
@@ -49,6 +64,8 @@ Os dois *scripts* da PNS leem o peso amostral, mas nenhum o usa no treinamento. 
 | `verificar_logistica.js` | Treina a regressão logística do painel (Pima) exatamente como no navegador e compara os coeficientes do gradiente descendente com a solução exata de máxima verossimilhança (Newton-Raphson) | Node.js 18+ |
 | `verificar_sarima.py` | Reestima o SARIMA a partir de `serie_mensal.js` e compara o AIC, as previsões e a avaliação retrospectiva com os valores publicados | Python 3.10+ e `requirements.txt` |
 | `modelagem_pns.ipynb` | Versão em *notebook* do `rodar_pns.py`, com as etapas explicadas. Mesmos filtros, divisão e modelos; localiza as colunas pelo dicionário da PNS em vez das posições fixas | Python, `requirements.txt` e os microdados da PNS 2019 |
+| `rodar_pns_raca.py` | Reconstrução do cálculo da prevalência por cor ou raça (o código original não foi preservado), com a comparação com `fontes/pns/pns_raca.json`. Calcula também a especificação do indicador oficial do IBGE | Python e os microdados da PNS 2019 |
+| `colab_verificacao_pns.ipynb` | Executa `rodar_pns.py` e `rodar_pns_raca.py` no Google Colab sobre os microdados guardados no Google Drive e compara os resultados com os publicados | Conta Google com os microdados no Drive |
 
 Os scripts em JavaScript carregam os mesmos arquivos e as mesmas funções estatísticas do painel (`data.js`, `charts.js`, `ml.js`...). Portanto, não existe uma segunda implementação que possa divergir da que roda no navegador.
 
@@ -84,5 +101,5 @@ Nenhum desses comandos acessa a rede.
 
 ## O que não está nesta pasta
 
-- **Prevalência da PNS 2019 por raça/cor** (`pnsRaca` em `data.js`): é uma reanálise ponderada dos microdados (peso do morador selecionado). O código desse recorte não está entre os *scripts* recebidos.
-- **Demais recortes do SIM e do SIH/SUS** descritos no Cap. 4 do TCC: unidade da federação, subtipo da CID-10, raça/cor, outras causas de óbito, região e sexo/faixa etária das internações, amputações e série mensal. A versão recebida de `baixar_sim_dim.py` mapeia apenas região e faixa etária, e a de `baixar_sih.py`, apenas o total anual. Os valores estão versionados em `data.js` e `serie_mensal.js`, com a fonte indicada em cada bloco.
+- **Código original da prevalência por cor ou raça** (`pnsRaca` em `data.js`): não foi preservado. A saída original está em `fontes/pns/pns_raca.json`, e `rodar_pns_raca.py` reconstrói o cálculo.
+- **Variações dos `baixar_*.py` para os demais recortes**: a versão recebida de `baixar_sim_dim.py` mapeia apenas região e faixa etária, e a de `baixar_sih.py`, apenas o total anual. Para os outros recortes (UF, subtipo da CID-10, cor ou raça, outras causas, região × faixa etária, internações por região e por sexo × faixa etária, amputações e 2026 parcial), a consulta enviada e a resposta do TabNet estão em `fontes/tabnet/` e conferem com `data.js`.

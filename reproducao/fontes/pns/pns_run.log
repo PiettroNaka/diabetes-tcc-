@@ -1,0 +1,10 @@
+Lendo microdados (434 MB)...
+Linhas lidas: 279382
+Morador selecionado (módulo Q): 84073
+Conjunto final (subamostra com antropometria): 6089
+Prevalência amostral de DM: 9.2%
+Regressão Logística    AUC_cv=0.770+/-0.018  AUC_teste=0.779
+Random Forest          AUC_cv=0.752+/-0.014  AUC_teste=0.746
+XGBoost                AUC_cv=0.748+/-0.014  AUC_teste=0.752
+
+Gerado: ../pns_results.js  e  modelos_pns_resultados.json
