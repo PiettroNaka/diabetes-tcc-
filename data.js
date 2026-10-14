@@ -273,10 +273,13 @@ const DATA = {
     pns:     { prev2019: 7.7, escopo: 'Nacional (incl. rural)', metodo: 'Domiciliar', freq: 'Quinquenal (2013, 2019)' },
   },
 
-  // PNS 2019 — prevalência por região (domiciliar nacional)
+  // DADO OFICIAL: PNS 2019 — % de adultos (18+) com diagnóstico médico referido de
+  // diabetes, por Grande Região. IBGE (2020), "PNS 2019: percepção do estado de saúde,
+  // estilos de vida, doenças crônicas e saúde bucal — Brasil e Grandes Regiões",
+  // Gráfico 34 (p. 59). Brasil = 7,7%. (Valores anteriores do painel não conferiam.)
   pnsRegiao: {
     labels: ['Norte','Nordeste','Centro-Oeste','Sudeste','Sul'],
-    prev:   [5.9, 7.0, 7.1, 8.7, 8.0],
+    prev:   [5.5, 7.2, 7.2, 8.5, 7.9],
   },
 
   // ── IDF Diabetes Atlas — evolução das edições ───────────────────────────

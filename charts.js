@@ -855,7 +855,7 @@ function renderPnsRegiao() {
     type: 'bar',
     data: { labels: d.labels, datasets: [{ label: 'Prevalência (%)', data: d.prev, backgroundColor: cores, borderRadius:5 }] },
     options: { ...baseOpts(),
-      scales:{ ...baseOpts().scales, y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:5 } }
+      scales:{ ...baseOpts().scales, y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:0 } }
     },
   }));
 }
