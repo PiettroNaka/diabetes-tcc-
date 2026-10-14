@@ -6,6 +6,7 @@ reproducao/dados_brutos/
 reproducao/pns_results.js
 reproducao/modelos_pns_resultados.json
 reproducao/sarima_out.json
+reproducao/pns_raca_reproduzida.json
 reproducao/.ipynb_checkpoints/
 
 # Config local do Claude Code

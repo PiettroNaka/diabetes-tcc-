@@ -1,6 +1,6 @@
 # Reprodução e verificação dos resultados
 
-Esta pasta reúne duas coisas: os *scripts* que produziram os dados e os modelos do TCC, e as verificações que permitem conferir os números publicados a partir dos arquivos versionados no repositório.
+Esta pasta reúne três coisas: os *scripts* que produziram os dados e os modelos do TCC, as respostas originais das fontes (`fontes/`) e as verificações que permitem conferir os números publicados a partir delas.
 
 ## Scripts originais (extração e modelagem)
 
@@ -35,11 +35,44 @@ Os *scripts* estão como foram recebidos do autor; o histórico do git registra 
 | Script | Verificação | Resultado |
 |--------|-------------|-----------|
 | `rodar_sarima.py` | Executado sobre os 72 valores mensais versionados em `serie_mensal.js` | Regenera o arquivo publicado com fonte, modelo, AIC, previsões e intervalos idênticos. Só a avaliação retrospectiva difere: MAPE 10,3% e RMSE 801 aqui, contra 9,9% e 775 publicados. A diferença vem da versão do *statsmodels*: o modelo de 2015–2019 é reestimado e o otimizador converge para um ponto ligeiramente diferente. O Cap. 5 do TCC relata essa faixa (9,9% a 10,3%) |
-| `rodar_pns.py` | Executado sobre microdados sintéticos no layout da PNS, apenas como teste de código | Roda de ponta a ponta e gera `pns_results.js` com as mesmas chaves do arquivo publicado. Não foi executado aqui com os microdados reais, porque o site do IBGE não é acessível deste ambiente |
+| `rodar_pns.py` | Executado no Google Colab sobre os microdados reais da PNS 2019 (`colab_verificacao_pns.ipynb`; scikit-learn 1.6.1, XGBoost 3.4.1) | Amostra (6.089 adultos, 1.827 de teste, 9,2% de positivos) e regressão logística idênticas ao publicado: AUC, F1, curva ROC, matriz de confusão e razões de chances. No *Random Forest* e no XGBoost, as AUC variam até 0,006 (teste: 0,752 e 0,754, contra 0,746 e 0,752 publicadas), efeito da versão das bibliotecas; a conclusão de que os modelos de árvores não superam a regressão logística se mantém |
 | `modelagem_pns.ipynb` × `rodar_pns.py` | Os dois executados sobre a mesma base sintética | Resultados idênticos em todas as chaves: métricas, ROC, matriz de confusão, razões de chances e importâncias |
+| `rodar_pns_raca.py` | Executado no Google Colab sobre os microdados reais | Na especificação anterior, reproduz exatamente a saída original (`fontes/pns/pns_raca.json`): prevalências, tamanhos de amostra e total de 8,6%. Na definição do IBGE, reproduz exatamente o total oficial de 7,7% |
 | `baixar_*.py` | Etapa `build` executada; etapa `parse` testada com uma tabela HTML de exemplo | Corpos das requisições gerados e tabela lida corretamente. As consultas não foram reenviadas ao TabNet, porque o DATASUS não é acessível deste ambiente |
 
 Os dois *scripts* da PNS leem o peso amostral, mas nenhum o usa no treinamento. Os modelos são ajustados sem ponderação, e o desbalanceamento das classes é tratado por `class_weight='balanced'`.
+
+## Prevalência da PNS 2019 por cor ou raça: definição do indicador
+
+Na PNS 2019, a pergunta sobre diagnóstico médico de diabetes (Q03001) só é feita a quem já mediu a glicemia. A reanálise original calculava a prevalência apenas entre quem respondeu à pergunta e contava como caso também o diabetes restrito à gravidez (Q03002). Isso resultava em 8,6% no total, contra 7,7% divulgados pelo IBGE.
+
+O indicador oficial usa como denominador todos os adultos com entrevista individual (M001 = 1). Quem nunca mediu a glicemia conta como "sem diagnóstico", e o diabetes apenas na gravidez não conta como caso. Com essa definição, a reanálise dos microdados reproduz exatamente os 7,7% oficiais, e é ela que o painel usa desde então.
+
+| Cor ou raça | Definição do IBGE (painel) | Especificação anterior (só quem mediu a glicemia) |
+|-------------|---------------------------|---------------------------------------------------|
+| Branca | 8,0% (n = 32.409) | 8,7% (n = 30.815) |
+| Preta | 7,8% (n = 10.132) | 8,8% (n = 9.343) |
+| Amarela | 12,8% (n = 665) | 13,4% (n = 639) |
+| Parda | 7,3% (n = 44.646) | 8,3% (n = 40.948) |
+| Indígena | 7,5% (n = 670) | 8,4% (n = 597) |
+| **Total** | **7,7%** (igual ao oficial) | 8,6% |
+
+O conjunto da modelagem preditiva (`rodar_pns.py`) segue a especificação anterior: inclui só quem respondeu à pergunta, ou seja, quem já mediu a glicemia.
+
+## Respostas originais das fontes (`fontes/`)
+
+| Pasta | Conteúdo |
+|-------|----------|
+| `fontes/tabnet/` | 15 tabelas HTML devolvidas pelo TabNet (SIM, SIH/SUS e população), como foram salvas na extração. Cada página registra, ao final, a consulta enviada: arquivo `.def`, linha, coluna, incremento, filtros e período |
+| `fontes/sih/` | Saídas do `baixar_sih.py` (internações e valor total por ano) |
+| `fontes/sim/` | Série mensal de óbitos 2015–2020, entrada do `rodar_sarima.py` |
+| `fontes/pns/` | Saídas da reanálise dos microdados da PNS 2019: prevalência por cor ou raça na especificação anterior (`pns_raca.json`), registro da execução original do `rodar_pns.py` (`pns_run.log`) e resumo da reexecução dos dois *scripts* da PNS no Google Colab (`verificacao_pns_colab.json`) |
+
+`verificar_fontes.js` lê essas respostas e confere, bloco a bloco, os valores de `data.js`, `serie_mensal.js` e `pns_results.js`. As taxas por UF, por região e padronizadas por idade são recalculadas a partir das contagens. A conferência inclui também a coerência entre extrações: a soma dos 12 meses da série mensal reproduz o total anual de cada ano de 2015 a 2020.
+
+```bash
+node reproducao/verificar_fontes.js     # 22 de 22 blocos conferem com as fontes
+```
 
 ## Verificações a partir dos dados versionados
 
@@ -49,6 +82,8 @@ Os dois *scripts* da PNS leem o peso amostral, mas nenhum o usa no treinamento. 
 | `verificar_logistica.js` | Treina a regressão logística do painel (Pima) exatamente como no navegador e compara os coeficientes do gradiente descendente com a solução exata de máxima verossimilhança (Newton-Raphson) | Node.js 18+ |
 | `verificar_sarima.py` | Reestima o SARIMA a partir de `serie_mensal.js` e compara o AIC, as previsões e a avaliação retrospectiva com os valores publicados | Python 3.10+ e `requirements.txt` |
 | `modelagem_pns.ipynb` | Versão em *notebook* do `rodar_pns.py`, com as etapas explicadas. Mesmos filtros, divisão e modelos; localiza as colunas pelo dicionário da PNS em vez das posições fixas | Python, `requirements.txt` e os microdados da PNS 2019 |
+| `rodar_pns_raca.py` | Reconstrução do cálculo da prevalência por cor ou raça (o código original não foi preservado), validada contra a saída original. Calcula também a definição do indicador oficial do IBGE, usada no painel | Python e os microdados da PNS 2019 |
+| `colab_verificacao_pns.ipynb` | Executa `rodar_pns.py` e `rodar_pns_raca.py` no Google Colab sobre os microdados guardados no Google Drive e compara os resultados com os publicados | Conta Google com os microdados no Drive |
 
 Os scripts em JavaScript carregam os mesmos arquivos e as mesmas funções estatísticas do painel (`data.js`, `charts.js`, `ml.js`...). Portanto, não existe uma segunda implementação que possa divergir da que roda no navegador.
 
@@ -84,5 +119,5 @@ Nenhum desses comandos acessa a rede.
 
 ## O que não está nesta pasta
 
-- **Prevalência da PNS 2019 por raça/cor** (`pnsRaca` em `data.js`): é uma reanálise ponderada dos microdados (peso do morador selecionado). O código desse recorte não está entre os *scripts* recebidos.
-- **Demais recortes do SIM e do SIH/SUS** descritos no Cap. 4 do TCC: unidade da federação, subtipo da CID-10, raça/cor, outras causas de óbito, região e sexo/faixa etária das internações, amputações e série mensal. A versão recebida de `baixar_sim_dim.py` mapeia apenas região e faixa etária, e a de `baixar_sih.py`, apenas o total anual. Os valores estão versionados em `data.js` e `serie_mensal.js`, com a fonte indicada em cada bloco.
+- **Código original da prevalência por cor ou raça**: não foi preservado; `rodar_pns_raca.py` o reconstrói e reproduz exatamente a saída original (ver acima).
+- **Variações dos `baixar_*.py` para os demais recortes**: a versão recebida de `baixar_sim_dim.py` mapeia apenas região e faixa etária, e a de `baixar_sih.py`, apenas o total anual. Para os outros recortes (UF, subtipo da CID-10, cor ou raça, outras causas, região × faixa etária, internações por região e por sexo × faixa etária, amputações e 2026 parcial), a consulta enviada e a resposta do TabNet estão em `fontes/tabnet/` e conferem com `data.js`.

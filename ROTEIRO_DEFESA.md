@@ -139,7 +139,7 @@ Números-âncora:
 - Prevalência autorreferida subestima quem não tem diagnóstico.
 - Vigitel cobre só capitais; o mapa usa a capital para a UF inteira. A prevalência por capital (2023) usa a ponderação anterior ao Censo 2022.
 - O relatório não cruza idade/instrução com sexo e não ajusta o gradiente de instrução por idade.
-- Reanálise da PNS por raça/cor dá 8,6% no total (oficial: 7,7%) → uso só para comparação relativa entre grupos.
+- PNS por raça/cor: com a definição do IBGE (quem nunca mediu a glicemia conta como sem diagnóstico; diabetes só na gravidez não conta), a reanálise reproduz o total oficial de 7,7%. Restrita a quem já mediu a glicemia, sobe para 8,6% — e o modelo preditivo da PNS usa essa base restrita.
 - Imputação por mediana reduz a variabilidade da insulina (48,7% de zeros) e da prega cutânea.
 - Internações em valores nominais e só no SUS; amputações de todas as causas.
 - Dados do SIM de 2024–2025 preliminares.
