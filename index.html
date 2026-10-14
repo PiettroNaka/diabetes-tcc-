@@ -9,7 +9,7 @@
 <script src="vendor/chart.umd.js"></script>
 <script src="vendor/d3.min.js"></script>
 <script src="vendor/topojson.min.js"></script>
-<link rel="stylesheet" href="style.css?v=29">
+<link rel="stylesheet" href="style.css?v=30">
 </head>
 <body>
 
@@ -133,7 +133,7 @@
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Evolução da prevalência de diabetes — Brasil (2006–2024)</h3>
-        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024 (SVSA/MS) · séries por sexo oficiais; total = média ponderada dos sexos (calculado) · 2022 sem coleta</p>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024 (SVSA/MS), Tabela 51 — dado oficial · 2022 sem coleta</p>
         <div class="legend-row">
           <span><span class="leg-dot" style="background:#0072B2"></span> Prevalência total (%)</span>
           <span><span class="leg-dot" style="background:#D55E00"></span> Feminino (%)</span>
@@ -141,16 +141,16 @@
           <span><span class="leg-dot" style="background:rgba(0,114,178,.2)"></span> IC 95% (aprox.)</span>
         </div>
         <div style="position:relative;height:280px"><canvas id="chartOverviewTrend" role="img" aria-label="Evolução da prevalência de diabetes no Brasil de 2006 a 2024 com intervalo de confiança aproximado"></canvas></div>
-        <div class="chart-note"><i>Sobre o IC:</i> banda calculada por erro-padrão binomial com n efetivo estimado (~25.000, após efeito de desenho). É uma <strong>aproximação</strong> — os IC oficiais do Vigitel constam nos relatórios do Ministério da Saúde e seriam usados na versão final. (Aparece com o filtro de sexo em "Ambos".)</div>
+        <div class="chart-note"><i>Sobre o IC:</i> banda aproximada por erro-padrão binomial, com o número de entrevistas de cada ano (Quadro 1 do relatório: de 54.369 em 2006 a 27.048 em 2024) dividido por um efeito do desenho assumido de 2. É uma <strong>aproximação</strong> — a banda alarga a partir de 2020, quando a amostra caiu pela metade. (Aparece com o filtro de sexo em "Ambos".)</div>
       </div>
     </div>
 
     <div class="charts-row">
       <div class="chart-card">
-        <h3>Prevalência por faixa etária</h3>
-        <p class="chart-src">Fonte: Vigitel · <span class="pending">⚠ valores provisórios — em conferência com o relatório oficial do Vigitel</span></p>
+        <h3>Prevalência por faixa etária — 2006 × 2024 (%)</h3>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024, Tabela 51 (oficial) · o filtro de período muda o ano final</p>
         <div style="position:relative;height:250px"><canvas id="chartAgeGroup" role="img" aria-label="Prevalência de diabetes por faixa etária"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> a prevalência salta após os 45 anos e ultrapassa 30% nos idosos — o envelhecimento populacional pressiona a demanda do SUS.</div>
+        <div class="chart-insight"><b>Leitura:</b> a prevalência salta após os 45 anos e chega a <b>31,4%</b> entre os idosos (65+) em 2024 — o grupo que mais cresceu em pontos percentuais (+0,57 pp/ano, Tab. 52). O envelhecimento populacional pressiona a demanda do SUS.</div>
       </div>
       <div class="chart-card">
         <h3>Projeção global: adultos com DM (milhões)</h3>
@@ -210,20 +210,20 @@
     </div>
     <div class="charts-row">
       <div class="chart-card">
-        <h3>Prevalência por escolaridade (%)</h3>
-        <p class="chart-src">Fonte: Vigitel · <span class="pending">⚠ valores provisórios — em conferência com o relatório oficial do Vigitel</span></p>
+        <h3>Prevalência por nível de instrução — 2006 × 2024 (%)</h3>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024, Tabela 51 (oficial)</p>
         <div style="position:relative;height:260px"><canvas id="chartEducation" role="img" aria-label="Prevalência de diabetes por nível de escolaridade"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> a prevalência é maior nos grupos de menor escolaridade — gradiente social que persiste mesmo considerando que esses grupos são, em média, mais velhos.</div>
+        <div class="chart-insight"><b>Leitura:</b> em 2024, <b>24,0%</b> entre quem não tem instrução ou tem fundamental incompleto contra <b>9,0%</b> com superior completo (2,7×) — e esse grupo cresceu mais rápido (+0,79 pp/ano). Parte do gradiente reflete a idade mais alta desse grupo; o relatório não ajusta por idade.</div>
       </div>
       <div class="chart-card">
-        <h3>Prevalência por sexo e faixa etária (%)</h3>
-        <p class="chart-src">Fonte: Vigitel · <span class="pending">⚠ valores provisórios — em conferência com o relatório oficial do Vigitel</span></p>
-        <div style="position:relative;height:260px"><canvas id="chartSexAge" role="img" aria-label="Prevalência de diabetes por sexo e faixa etária"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> mulheres têm prevalência referida um pouco maior — em parte por maior procura por diagnóstico (viés de detecção).</div>
+        <h3>Evolução por faixa etária (2006–2024, %)</h3>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024, Tabela 51 (oficial) · 2022 sem coleta</p>
+        <div style="position:relative;height:260px"><canvas id="chartSexAge" role="img" aria-label="Evolução da prevalência de diabetes por faixa etária, 2006 a 2024"></canvas></div>
+        <div class="chart-insight"><b>Leitura:</b> o aumento concentra-se nas faixas acima de 45 anos; abaixo de 35 anos a prevalência segue baixa e sem tendência significativa no período recente (Tab. 52).</div>
       </div>
       <div class="chart-card">
         <h3>Tendência temporal por sexo (2006–2024)</h3>
-        <p class="chart-src">Fonte: Vigitel 2006–2024</p>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024, Tabela 51 (oficial)</p>
         <div style="position:relative;height:260px"><canvas id="chartSexTrend" role="img" aria-label="Tendência de prevalência por sexo de 2006 a 2024"></canvas></div>
         <div class="chart-insight"><b>Leitura:</b> ambos os sexos sobem de forma sustentada desde 2006 — tendência estrutural, não flutuação pontual.</div>
       </div>
@@ -351,14 +351,14 @@
       <div class="kpi-card"><span class="kpi-label">Obesidade (IMC≥30)</span><span class="kpi-value">25,7%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span><span class="kpi-trend up">↑ 118% desde 2006</span></div>
       <div class="kpi-card"><span class="kpi-label">Excesso de peso (IMC≥25)</span><span class="kpi-value">62,6%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
       <div class="kpi-card"><span class="kpi-label">Fisicamente inativos</span><span class="kpi-value">9,4%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
-      <div class="kpi-card"><span class="kpi-label">Consumo abusivo de álcool</span><span class="kpi-value">20,4%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Consumo episódico pesado de álcool</span><span class="kpi-value">20,4%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
       <div class="kpi-card"><span class="kpi-label">Fumantes</span><span class="kpi-value">11,5%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span><span class="kpi-trend down">↓ 4,2 pp desde 2006</span></div>
       <div class="kpi-card"><span class="kpi-label">Hipertensão arterial</span><span class="kpi-value">29,7%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
     </div>
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Evolução do excesso de peso, diabetes e hipertensão (2006–2024)</h3>
-        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024 (SVSA/MS). Totais de diabetes e hipertensão calculados a partir dos valores oficiais por sexo. 2022 sem coleta.</p>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024 (SVSA/MS), Tabelas 1, 47 e 51 — dado oficial. 2022 sem coleta.</p>
         <div class="legend-row">
           <span><span class="leg-dot" style="background:#D55E00"></span> Excesso de peso (%)</span>
           <span><span class="leg-dot" style="background:#0072B2"></span> Diabetes (%)</span>
@@ -420,16 +420,16 @@
     </div>
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">DM — 2006</span><span class="kpi-value">5,5%</span><span class="kpi-sub">1ª edição Vigitel</span></div>
-      <div class="kpi-card"><span class="kpi-label">DM — 2010</span><span class="kpi-value">6,9%</span><span class="kpi-sub">Vigitel (total calculado)</span></div>
-      <div class="kpi-card"><span class="kpi-label">DM — 2015</span><span class="kpi-value">7,8%</span><span class="kpi-sub">Vigitel (total calculado)</span></div>
-      <div class="kpi-card"><span class="kpi-label">DM — 2019</span><span class="kpi-value">8,1%</span><span class="kpi-sub">Vigitel (total calculado)</span></div>
-      <div class="kpi-card"><span class="kpi-label">DM — 2021</span><span class="kpi-value">10,3%</span><span class="kpi-sub">Vigitel (total calculado)</span></div>
+      <div class="kpi-card"><span class="kpi-label">DM — 2010</span><span class="kpi-value">6,9%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
+      <div class="kpi-card"><span class="kpi-label">DM — 2015</span><span class="kpi-value">7,8%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
+      <div class="kpi-card"><span class="kpi-label">DM — 2019</span><span class="kpi-value">8,1%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
+      <div class="kpi-card"><span class="kpi-label">DM — 2021</span><span class="kpi-value">10,3%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
       <div class="kpi-card"><span class="kpi-label">DM — 2024</span><span class="kpi-value">12,9%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
     </div>
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Indicadores Vigitel — evolução 2006–2024 (capitais brasileiras)</h3>
-        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024 (SVSA/MS). Totais de diabetes e hipertensão calculados a partir dos valores oficiais por sexo. 2022 sem coleta.</p>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024 (SVSA/MS), Tabelas 1, 47 e 51 — dado oficial. 2022 sem coleta.</p>
         <div class="legend-row">
           <span><span class="leg-dot" style="background:#0072B2"></span> Diabetes (%)</span>
           <span><span class="leg-dot" style="background:#D55E00"></span> Excesso de peso (%)</span>
@@ -1026,12 +1026,12 @@
   </div>
 </footer>
 
-<script src="data.js?v=29"></script>
-<script src="pima.js?v=29"></script>
-<script src="ml.js?v=29"></script>
-<script src="serie_mensal.js?v=29"></script>
-<script src="charts.js?v=29"></script>
-<script src="map.js?v=29"></script>
-<script src="app.js?v=29"></script>
+<script src="data.js?v=30"></script>
+<script src="pima.js?v=30"></script>
+<script src="ml.js?v=30"></script>
+<script src="serie_mensal.js?v=30"></script>
+<script src="charts.js?v=30"></script>
+<script src="map.js?v=30"></script>
+<script src="app.js?v=30"></script>
 </body>
 </html>

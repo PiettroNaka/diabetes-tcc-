@@ -231,11 +231,13 @@ function renderOverviewTrend() {
   const [tot, fem, mas] = cut.series;
   const sex = F().sex;
   const ds = [];
-  // IC 95% aproximado (SE binomial, n efetivo ~25.000 estimado p/ Vigitel após design effect)
+  // IC 95% aproximado: erro-padrão binomial com n efetivo = entrevistas do ano (Quadro 1)
+  // ÷ efeito do desenho (deff = 2, valor conservador assumido; os IC oficiais exigem o desenho completo)
   if (sex === 'all') {
-    const nEff = 25000;
-    const up = tot.map(p => +(p + 1.96*Math.sqrt((p/100)*(1-p/100)/nEff)*100).toFixed(2));
-    const lo = tot.map(p => +(p - 1.96*Math.sqrt((p/100)*(1-p/100)/nEff)*100).toFixed(2));
+    const DEFF = 2, nAno = cutTS(d.years, d.entrevistas).series[0];
+    const half = (p, i) => 1.96 * Math.sqrt((p/100)*(1-p/100) / (nAno[i] / DEFF)) * 100;
+    const up = tot.map((p, i) => +(p + half(p, i)).toFixed(2));
+    const lo = tot.map((p, i) => +(p - half(p, i)).toFixed(2));
     ds.push({ label: 'IC95% sup', data: up, borderColor:'transparent', pointRadius:0, fill:false });
     ds.push({ label: 'IC95% (aprox.)', data: lo, borderColor:'transparent', pointRadius:0, fill:'-1', backgroundColor:'rgba(0,114,178,.15)' });
   }
@@ -261,22 +263,24 @@ function renderOverviewTrend() {
 //  Os tipos seguem descritos em faixas citadas (SBD/FEBRASGO) nos cards de texto.)
 
 function renderAgeGroup() {
+  // Vigitel 2006–2024, Tabela 51 (oficial): prevalência por faixa etária, 2006 × ano final
   const id = 'chartAgeGroup'; destroyChart(id);
-  const d = DATA.vigitelFaixaEtaria;
+  const d = DATA.vigitelFaixaEtaria, yrs = DATA.vigitelDM.years;
+  const iy = yrIdx(yrs), last = iy[iy.length - 1];
   saveChart(id, new Chart(document.getElementById(id), {
     type: 'bar',
     data: {
       labels: d.labels,
-      datasets: (function(){ const s=F().sex, ds=[];
-        ds.push({ label:'Total', data:d.total, backgroundColor:PALETTE.blue, borderRadius:4 });
-        if (s==='all'||s==='F') ds.push({ label:'Feminino', data:d.fem, backgroundColor:PALETTE.red+'99', borderRadius:4 });
-        if (s==='all'||s==='M') ds.push({ label:'Masculino', data:d.masc, backgroundColor:PALETTE.green+'99', borderRadius:4 });
-        return ds; })(),
+      datasets: [
+        { label: '2006', data: d.serie.map(s => s[0]), backgroundColor: PALETTE.gray + 'aa', borderRadius:4 },
+        { label: String(yrs[last]), data: d.serie.map(s => s[last]), backgroundColor: PALETTE.blue, borderRadius:4 },
+      ],
     },
-    options: { ...baseOpts({ display: false }),
+    options: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }),
       scales: { ...baseOpts().scales,
         y: { ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} } }
-      }
+      },
+      plugins: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }).plugins, tooltip:{ callbacks:{ label: ctx => `${ctx.dataset.label}: ${String(ctx.raw).replace('.', ',')}%` } } }
     },
   }));
 }
@@ -354,39 +358,46 @@ function renderStatePrevalence() {
 }
 
 function renderEducation() {
+  // Vigitel 2006–2024, Tabela 51 (oficial): prevalência por nível de instrução, 2006 × ano final
   const id = 'chartEducation'; destroyChart(id);
-  const d = DATA.vigitelEscolaridade;
+  const d = DATA.vigitelEscolaridade, yrs = DATA.vigitelDM.years;
+  const iy = yrIdx(yrs), last = iy[iy.length - 1];
   saveChart(id, new Chart(document.getElementById(id), {
     type: 'bar',
     data: {
-      labels: d.labels,
-      datasets: (function(){ const s=F().sex, ds=[];
-        ds.push({ label:'Total', data:d.total, backgroundColor:PALETTE.blue, borderRadius:4 });
-        if (s==='all'||s==='F') ds.push({ label:'Feminino', data:d.fem, backgroundColor:PALETTE.red+'aa', borderRadius:4 });
-        if (s==='all'||s==='M') ds.push({ label:'Masculino', data:d.masc, backgroundColor:PALETTE.green+'aa', borderRadius:4 });
-        return ds; })(),
+      labels: d.labels.map(l => l.split('\n')),
+      datasets: [
+        { label: '2006', data: d.serie.map(s => s[0]), backgroundColor: PALETTE.gray + 'aa', borderRadius:4 },
+        { label: String(yrs[last]), data: d.serie.map(s => s[last]), backgroundColor: PALETTE.red + 'cc', borderRadius:4 },
+      ],
     },
-    options: { ...baseOpts({ display:false }),
-      scales:{ ...baseOpts().scales, y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} } } }
+    options: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }),
+      scales:{ ...baseOpts().scales,
+        y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} } },
+        x:{ ...baseOpts().scales.x, ticks:{ color:TICK_COLOR, font:{size:9}, autoSkip:false, maxRotation:0 } } },
+      plugins: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }).plugins, tooltip:{ callbacks:{ label: ctx => `${ctx.dataset.label}: ${String(ctx.raw).replace('.', ',')}%` } } }
     },
   }));
 }
 
 function renderSexAge() {
+  // Vigitel 2006–2024, Tabela 51 (oficial): evolução da prevalência por faixa etária
   const id = 'chartSexAge'; destroyChart(id);
   const d = DATA.vigitelFaixaEtaria;
+  const cut = cutTS(DATA.vigitelDM.years, ...d.serie);
+  const cores = ['#94a3b8', PALETTE.teal, PALETTE.green, PALETTE.amber, PALETTE.purple, PALETTE.red];
   saveChart(id, new Chart(document.getElementById(id), {
     type: 'line',
     data: {
-      labels: d.labels,
-      datasets: (function(){ const s=F().sex, ds=[];
-        ds.push({ label:'Total', data:d.total, borderColor:PALETTE.blue, fill:false, tension:.35, borderWidth:2.5, pointRadius:4 });
-        if (s==='all'||s==='F') ds.push({ label:'Feminino', data:d.fem, borderColor:PALETTE.red, fill:false, tension:.35, borderWidth:1.8, pointRadius:3, borderDash:[4,3] });
-        if (s==='all'||s==='M') ds.push({ label:'Masculino', data:d.masc, borderColor:PALETTE.green, fill:false, tension:.35, borderWidth:1.8, pointRadius:3, borderDash:[4,3] });
-        return ds; })(),
+      labels: cut.labels,
+      datasets: d.labels.map((l, i) => ({ label: l, data: cut.series[i], borderColor: cores[i], backgroundColor: cores[i],
+        fill: false, tension: .3, borderWidth: i === 5 ? 2.6 : 1.8, pointRadius: 2 })),
     },
-    options: { ...baseOpts({ display:false }),
-      scales:{ ...baseOpts().scales, y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} } } }
+    options: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR, boxWidth: 12 } }),
+      scales:{ ...baseOpts().scales,
+        y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} } },
+        x:{ ...baseOpts().scales.x, ticks:{ color:TICK_COLOR, font:{size:10}, maxRotation:45 } } },
+      plugins: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR, boxWidth: 12 } }).plugins, tooltip:{ callbacks:{ label: ctx => `${ctx.dataset.label}: ${String(ctx.raw).replace('.', ',')}%` } } }
     },
   }));
 }
@@ -405,7 +416,7 @@ function renderSexTrend() {
         if (s==='all'||s==='M') ds.push({ label:'Masculino', data:mas, borderColor:PALETTE.blue, fill:false, tension:.35, borderWidth:2 });
         return ds; })(),
     },
-    options: { ...baseOpts({ display:false }),
+    options: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }),
       scales:{ ...baseOpts().scales,
         y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:4, max:16 },
         x:{ ...baseOpts().scales.x, ticks:{ color:TICK_COLOR, font:{size:10}, maxRotation:45 } }
@@ -518,7 +529,7 @@ function renderStandardizedRates() {
     options: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }),
       scales: { ...baseOpts().scales,
         y: { ...baseOpts().scales.y, title: { display: true, text: 'Óbitos / 100k hab', color: TICK_COLOR, font: { size: 11 } } } },
-      plugins: { ...baseOpts().plugins, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}/100k` } } }
+      plugins: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }).plugins, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}/100k` } } }
     },
   }));
 }
@@ -1335,7 +1346,8 @@ function renderSintese() {
   // H1 — tendência temporal (OLS + teste t do coeficiente)
   const reg = Stats.linreg(V.years, V.diabetes);
   const rT = Stats.pearson(V.years, V.diabetes), pT = Stats.corrP(rT, V.years.length);
-  setText('h1Stat', `inclinação = +${reg.slope.toFixed(3).replace('.', ',')} pp/ano · R² = ${reg.r2.toFixed(3).replace('.', ',')} · ${fmtP(pT)}`);
+  const vo = DATA.vigitelDM.variacaoOficial.periodo2006_2024;
+  setText('h1Stat', `inclinação = +${reg.slope.toFixed(3).replace('.', ',')} pp/ano · R² = ${reg.r2.toFixed(3).replace('.', ',')} · ${fmtP(pT)} · relatório oficial (Tab. 52): +${String(vo.pp).replace('.', ',')} pp/ano`);
   setBadge('h1Badge', (reg.slope > 0 && pT < 0.05) ? 'ok' : 'no');
 
   // H2 — excesso de peso × diabetes (Pearson + p)
@@ -1804,7 +1816,7 @@ function renderPRCurve() {
         x: { type: 'linear', min: 0, max: 1, grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } }, title: { display: true, text: 'Revocação / Sensibilidade (TPR)', color: TICK_COLOR, font: { size: 11 } } },
         y: { min: 0, max: 1, grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } }, title: { display: true, text: 'Precisão (VP / VP+FP)', color: TICK_COLOR, font: { size: 11 } } },
       },
-      plugins: { ...baseOpts().plugins, tooltip: { callbacks: { label: ctx => `Revocação ${ctx.raw.x.toFixed(2)} · Precisão ${ctx.raw.y.toFixed(2)}` } } }
+      plugins: { ...baseOpts({ display: true }).plugins, tooltip: { callbacks: { label: ctx => `Revocação ${ctx.raw.x.toFixed(2)} · Precisão ${ctx.raw.y.toFixed(2)}` } } }
     },
   }));
 }

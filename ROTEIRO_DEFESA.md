@@ -21,7 +21,7 @@ Números-âncora:
 ## 1. Visão Geral
 **Mostrar:** KPIs, evolução da prevalência por sexo (com faixa de IC aproximada), projeção global do IDF e ranking de países.
 
-**Ponto técnico:** o total do Vigitel em cada ano é **calculado** a partir dos valores oficiais por sexo (0,54·fem + 0,46·masc); a ponderação reproduz exatamente os totais oficiais de 2006 (5,5%) e 2024 (12,9%). Diga isso antes que perguntem.
+**Ponto técnico:** todas as séries do Vigitel vêm do relatório **Vigitel Brasil 2006–2024** (Tabelas 1, 47, 51 e 52), já reponderadas pelo Ministério com o Censo 2022 — por isso alguns anos diferem levemente de relatórios antigos (ex.: 2019 = 8,2%).
 
 **Perguntas prováveis:**
 - *"De onde vêm os 15,7 milhões?"* → IDF Diabetes Atlas, 10ª ed. (2021): estimativa **modelada**, adultos de 20–79 anos, inclui não diagnosticados. Não é comparável ao autorreferido do Vigitel/PNS. (O antigo "16,8 mi" era da 9ª ed., 2019.)
@@ -32,7 +32,7 @@ Números-âncora:
 
 **Ponto técnico:** a TCAC usa o **intervalo efetivo de 18 anos** (2006→2024), não o número de observações − 1 (17), porque não houve coleta em 2022.
 
-**Atenção:** os recortes por capital, faixa etária e escolaridade estão marcados no painel como **provisórios, em conferência com o relatório oficial Vigitel 2006–2024**. Não apresente esses números como definitivos até a substituição.
+**Faixa etária e instrução (oficiais, Tabela 51):** 65+ chega a **31,4%** em 2024 (+0,57 pp/ano); sem instrução/fundamental incompleto **24,0%** × superior completo **9,0%** (2,7×). **Atenção:** a prevalência **por capital** ainda está marcada como provisória — o relatório 2006–2024 não traz diabetes por capital.
 
 ## 3. Mortalidade (SIM)
 **Mostrar:** série 2000–2025, faixa etária, região (taxa bruta), **bruta × padronizada**, tipo CID-10, raça/cor, comparação com outras causas.
@@ -64,7 +64,7 @@ Números-âncora:
 **Pontos técnicos:** o mapa lê **a mesma fonte de dados** dos gráficos (sem cópia própria); classes de **intervalos fixos** (mantêm o significado das cores sob o filtro de região); UFs fora da região filtrada são esmaecidas, não removidas. Limitação: a prevalência da capital representa a UF inteira.
 
 ## 7. Vigitel
-**Mostrar:** marcos da série (2006 → 2024), evolução conjunta de diabetes, excesso de peso e hipertensão, prevalência por capital (provisória).
+**Mostrar:** marcos da série (2006 → 2024), evolução conjunta de diabetes, excesso de peso e hipertensão, prevalência por capital (provisória — fonte por capital ainda em conferência).
 
 ## 8. PNS / Fontes
 **Mostrar:** tabela "quantos diabéticos há no Brasil?", Vigitel × PNS, PNS por sexo e região, edições do IDF, gasto em saúde (IDF) e catálogo de fontes.
@@ -79,8 +79,8 @@ Números-âncora:
 **Mostrar:** CRISP-DM, correlações com IC e p, projeção OLS, matriz de correlação, distribuição por região, bolhas, carga estimada, estatística descritiva.
 
 **Pontos técnicos:**
-- **H1:** inclinação **+0,332 pp/ano**, R² = 0,856, p < 0,001 (o teste t da inclinação é idêntico ao teste do r).
-- **H2:** r = **0,930** (excesso de peso × diabetes, n = 18 anos), p < 0,001 — mas séries que crescem juntas compartilham tendência: é **coevolução**, não efeito individual.
+- **H1:** inclinação **+0,333 pp/ano**, R² = 0,861, p < 0,001 — o próprio relatório (Tabela 52, mesmo método: regressão do indicador sobre o ano) publica **+0,35 pp/ano (IC 0,25–0,44)**. Validação cruzada com a fonte oficial.
+- **H2:** r = **0,933** (excesso de peso × diabetes, n = 18 anos), p < 0,001 — mas séries que crescem juntas compartilham tendência: é **coevolução**, não efeito individual.
 - **H3:** correlação entre UFs → **ecológica** → no máximo "parcial", por regra de decisão explícita (Cap. 2 do TCC). (Valor sujeito à conferência da prevalência por capital.)
 - O p-valor da distribuição t é calculado em JavaScript pela **função beta incompleta regularizada** (Numerical Recipes).
 - A **carga estimada** superestima (prevalência de adultos × população total) e serve apenas para **ordenar** UFs — está escrito no gráfico.
@@ -134,8 +134,8 @@ Números-âncora:
 
 ## Limitações a admitir antes que perguntem
 - Prevalência autorreferida subestima quem não tem diagnóstico.
-- Vigitel cobre só capitais; o mapa usa a capital para a UF inteira. Recortes por capital/idade/escolaridade em conferência com o relatório oficial.
-- Total do Vigitel calculado a partir dos valores por sexo (exato nas pontas).
+- Vigitel cobre só capitais; o mapa usa a capital para a UF inteira. A prevalência por capital está em conferência.
+- O relatório não cruza idade/instrução com sexo e não ajusta o gradiente de instrução por idade.
 - Reanálise da PNS por raça/cor dá 8,6% no total (oficial: 7,7%) → uso só para comparação relativa entre grupos.
 - Imputação por mediana reduz a variabilidade da insulina (48,7% de zeros) e da prega cutânea.
 - Internações em valores nominais e só no SUS; amputações de todas as causas.

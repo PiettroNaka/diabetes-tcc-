@@ -111,9 +111,9 @@ function exportData() {
 
   const V = DATA.vigitel2024;   // série oficial real 2006–2024
   V.years.forEach((y, i) => {
-    push('Vigitel', 'Diabetes', y, V.diabetes[i], '%', 'Vigitel/MS 2006-2024 (total calculado de M/F oficiais)');
+    push('Vigitel', 'Diabetes', y, V.diabetes[i], '%', 'Vigitel/MS 2006-2024, Tabela 51');
     push('Vigitel', 'Excesso_peso', y, V.excessoPeso[i], '%', 'Vigitel/MS 2006-2024');
-    push('Vigitel', 'Hipertensao', y, V.hipertensao[i], '%', 'Vigitel/MS 2006-2024 (total calculado de M/F oficiais)');
+    push('Vigitel', 'Hipertensao', y, V.hipertensao[i], '%', 'Vigitel/MS 2006-2024, Tabela 47');
   });
   DATA.mortalidade.anos.forEach((y, i) => push('Mortalidade', 'Obitos_DM', y, DATA.mortalidade.obitos[i], 'obitos', 'SIM/DATASUS'));
   DATA.internacoes.anos.forEach((y, i) => push('Internacoes', 'Internacoes_SUS', y, DATA.internacoes.total[i], 'internacoes', 'SIH/DATASUS'));

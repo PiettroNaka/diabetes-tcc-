@@ -9,24 +9,26 @@
 
 const DATA = {
 
-  // ── VIGITEL BRASIL 2006–2024 (SVSA/MS) — oficial por sexo; total calculado ──
-  // 2022 não teve coleta. Diabetes e hipertensão: valores por SEXO transcritos do
-  // relatório oficial; o TOTAL de cada ano é CALCULADO como média ponderada
-  // 0,54·fem + 0,46·masc (proporção aproximada de mulheres adultas nas capitais),
-  // que reproduz exatamente os totais oficiais de 2006 (5,5%) e 2024 (12,9%).
-  // Anos intermediários do total = estimativa derivada de dado oficial.
-  // Excesso de peso (IMC≥25): total transcrito do relatório (42,6% → 62,6%).
-  vigitelDM: { // diabetes
+  // ── VIGITEL BRASIL 2006–2024 (SVSA/MS, 2025) — DADO OFICIAL ──────────────
+  // Transcrito do relatório "Vigitel Brasil 2006-2024" (213 p.). Percentuais
+  // ponderados (método rake) do conjunto das 26 capitais + DF. 2022 sem coleta.
+  //   Diabetes: Tabela 51 (total, sexo, idade, instrução) · Tabela 52 (variação anual)
+  //   Excesso de peso: Tabela 1 · Hipertensão: Tabela 47 · Entrevistas: Quadro 1
+  vigitelDM: { // diabetes — Tabela 51
     years: [2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024],
     masc:  [4.6,5.4,5.7,5.8,6.2,5.9,6.7,6.9,7.6,7.4,8.7,7.8,7.8,7.8,8.0,9.5,9.8,11.2],
     fem:   [6.3,6.2,6.7,6.7,7.5,6.7,8.2,7.3,9.0,8.1,10.2,8.6,8.7,8.4,9.9,10.9,12.8,14.3],
-    total: [5.5,5.8,6.2,6.3,6.9,6.3,7.5,7.1,8.4,7.8,9.5,8.2,8.3,8.1,9.0,10.3,11.4,12.9],
+    total: [5.5,5.8,6.2,6.3,6.9,6.4,7.5,7.1,8.4,7.8,9.6,8.2,8.3,8.2,9.1,10.3,11.4,12.9],
+    // Quadro 1 — entrevistas realizadas por ano (usadas na faixa de IC aproximada)
+    entrevistas: [54369,54251,54353,54367,54339,54144,45448,52929,40853,54174,53210,53034,52395,52443,27077,27093,21690,27048],
+    // Tabela 52 — variação anual média (pp/ano), regressão linear do indicador sobre o ano
+    variacaoOficial: { periodo2006_2024: { pp: 0.35, ic: [0.25, 0.44] }, periodo2019_2024: { pp: 0.90, ic: [0.66, 1.13] } },
   },
-  vigitel2024: { // indicadores oficiais alinhados 2006–2024 (2022 ausente)
+  vigitel2024: { // séries oficiais 2006–2024 (2022 ausente)
     years:        [2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024],
-    diabetes:     [5.5,5.8,6.2,6.3,6.9,6.3,7.5,7.1,8.4,7.8,9.5,8.2,8.3,8.1,9.0,10.3,11.4,12.9],
-    excessoPeso:  [42.6,43.4,44.9,45.9,48.2,48.9,51.1,50.9,52.6,54.0,54.0,54.2,55.8,55.6,58.0,57.3,61.4,62.6],
-    hipertensao:  [22.6,23.4,25.3,25.4,24.4,24.5,24.6,24.7,25.6,25.8,26.8,25.7,26.2,25.9,27.2,28.3,30.1,29.7],
+    diabetes:     [5.5,5.8,6.2,6.3,6.9,6.4,7.5,7.1,8.4,7.8,9.6,8.2,8.3,8.2,9.1,10.3,11.4,12.9],   // Tabela 51
+    excessoPeso:  [42.6,43.4,44.9,45.9,48.2,48.9,51.1,50.9,52.6,54.0,54.0,54.2,55.8,55.6,58.0,57.3,61.4,62.6], // Tabela 1
+    hipertensao:  [22.6,23.4,25.3,25.4,24.5,24.6,24.6,24.7,25.6,25.9,26.8,25.8,26.3,26.0,27.2,28.4,30.1,29.7], // Tabela 47
   },
 
   // ── Vigitel: prevalência por capital ─────────────────────────────────────
@@ -53,26 +55,33 @@ const DATA = {
               'S','S','S'],
   },
 
-  // ── Vigitel: prevalência por escolaridade ────────────────────────────────
-  // ⚠ PROVISÓRIO — categorias e valores não correspondem ao relatório oficial
-  // (2023 oficial: 0–8 anos de estudo = 19,4%). Substituir pela tabela oficial.
+  // ── Vigitel: diabetes por nível de instrução — Tabela 51 (oficial) ────────
+  // Série completa 2006–2024 (mesmos anos de vigitelDM). O relatório não cruza
+  // instrução × sexo, por isso não há recorte por sexo aqui.
   vigitelEscolaridade: {
-    pendente: true,
-    labels: ['Sem instrução /\nfundamental I','Fundamental II','Ensino\nMédio','Superior\ncompleto'],
-    total:  [17.8, 11.4,  7.3,  5.9],
-    fem:    [19.2, 12.1,  8.0,  6.5],
-    masc:   [15.8, 10.4,  6.5,  5.2],
+    labels: ['Sem instrução /\nfund. incompleto','Fund. completo /\nmédio incompleto','Médio completo /\nsup. incompleto','Superior\ncompleto'],
+    serie: [
+      [9.5,9.8,11.5,11.7,11.9,11.9,13.2,13.9,16.7,15.7,19.7,17.5,17.6,17.1,18.3,21.8,23.5,24.0],
+      [5.0,5.0,5.3,5.8,6.5,6.3,8.4,7.5,8.2,8.3,9.6,9.1,10.0,9.8,10.3,11.1,13.1,15.5],
+      [2.5,3.4,2.9,3.0,4.1,3.2,4.5,3.8,4.6,4.1,5.1,4.5,4.5,4.9,5.9,6.8,8.3,9.2],
+      [3.2,3.1,3.2,3.6,4.5,3.9,3.9,3.5,4.4,4.6,5.9,4.4,4.4,4.1,5.3,5.8,6.1,9.0],
+    ],
+    // Tabela 52 — variação anual 2006–2024 (pp/ano)
+    variacao: [0.79, 0.51, 0.33, 0.22],
   },
 
-  // ── Vigitel: faixa etária ────────────────────────────────────────────────
-  // ⚠ PROVISÓRIO — o relatório oficial usa 65+ como última faixa (2023: 30,3%),
-  // e não 65–74/75+. Substituir pela tabela oficial.
+  // ── Vigitel: diabetes por faixa etária — Tabela 51 (oficial) ─────────────
   vigitelFaixaEtaria: {
-    pendente: true,
-    labels: ['18–24','25–34','35–44','45–54','55–64','65–74','75+'],
-    total:  [ 1.4,   2.8,   5.6,  12.4,  22.1,  33.2,  38.7],
-    fem:    [ 1.6,   3.0,   6.0,  13.1,  23.4,  34.5,  40.1],
-    masc:   [ 1.2,   2.5,   5.1,  11.6,  20.7,  31.7,  37.0],
+    labels: ['18–24','25–34','35–44','45–54','55–64','65+'],
+    serie: [
+      [0.9,0.7,0.6,0.7,1.3,0.4,0.9,0.8,1.0,0.9,1.0,0.7,0.9,0.7,1.4,1.0,0.5,1.7],
+      [1.1,1.7,0.9,1.9,2.3,1.0,1.6,1.2,1.6,1.3,2.0,1.6,1.7,1.4,2.3,1.9,2.5,3.7],
+      [2.9,2.9,3.4,3.3,3.4,3.3,3.9,3.6,3.9,4.8,5.1,4.1,3.5,3.5,3.8,4.6,5.2,6.2],
+      [7.1,7.7,9.0,7.4,8.2,8.7,9.3,8.4,11.5,9.0,11.1,8.7,9.4,7.6,8.3,10.9,10.1,14.8],
+      [15.7,15.8,15.7,15.3,16.2,14.8,18.5,17.2,18.1,15.8,19.5,17.2,16.9,17.3,17.3,17.3,21.6,20.3],
+      [18.9,18.9,21.2,22.5,21.8,21.4,23.0,22.1,24.4,22.5,27.1,23.3,23.2,22.9,24.8,28.0,30.1,31.4],
+    ],
+    variacao: [0.02, 0.08, 0.14, 0.20, 0.24, 0.57],
   },
 
   // ── MORTALIDADE — SIM/DATASUS (CID-10 E10–E14) — DADO REAL (TabNet) ──────

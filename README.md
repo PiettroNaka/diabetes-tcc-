@@ -82,7 +82,8 @@ O FTP do DATASUS fica indisponível em muitos ambientes, então os dados foram e
 
 | Bloco | Conteúdo | Fonte / ano |
 |-------|----------|-------------|
-| `vigitel2024` / `vigitelDM` | prevalência de DM (por sexo e total), excesso de peso, hipertensão | Vigitel 2006–2024 (SVSA/MS); total de DM e hipertensão = 0,54·fem + 0,46·masc (exato em 2006 e 2024) |
+| `vigitel2024` / `vigitelDM` | prevalência de DM (total e por sexo), excesso de peso, hipertensão, entrevistas por ano e variação anual oficial | Vigitel Brasil 2006–2024 (SVSA/MS, 2025) — Tabelas 1, 47, 51, 52 e Quadro 1 |
+| `vigitelFaixaEtaria` / `vigitelEscolaridade` | prevalência de DM por idade (6 faixas) e por instrução (4 níveis), 2006–2024 | Vigitel Brasil 2006–2024 — Tabela 51 |
 | `mortalidade` | óbitos anuais por diabetes | SIM/DATASUS 2000–2025 (prelim.) |
 | `mortalidadeFaixaEtaria` / `Regiao` / `CID` / `Raca` | óbitos por faixa, região, subtipo E10–E14, raça | SIM 2025 |
 | `mortalidadePadronizada` | taxa bruta × **padronizada por idade** (método direto) | SIM 2025 ÷ pop IBGE/SVS 2024 |
@@ -98,7 +99,7 @@ Taxa padronizada de cada região = Σ (taxa específica por faixa etária × pes
 - **Pima (interativo):** regressão logística treinada ao vivo no navegador (gradiente descendente) sobre o Pima Indians Diabetes Dataset (NIDDK) — demonstra o pipeline de ponta a ponta.
 - **PNS 2019 (nacional):** Logística × Random Forest × XGBoost em Python (scikit-learn), validação cruzada k=5, split estratificado 70/30, seed fixa. Exporta AUC, curva ROC, matriz de confusão e coeficientes (`pns_results.js`).
 
-> **Nota:** nenhum dado é sintético. Estimativas (IDF, carga por UF, totais calculados do Vigitel) estão sinalizadas como tal, e valores ainda não conferidos com o relatório oficial aparecem como **provisórios**.
+> **Nota:** nenhum dado é sintético. Estimativas (IDF, carga por UF) estão sinalizadas como tal, e valores ainda não conferidos com o relatório oficial aparecem como **provisórios**.
 
 ---
 
