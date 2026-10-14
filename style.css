@@ -96,17 +96,36 @@ body {
 .source-badge:hover { background: rgba(255,255,255,.16); color: #fff; transform: translateY(-1px); }
 
 /* ===== NAV ===== */
-.tab-nav {
+.tab-nav-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 90;
   background: rgba(255,255,255,.85);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
+}
+/* Degradês de borda: indicam que a barra de abas rola horizontalmente */
+.tab-nav-wrap::before,
+.tab-nav-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 42px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.tab-nav-wrap::before { left: 0;  background: linear-gradient(to right, rgba(255,255,255,.95), rgba(255,255,255,0)); }
+.tab-nav-wrap::after  { right: 0; background: linear-gradient(to left,  rgba(255,255,255,.95), rgba(255,255,255,0)); }
+.tab-nav-wrap.scroll-left::before  { opacity: 1; }
+.tab-nav-wrap.scroll-right::after  { opacity: 1; }
+.tab-nav {
   display: flex;
   gap: 4px;
   overflow-x: auto;
   padding: 10px 2rem;
-  position: sticky;
-  top: 0;
-  z-index: 90;
   scrollbar-width: none;
 }
 .tab-nav::-webkit-scrollbar { display: none; }
@@ -555,3 +574,7 @@ body {
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .section-header h2 { font-size: 1.3rem; }
 }
+
+/* Aviso de dado provisório (em conferência com a fonte oficial) */
+.pending { display:inline-block; margin-left:2px; padding:1px 7px; border-radius:10px; font-size:10.5px; font-weight:600;
+  color:#7c2d12; background:#ffedd5; border:1px solid #fdba74; white-space:normal; }

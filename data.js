@@ -1,78 +1,107 @@
 // ============================================================
 // DADOS EPIDEMIOLÓGICOS — DIABETES NO BRASIL
-// Fontes: DATASUS/SIM, DATASUS/SIH, Vigitel/MS 2006-2023,
-//         ANS/D-TISS 2015-2024, SBD, IDF Diabetes Atlas 2021,
-//         IBGE, OMS/WHO, PNS 2019
-// NUP ANS: 25072.015811/2026-30
+// Fontes: DATASUS/SIM (2000–2025), DATASUS/SIH (2010–2026), Vigitel/MS
+//         2006–2024, PNS 2013/2019 (IBGE), Censo 2022 (IBGE), IDF Diabetes
+//         Atlas (9ª–11ª ed.), Pima Indians Diabetes Dataset (NIDDK).
+// ANS/D-TISS avaliada e EXCLUÍDA na auditoria (sem dado primário com recorte
+// de diabetes; pedido LAI NUP 25072.015811/2026-30).
 // ============================================================
 
 const DATA = {
 
-  // ── VIGITEL: Série histórica de prevalência (2006–2023) ──────────────────
-  vigitel: {
-    years: [2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023],
-    diabetes:    [5.3, 5.6, 5.3, 5.8, 6.3, 6.3, 7.4, 7.1, 7.7, 8.0, 8.9, 8.9, 8.6, 8.8, 9.3, 9.5, 9.8,10.2],
-    obesidade:   [11.6,12.2,13.9,13.9,13.9,15.8,17.4,17.5,17.9,18.9,18.9,18.9,19.8,20.3,22.7,22.9,23.3,22.4],
-    sobrepeso:   [43.2,43.6,46.6,46.6,48.1,48.5,51.0,50.8,52.5,53.8,53.8,54.0,55.7,55.4,60.3,57.3,57.3,57.5],
-    sedentarismo:[60.0,58.0,56.2,56.2,54.4,52.0,51.5,52.1,50.6,47.4,47.4,47.0,47.0,45.9,48.0,47.0,46.5,47.1],
-    hipertensao: [21.6,21.5,21.5,23.3,24.4,25.3,25.1,24.1,24.8,24.9,24.9,24.5,24.7,24.3,26.6,26.2,26.4,26.3],
-    tabagismo:   [16.2,16.1,16.1,14.9,15.1,14.8,14.9,12.7,11.8,10.9,10.9,10.1, 9.8, 9.5, 9.9, 8.5, 9.1, 9.6],
-    // feminino/masculino por ano
-    diabetesFem: [5.8, 6.2, 5.9, 6.3, 6.8, 6.9, 8.1, 7.8, 8.3, 8.7, 9.6, 9.6, 9.3, 9.5,10.0,10.1,10.5,10.9],
-    diabetesMas: [4.7, 4.9, 4.6, 5.2, 5.6, 5.6, 6.6, 6.3, 7.0, 7.2, 8.0, 8.1, 7.8, 8.0, 8.5, 8.8, 9.0, 9.4],
-  },
-
-  // ── VIGITEL BRASIL 2006–2024 (SVSA/MS) — DADO OFICIAL REAL ───────────────
-  // Séries Total por ano (2022 não teve coleta). Diabetes: Tabela 51 (M/F oficiais;
-  // total = média ponderada ~0,54 fem, coerente com o oficial 5,5%→12,9%).
-  // Excesso de peso (IMC≥25): Tabela 1. Hipertensão: Tabela 47 (total ponderado M/F).
-  // Valores transcritos dos relatórios oficiais (lidos do PDF). 100% reais.
-  vigitelDM: { // diabetes
+  // ── VIGITEL BRASIL 2006–2024 (SVSA/MS, 2025) — DADO OFICIAL ──────────────
+  // Transcrito do relatório "Vigitel Brasil 2006-2024" (213 p.). Percentuais
+  // ponderados (método rake) do conjunto das 26 capitais + DF. 2022 sem coleta.
+  //   Diabetes: Tabela 51 (total, sexo, idade, instrução) · Tabela 52 (variação anual)
+  //   Excesso de peso: Tabela 1 · Hipertensão: Tabela 47 · Entrevistas: Quadro 1
+  vigitelDM: { // diabetes — Tabela 51
     years: [2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024],
     masc:  [4.6,5.4,5.7,5.8,6.2,5.9,6.7,6.9,7.6,7.4,8.7,7.8,7.8,7.8,8.0,9.5,9.8,11.2],
     fem:   [6.3,6.2,6.7,6.7,7.5,6.7,8.2,7.3,9.0,8.1,10.2,8.6,8.7,8.4,9.9,10.9,12.8,14.3],
-    total: [5.5,5.8,6.2,6.3,6.9,6.3,7.5,7.1,8.4,7.8,9.5,8.2,8.3,8.1,9.0,10.3,11.4,12.9],
+    total: [5.5,5.8,6.2,6.3,6.9,6.4,7.5,7.1,8.4,7.8,9.6,8.2,8.3,8.2,9.1,10.3,11.4,12.9],
+    // Quadro 1 — entrevistas realizadas por ano (usadas na faixa de IC aproximada)
+    entrevistas: [54369,54251,54353,54367,54339,54144,45448,52929,40853,54174,53210,53034,52395,52443,27077,27093,21690,27048],
+    // Tabela 52 — variação anual média (pp/ano), regressão linear do indicador sobre o ano
+    variacaoOficial: { periodo2006_2024: { pp: 0.35, ic: [0.25, 0.44] }, periodo2019_2024: { pp: 0.90, ic: [0.66, 1.13] } },
   },
-  vigitel2024: { // indicadores oficiais alinhados 2006–2024 (2022 ausente)
+  vigitel2024: { // séries oficiais 2006–2024 (2022 ausente)
     years:        [2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023,2024],
-    diabetes:     [5.5,5.8,6.2,6.3,6.9,6.3,7.5,7.1,8.4,7.8,9.5,8.2,8.3,8.1,9.0,10.3,11.4,12.9],
-    excessoPeso:  [42.6,43.4,44.9,45.9,48.2,48.9,51.1,50.9,52.6,54.0,54.0,54.2,55.8,55.6,58.0,57.3,61.4,62.6],
-    hipertensao:  [22.6,23.4,25.3,25.4,24.4,24.5,24.6,24.7,25.6,25.8,26.8,25.7,26.2,25.9,27.2,28.3,30.1,29.7],
+    diabetes:     [5.5,5.8,6.2,6.3,6.9,6.4,7.5,7.1,8.4,7.8,9.6,8.2,8.3,8.2,9.1,10.3,11.4,12.9],   // Tabela 51
+    excessoPeso:  [42.6,43.4,44.9,45.9,48.2,48.9,51.1,50.9,52.6,54.0,54.0,54.2,55.8,55.6,58.0,57.3,61.4,62.6], // Tabela 1
+    hipertensao:  [22.6,23.4,25.3,25.4,24.5,24.6,24.6,24.7,25.6,25.9,26.8,25.8,26.3,26.0,27.2,28.4,30.1,29.7], // Tabela 47
   },
 
-  // ── Vigitel: prevalência por capital (2023) ──────────────────────────────
+  // ── Vigitel: diabetes por capital — DADO OFICIAL ─────────────────────────
+  // "Vigitel Brasil 2006-2023: morbidade referida e autoavaliação de saúde"
+  // (MS/SVSA, 2025), Anexo, Tabela 2: % de adultos com diagnóstico médico de
+  // diabetes por capital, 2006–2023 (sem 2022). Atenção: esta edição usa a
+  // ponderação ANTERIOR à revisão pelo Censo 2022 (total 2023 = 10,2% aqui ×
+  // 11,4% no relatório 2006–2024). Comparações entre capitais seguem válidas.
   vigitelCidades: {
-    capitais: ['Manaus','Belém','Macapá','Porto Velho','Rio Branco','Boa Vista','Palmas',
-               'Fortaleza','Natal','Recife','Maceió','João Pessoa','Aracaju','Salvador','São Luís','Teresina',
-               'Brasília','Goiânia','Campo Grande','Cuiabá',
-               'São Paulo','Rio de Janeiro','Belo Horizonte','Vitória','Campinas*',
-               'Curitiba','Porto Alegre','Florianópolis'],
-    prevalencia: [7.9, 8.3, 7.5, 7.8, 7.2, 7.4, 8.2,
-                  9.4, 9.8,10.1, 9.7, 9.5,10.3,10.2, 9.1, 9.8,
-                  9.6,10.0, 9.3, 9.1,
-                 11.2,10.8,10.5, 9.9,11.0,
-                 10.5,10.1, 9.7],
-    regioes: ['N','N','N','N','N','N','CO',
-              'NE','NE','NE','NE','NE','NE','NE','NE','NE',
-              'CO','CO','CO','CO',
-              'SE','SE','SE','SE','SE',
-              'S','S','S'],
+    ano: 2023,
+    capitais: ['Manaus','Belém','Macapá','Porto Velho','Rio Branco','Boa Vista','Palmas','Fortaleza','Natal','Recife','Maceió','João Pessoa','Aracaju','Salvador','São Luís','Teresina','Brasília','Goiânia','Campo Grande','Cuiabá','São Paulo','Rio de Janeiro','Belo Horizonte','Vitória','Curitiba','Porto Alegre','Florianópolis'],
+    prevalencia: [8.2, 6.9, 6.8, 6.6, 5.6, 6.9, 8.2, 11.6, 11.8, 8.3, 9.6, 7.2, 9.6, 9.0, 6.0, 10.2, 12.1, 8.8, 9.0, 9.0, 12.1, 11.0, 8.7, 9.6, 9.8, 12.0, 7.2],
+    regioes: ['N','N','N','N','N','N','N','NE','NE','NE','NE','NE','NE','NE','NE','NE','CO','CO','CO','CO','SE','SE','SE','SE','S','S','S'],
+    // série completa por capital (anos 2006–2021 e 2023)
+    anos: [2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2023],
+    serie: {
+      'Manaus': [5.0, 4.4, 4.6, 4.2, 4.6, 4.8, 4.9, 5.2, 7.4, 7.2, 5.6, 7.0, 7.4, 6.0, 7.3, 6.7, 8.2],
+      'Belém': [5.6, 4.5, 4.0, 4.5, 5.8, 6.0, 5.5, 5.5, 7.6, 6.3, 6.6, 6.2, 7.0, 6.8, 6.9, 9.3, 6.9],
+      'Macapá': [3.6, 4.4, 4.2, 4.2, 4.9, 5.4, 4.9, 4.6, 5.5, 4.6, 6.3, 6.0, 5.4, 5.2, 4.7, 7.9, 6.8],
+      'Porto Velho': [4.8, 4.8, 5.1, 5.5, 5.2, 4.8, 5.0, 5.3, 5.4, 5.5, 6.8, 7.5, 6.3, 4.6, 5.7, 7.6, 6.6],
+      'Rio Branco': [3.5, 4.0, 4.7, 3.9, 5.5, 5.3, 6.0, 4.6, 6.2, 6.7, 5.8, 6.2, 5.2, 4.9, 4.4, 6.4, 5.6],
+      'Boa Vista': [4.1, 2.0, 3.5, 3.7, 4.8, 4.7, 5.5, 4.6, 5.0, 4.6, 5.3, 8.1, 5.5, 7.0, 6.4, 6.7, 6.9],
+      'Palmas': [3.0, 4.2, 3.0, 4.0, 4.7, 3.2, 4.3, 3.6, 4.1, 3.9, 5.8, 4.5, 5.5, 4.7, 5.6, 8.8, 8.2],
+      'Fortaleza': [4.9, 5.7, 5.9, 5.7, 6.5, 7.2, 6.7, 7.5, 7.4, 6.2, 8.2, 7.6, 9.5, 7.4, 7.3, 9.0, 11.6],
+      'Natal': [5.0, 7.8, 7.3, 6.6, 6.5, 6.8, 8.0, 7.2, 7.8, 7.8, 10.1, 6.8, 7.9, 7.3, 10.5, 8.6, 11.8],
+      'Recife': [5.7, 6.0, 5.8, 7.1, 6.1, 6.4, 7.7, 6.1, 7.4, 7.6, 9.6, 7.3, 7.2, 8.1, 9.3, 8.9, 8.3],
+      'Maceió': [5.7, 5.5, 5.7, 6.8, 7.0, 6.5, 7.3, 7.2, 8.3, 7.3, 8.1, 7.8, 8.4, 8.2, 11.0, 10.7, 9.6],
+      'João Pessoa': [5.5, 5.7, 6.1, 6.5, 5.1, 5.4, 5.9, 6.5, 7.0, 6.2, 7.2, 7.3, 7.2, 6.8, 6.6, 8.7, 7.2],
+      'Aracaju': [4.4, 5.3, 6.6, 5.6, 6.4, 6.2, 6.0, 6.3, 7.2, 7.1, 9.2, 6.9, 6.8, 7.3, 7.0, 9.5, 9.6],
+      'Salvador': [5.2, 5.6, 5.5, 6.4, 4.8, 5.9, 6.0, 5.9, 7.4, 7.4, 8.0, 6.6, 6.3, 6.7, 6.3, 9.0, 9.0],
+      'São Luís': [5.7, 5.2, 3.6, 5.1, 5.4, 5.2, 5.5, 4.9, 4.4, 4.4, 6.8, 5.2, 6.3, 6.4, 6.8, 9.0, 6.0],
+      'Teresina': [4.4, 4.8, 5.3, 5.2, 5.8, 5.8, 5.1, 5.5, 5.4, 6.5, 6.8, 5.6, 6.3, 6.3, 6.4, 9.5, 10.2],
+      'Brasília': [5.2, 4.6, 5.4, 4.0, 5.5, 5.5, 6.6, 5.3, 6.7, 7.0, 8.6, 7.3, 6.7, 7.7, 5.7, 7.9, 12.1],
+      'Goiânia': [5.2, 4.2, 4.4, 6.1, 6.5, 4.8, 5.4, 5.1, 6.2, 7.0, 7.6, 7.2, 6.2, 6.6, 6.3, 6.8, 8.8],
+      'Campo Grande': [4.1, 4.8, 6.9, 6.1, 5.8, 6.5, 6.5, 6.6, 7.7, 7.9, 8.8, 7.7, 7.1, 5.9, 7.7, 8.5, 9.0],
+      'Cuiabá': [4.3, 6.2, 4.8, 5.6, 7.6, 6.1, 6.9, 6.8, 7.4, 6.3, 7.9, 5.8, 6.9, 7.0, 7.5, 10.0, 9.0],
+      'São Paulo': [6.4, 6.7, 7.5, 7.6, 7.8, 6.9, 9.3, 8.2, 9.5, 7.7, 10.0, 8.3, 7.7, 7.9, 8.5, 9.1, 12.1],
+      'Rio de Janeiro': [6.2, 6.0, 7.4, 7.0, 8.4, 6.9, 7.8, 7.4, 9.2, 8.8, 10.4, 8.8, 9.8, 8.3, 11.2, 10.9, 11.0],
+      'Belo Horizonte': [4.2, 5.8, 5.8, 5.7, 6.4, 6.2, 6.6, 7.6, 7.4, 7.5, 10.1, 8.2, 7.5, 8.0, 7.7, 11.3, 8.7],
+      'Vitória': [5.3, 4.6, 4.9, 5.7, 5.5, 6.6, 7.4, 6.7, 8.1, 6.6, 9.7, 8.5, 6.9, 6.4, 7.9, 8.8, 9.6],
+      'Curitiba': [5.5, 5.4, 5.1, 6.3, 7.4, 5.6, 8.4, 6.1, 8.1, 7.2, 9.6, 7.2, 6.8, 7.0, 8.2, 9.3, 9.8],
+      'Porto Alegre': [5.4, 6.9, 6.9, 6.0, 7.1, 6.5, 8.0, 7.8, 8.6, 8.7, 8.5, 8.0, 7.9, 8.6, 10.0, 8.7, 12.0],
+      'Florianópolis': [4.5, 6.1, 4.9, 5.6, 6.5, 6.2, 7.3, 5.5, 8.3, 6.7, 6.7, 5.4, 6.5, 6.1, 7.9, 6.6, 7.2],
+    },
   },
 
-  // ── Vigitel: prevalência por escolaridade (2023) ─────────────────────────
+  // ── Vigitel: diabetes por nível de instrução — Tabela 51 (oficial) ────────
+  // Série completa 2006–2024 (mesmos anos de vigitelDM). O relatório não cruza
+  // instrução × sexo, por isso não há recorte por sexo aqui.
   vigitelEscolaridade: {
-    labels: ['Sem instrução /\nfundamental I','Fundamental II','Ensino\nMédio','Superior\ncompleto'],
-    total:  [17.8, 11.4,  7.3,  5.9],
-    fem:    [19.2, 12.1,  8.0,  6.5],
-    masc:   [15.8, 10.4,  6.5,  5.2],
+    labels: ['Sem instrução /\nfund. incompleto','Fund. completo /\nmédio incompleto','Médio completo /\nsup. incompleto','Superior\ncompleto'],
+    serie: [
+      [9.5,9.8,11.5,11.7,11.9,11.9,13.2,13.9,16.7,15.7,19.7,17.5,17.6,17.1,18.3,21.8,23.5,24.0],
+      [5.0,5.0,5.3,5.8,6.5,6.3,8.4,7.5,8.2,8.3,9.6,9.1,10.0,9.8,10.3,11.1,13.1,15.5],
+      [2.5,3.4,2.9,3.0,4.1,3.2,4.5,3.8,4.6,4.1,5.1,4.5,4.5,4.9,5.9,6.8,8.3,9.2],
+      [3.2,3.1,3.2,3.6,4.5,3.9,3.9,3.5,4.4,4.6,5.9,4.4,4.4,4.1,5.3,5.8,6.1,9.0],
+    ],
+    // Tabela 52 — variação anual 2006–2024 (pp/ano)
+    variacao: [0.79, 0.51, 0.33, 0.22],
   },
 
-  // ── Vigitel: faixa etária (2023) ─────────────────────────────────────────
+  // ── Vigitel: diabetes por faixa etária — Tabela 51 (oficial) ─────────────
   vigitelFaixaEtaria: {
-    labels: ['18–24','25–34','35–44','45–54','55–64','65–74','75+'],
-    total:  [ 1.4,   2.8,   5.6,  12.4,  22.1,  33.2,  38.7],
-    fem:    [ 1.6,   3.0,   6.0,  13.1,  23.4,  34.5,  40.1],
-    masc:   [ 1.2,   2.5,   5.1,  11.6,  20.7,  31.7,  37.0],
+    labels: ['18–24','25–34','35–44','45–54','55–64','65+'],
+    serie: [
+      [0.9,0.7,0.6,0.7,1.3,0.4,0.9,0.8,1.0,0.9,1.0,0.7,0.9,0.7,1.4,1.0,0.5,1.7],
+      [1.1,1.7,0.9,1.9,2.3,1.0,1.6,1.2,1.6,1.3,2.0,1.6,1.7,1.4,2.3,1.9,2.5,3.7],
+      [2.9,2.9,3.4,3.3,3.4,3.3,3.9,3.6,3.9,4.8,5.1,4.1,3.5,3.5,3.8,4.6,5.2,6.2],
+      [7.1,7.7,9.0,7.4,8.2,8.7,9.3,8.4,11.5,9.0,11.1,8.7,9.4,7.6,8.3,10.9,10.1,14.8],
+      [15.7,15.8,15.7,15.3,16.2,14.8,18.5,17.2,18.1,15.8,19.5,17.2,16.9,17.3,17.3,17.3,21.6,20.3],
+      [18.9,18.9,21.2,22.5,21.8,21.4,23.0,22.1,24.4,22.5,27.1,23.3,23.2,22.9,24.8,28.0,30.1,31.4],
+    ],
+    variacao: [0.02, 0.08, 0.14, 0.20, 0.24, 0.57],
   },
 
   // ── MORTALIDADE — SIM/DATASUS (CID-10 E10–E14) — DADO REAL (TabNet) ──────
@@ -202,20 +231,25 @@ const DATA = {
 
   // DADO REAL (IDF Diabetes Atlas, 10ª ed. 2021) — adultos 20–79 com diabetes, por país.
   // Ordenado decrescente: o Brasil é o 6º do mundo (atrás de China, Índia, Paquistão, EUA e Indonésia).
+  // Brasil = 15,7 mi em 2021 (factsheet IDF América do Sul e Central). [16,8 mi era o valor da 9ª ed., 2019.]
+  // 11ª ed.: Brasil 16,6 mi em 2024.
   idfTopPaises: {
     paises: ['China','Índia','Paquistão','EUA','Indonésia','Brasil','México','Bangladesh','Japão','Egito'],
-    milhoes:[140.9,  74.2,  33.0,        32.2, 19.5,        16.8,    14.1,    13.1,        11.0,   10.9],
+    milhoes:[140.9,  74.2,  33.0,        32.2, 19.5,        15.7,    14.1,    13.1,        11.0,   10.9],
     cores:  Array(10).fill('#0072B2').map((c,i)=> i===5?'#D55E00':c),
   },
 
-  // ── PREVALÊNCIA POR ESTADO (Vigitel 2023) ────────────────────────────────
+  // ── INDICADORES POR UF ───────────────────────────────────────────────────
+  // prev: prevalência de diabetes na CAPITAL da UF, Vigitel 2023 (volume 2006–2023 de
+  //       morbidade referida, Tabela 2 do anexo) — aproximação da UF pela capital.
+  // mort: SIM 2025 ÷ Censo 2022 (taxa bruta). pop: Censo 2022. Fonte única do mapa.
   estadosPrevalencia: {
     estados: ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'],
     siglas:  ['Acre','Alagoas','Amazonas','Amapá','Bahia','Ceará','Dist.Fed.','Espírito Santo','Goiás','Maranhão','Minas Gerais','Mato Grosso do Sul','Mato Grosso','Pará','Paraíba','Pernambuco','Piauí','Paraná','Rio de Janeiro','Rio Grande do Norte','Rondônia','Roraima','Rio Grande do Sul','Santa Catarina','Sergipe','São Paulo','Tocantins'],
-    prev:    [7.2, 9.7, 7.9, 7.5, 10.2, 9.4, 9.6, 9.9, 10.0, 9.1, 10.5, 9.3, 9.1, 8.3, 9.5, 10.1, 9.8, 10.5, 10.8, 9.8, 7.8, 7.4, 10.1, 9.7, 10.3, 11.2, 8.2],
+    prev:    [5.6, 9.6, 8.2, 6.8, 9.0, 11.6, 12.1, 9.6, 8.8, 6.0, 8.7, 9.0, 9.0, 6.9, 7.2, 8.3, 10.2, 9.8, 11.0, 11.8, 6.6, 6.9, 12.0, 7.2, 9.6, 12.1, 8.2],
     // DADO REAL: taxa bruta = óbitos SIM/TabNet 2025 (por UF, E10–E14) ÷ pop Censo 2022 × 100 mil hab
     mort:    [13.6,40.6,31.0,22.7,45.8,25.1,19.3,51.3,29.3,39.4,32.1,28.0,33.6,31.0,44.0,42.7,43.3,37.7,43.6,31.3,38.7,20.3,51.4,34.6,34.7,28.7,33.4],
-    regiao:  ['N','NE','N','N','NE','NE','CO','SE','CO','NE','SE','CO','CO','N','NE','NE','NE','S','SE','NE','N','N','S','S','NE','SE','CO'],
+    regiao:  ['N','NE','N','N','NE','NE','CO','SE','CO','NE','SE','CO','CO','N','NE','NE','NE','S','SE','NE','N','N','S','S','NE','SE','N'],
     // População IBGE Censo 2022 (milhões) — alinhada à ordem de 'estados'
     pop:     [0.83,3.13,3.94,0.73,14.14,8.79,2.82,3.83,7.06,6.78,20.54,2.76,3.66,8.12,3.97,9.06,3.27,11.44,16.05,3.30,1.58,0.64,10.88,7.61,2.21,44.41,1.51],
   },
@@ -223,28 +257,29 @@ const DATA = {
   // ── PNS — Pesquisa Nacional de Saúde (IBGE/Fiocruz) ──────────────────────
   // Inquérito DOMICILIAR nacional (inclui interior e zona rural), ≠ Vigitel (telefônico, só capitais)
   pns: {
-    // Evolução da prevalência de DM autorreferido (diagnóstico médico)
+    // Prevalência de DM autorreferido (diagnóstico médico), adultos 18+ — IBGE.
+    // 2013: 6,2% (mulheres 7,0%; homens 5,4%). 2019: 7,7% (mulheres 8,4%; homens 6,9%),
+    // cerca de 12,3 milhões de adultos.
     anos:   [2013, 2019],
     total:  [6.2, 7.7],
-    fem:    [7.0, 8.4],   // 2013 fem ~7.0 -> 2019 8.4
-    masc:   [5.4, 7.0],   // aumento relativo maior em homens (30%) que mulheres (20%)
-    // Risco de desenvolver diabetes (escore aplicado à PNS 2019): 19% da população 18+
-    riscoPercent: 19.0,
-    riscoMilhoes: 28.0,
-    pessoasMilhoes: 12.0, // >12 milhões com diagnóstico em 2019
+    fem:    [7.0, 8.4],
+    masc:   [5.4, 6.9],
   },
 
   // Comparativo Vigitel (capitais, telefônico) vs PNS (nacional, domiciliar)
   comparacaoFontes: {
     labels: ['Diabetes (%)', 'Cobertura', 'Método', 'Periodicidade'],
-    vigitel: { prev2019: 8.1, escopo: 'Capitais + DF', metodo: 'Telefônico', freq: 'Anual (2006–2024)' },
+    vigitel: { prev2019: 8.2, escopo: 'Capitais + DF', metodo: 'Telefônico', freq: 'Anual (2006–2024)' },
     pns:     { prev2019: 7.7, escopo: 'Nacional (incl. rural)', metodo: 'Domiciliar', freq: 'Quinquenal (2013, 2019)' },
   },
 
-  // PNS 2019 — prevalência por região (domiciliar nacional)
+  // DADO OFICIAL: PNS 2019 — % de adultos (18+) com diagnóstico médico referido de
+  // diabetes, por Grande Região. IBGE (2020), "PNS 2019: percepção do estado de saúde,
+  // estilos de vida, doenças crônicas e saúde bucal — Brasil e Grandes Regiões",
+  // Gráfico 34 (p. 59). Brasil = 7,7%. (Valores anteriores do painel não conferiam.)
   pnsRegiao: {
     labels: ['Norte','Nordeste','Centro-Oeste','Sudeste','Sul'],
-    prev:   [5.9, 7.0, 7.1, 8.7, 8.0],
+    prev:   [5.5, 7.2, 7.2, 8.5, 7.9],
   },
 
   // ── IDF Diabetes Atlas — evolução das edições ───────────────────────────
@@ -254,23 +289,14 @@ const DATA = {
     mundialMortes: [4.2, 6.7, 3.4, null], // milhões de mortes (metodologia mudou na 11ª)
   },
 
-  // Gasto em saúde com diabetes — Brasil (IDF Atlas) e projeção nacional
-  // ATENÇÃO: escopos DISTINTOS — não é série temporal comparável. SUS direto (estudos)
-  // ≠ sistema de saúde total (IDF, público+privado). Barras 2 e 4 são estimativa/projeção.
-  custoBrasil: {
-    labels: ['SUS direto\n2018','SUS direto\n2022*','Sistema total\n2024 (IDF)','Projeção total\n2030*'],
-    valores: [3.9, 4.6, 42.0, 27.0],  // R$ bi (IDF = US$~8bi convertido; inclui saúde supl.+privado)
-    nota: ['SUS direto — Bahia et al.','SUS direto — estimativa','IDF Atlas — sistema total (US$~8bi)','Projeção total — SBD/MS'],
-  },
-
-  // ── Ministério da Saúde — assistência SUS 2023 ──────────────────────────
-  susAssistencia2023: {
-    atendimentosAPS: 30.0,       // milhões de atendimentos por DM na atenção primária
-    pessoasAPS: 17.0,            // milhões de pessoas com DM na APS
-    percUsuariosSUS: 9.4,        // % dos usuários SUS
-    atendimentosAmbulatorial: 36.0, // milhões (2022+)
-    atendimentosHospitalares: 281.7, // mil
-    sexoFem: 65, sexoMasc: 35,   // % dos atendimentos APS
+  // DADO REAL (IDF Diabetes Atlas, 10ª ed. 2021): gasto total em saúde relacionado
+  // ao diabetes (adultos 20–79), US$ bilhões — três maiores do mundo. O Brasil é o 3º.
+  // 11ª ed. (2025): Brasil US$ 45,1 bi em 2024, mantendo a 3ª posição.
+  // (Substitui o antigo bloco de "custos" com estimativas sem fonte verificável.)
+  idfGasto: {
+    paises: ['EUA', 'China', 'Brasil'],
+    bilhoesUSD: [379.5, 165.3, 42.9],
+    brasil2024: 45.1,
   },
 
   // NOTA sobre a série mensal: a decomposição e o SARIMA usam a série MENSAL

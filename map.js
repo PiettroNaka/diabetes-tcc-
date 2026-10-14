@@ -2,43 +2,26 @@
 // MAP.JS — Mapa do Brasil por estado (D3 + TopoJSON)
 // ============================================================
 
-const MAP_DATA = {
-  AC: { nome: 'Acre',              prev: 7.2,  mort: 30.1, regiao:'Norte' },
-  AL: { nome: 'Alagoas',          prev: 9.7,  mort: 36.2, regiao:'Nordeste' },
-  AM: { nome: 'Amazonas',         prev: 7.9,  mort: 29.8, regiao:'Norte' },
-  AP: { nome: 'Amapá',            prev: 7.5,  mort: 28.4, regiao:'Norte' },
-  BA: { nome: 'Bahia',            prev: 10.2, mort: 38.1, regiao:'Nordeste' },
-  CE: { nome: 'Ceará',            prev: 9.4,  mort: 35.9, regiao:'Nordeste' },
-  DF: { nome: 'Distrito Federal', prev: 9.6,  mort: 36.4, regiao:'Centro-Oeste' },
-  ES: { nome: 'Espírito Santo',   prev: 9.9,  mort: 37.2, regiao:'Sudeste' },
-  GO: { nome: 'Goiás',            prev: 10.0, mort: 39.0, regiao:'Centro-Oeste' },
-  MA: { nome: 'Maranhão',         prev: 9.1,  mort: 34.2, regiao:'Nordeste' },
-  MG: { nome: 'Minas Gerais',     prev: 10.5, mort: 40.1, regiao:'Sudeste' },
-  MS: { nome: 'Mato Grosso do Sul',prev:9.3,  mort: 38.7, regiao:'Centro-Oeste' },
-  MT: { nome: 'Mato Grosso',      prev: 9.1,  mort: 37.8, regiao:'Centro-Oeste' },
-  PA: { nome: 'Pará',             prev: 8.3,  mort: 31.4, regiao:'Norte' },
-  PB: { nome: 'Paraíba',          prev: 9.5,  mort: 35.8, regiao:'Nordeste' },
-  PE: { nome: 'Pernambuco',       prev: 10.1, mort: 38.4, regiao:'Nordeste' },
-  PI: { nome: 'Piauí',            prev: 9.8,  mort: 36.7, regiao:'Nordeste' },
-  PR: { nome: 'Paraná',           prev: 10.5, mort: 40.2, regiao:'Sul' },
-  RJ: { nome: 'Rio de Janeiro',   prev: 10.8, mort: 42.1, regiao:'Sudeste' },
-  RN: { nome: 'Rio Grande do Norte',prev:9.8, mort: 37.3, regiao:'Nordeste' },
-  RO: { nome: 'Rondônia',         prev: 7.8,  mort: 29.2, regiao:'Norte' },
-  RR: { nome: 'Roraima',          prev: 7.4,  mort: 27.9, regiao:'Norte' },
-  RS: { nome: 'Rio Grande do Sul',prev: 10.1, mort: 40.5, regiao:'Sul' },
-  SC: { nome: 'Santa Catarina',   prev: 9.7,  mort: 38.2, regiao:'Sul' },
-  SE: { nome: 'Sergipe',          prev: 10.3, mort: 39.4, regiao:'Nordeste' },
-  SP: { nome: 'São Paulo',        prev: 11.2, mort: 43.8, regiao:'Sudeste' },
-  TO: { nome: 'Tocantins',        prev: 8.2,  mort: 31.9, regiao:'Centro-Oeste' },
-};
+// Fonte ÚNICA: DATA.estadosPrevalencia (data.js). O mapa não mantém cópia própria
+// dos valores — prevalência, mortalidade (SIM 2025 ÷ Censo 2022) e região vêm
+// sempre do mesmo bloco usado nos gráficos e nas estatísticas.
+const _REG_NOME = { N:'Norte', NE:'Nordeste', CO:'Centro-Oeste', SE:'Sudeste', S:'Sul' };
+const MAP_DATA = (function () {
+  const E = DATA.estadosPrevalencia, m = {};
+  E.estados.forEach((uf, i) => {
+    m[uf] = { nome: E.siglas[i], prev: E.prev[i], mort: E.mort[i], regiao: _REG_NOME[E.regiao[i]] };
+  });
+  m.DF.nome = 'Distrito Federal';   // E.siglas usa a forma abreviada 'Dist.Fed.'
+  return m;
+})();
 
 // Cores para escala de prevalência
 const COLOR_SCALE = [
-  { min: 0,    max: 8.0,  fill: '#bfdbfe', label: '< 8,0%' },
-  { min: 8.0,  max: 9.0,  fill: '#93c5fd', label: '8,0 – 9,0%' },
-  { min: 9.0,  max: 10.0, fill: '#3b82f6', label: '9,0 – 10,0%' },
-  { min: 10.0, max: 10.5, fill: '#1d4ed8', label: '10,0 – 10,5%' },
-  { min: 10.5, max: 99,   fill: '#1e3a8a', label: '> 10,5%' },
+  { min: 0,    max: 7.0,  fill: '#bfdbfe', label: '< 7,0%' },
+  { min: 7.0,  max: 8.5,  fill: '#93c5fd', label: '7,0 – 8,4%' },
+  { min: 8.5,  max: 10.0, fill: '#3b82f6', label: '8,5 – 9,9%' },
+  { min: 10.0, max: 11.5, fill: '#1d4ed8', label: '10,0 – 11,4%' },
+  { min: 11.5, max: 99,   fill: '#1e3a8a', label: '≥ 11,5%' },
 ];
 
 function getColor(prev) {
@@ -56,7 +39,7 @@ function buildMapLegend() {
         <span style="font-size:11px;color:#475569;">${c.label}</span>
       </span>`
     ).join('') +
-    `<span style="font-size:11px;color:#94a3b8;margin-left:12px">* Vigitel 2023 — capitais estaduais</span>`;
+    `<span style="font-size:11px;color:#94a3b8;margin-left:12px">* prevalência da capital — Vigitel 2023 (volume 2006–2023, morbidade referida)</span>`;
 }
 
 // nome completo da região -> código de filtro
@@ -102,7 +85,7 @@ async function renderBrazilMap() {
     container.innerHTML = ''; // limpa antes de redesenhar (re-render em filtros)
     let features = _topoCacheFeatures;
     if (!features) {
-      const topo = await d3.json('https://cdn.jsdelivr.net/npm/datamaps@0.5.10/src/js/data/bra.topo.json');
+      const topo = await d3.json('vendor/bra.topo.json');
       features = topojson.feature(topo, topo.objects.bra).features;
       _topoCacheFeatures = features;
     }
@@ -145,8 +128,8 @@ async function renderBrazilMap() {
         tooltip.style.top  = (event.clientY - 10) + 'px';
         tooltip.innerHTML = `
           <strong>${info.nome} (${id})</strong>
-          <span>Prevalência DM: ${info.prev.toFixed(1)}%</span><br>
-          <span>Mortalidade: ${info.mort.toFixed(1)}/100k hab</span><br>
+          <span>Prevalência DM: ${br(info.prev, 1)}%</span><br>
+          <span>Mortalidade: ${br(info.mort, 1)}/100k hab</span><br>
           <span style="color:#94a3b8;font-size:11px">Região: ${info.regiao}</span>`;
       })
       .on('mouseleave', function() {
@@ -169,7 +152,7 @@ async function renderBrazilMap() {
         const info = MAP_DATA[ufCode(d)];
         if (!info) return '#475569';
         if (!stateActive(info)) return '#94a3b8';
-        return info.prev >= 10.0 ? '#fff' : '#03426b';
+        return info.prev >= 8.5 ? '#fff' : '#03426b';
       })
       .attr('font-weight', '600')
       .attr('pointer-events', 'none')

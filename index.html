@@ -4,10 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Diabetes no Brasil — Dashboard Epidemiológico</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
-<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230072B2'/%3E%3Ctext x='50%25' y='52%25' font-size='40' text-anchor='middle' dominant-baseline='middle' fill='white' font-family='Arial,sans-serif' font-weight='bold'%3ED%3C/text%3E%3C/svg%3E">
+<!-- Bibliotecas vendorizadas localmente (offline) — sem dependência de CDN/internet -->
+<script src="vendor/chart.umd.js"></script>
+<script src="vendor/d3.min.js"></script>
+<script src="vendor/topojson.min.js"></script>
+<link rel="stylesheet" href="style.css?v=34">
 </head>
 <body>
 
@@ -34,7 +36,8 @@
   </div>
 </header>
 
-<nav class="tab-nav" role="navigation" aria-label="Seções do dashboard">
+<div class="tab-nav-wrap" id="tabNavWrap">
+<nav class="tab-nav" id="tabNav" role="navigation" aria-label="Seções do dashboard">
   <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Visão Geral</button>
   <button class="tab-btn" data-tab="prevalence" onclick="switchTab('prevalence')">Prevalência</button>
   <button class="tab-btn" data-tab="mortality" onclick="switchTab('mortality')">Mortalidade</button>
@@ -47,10 +50,11 @@
   <button class="tab-btn" data-tab="ml" onclick="switchTab('ml')">Modelagem Preditiva (ML)</button>
   <button class="tab-btn" data-tab="sintese" onclick="switchTab('sintese')">Síntese &amp; Conclusões</button>
 </nav>
+</div>
 
 <div class="filters-bar">
   <label id="f-year">Período (até o ano): <select id="filter-year" onchange="applyFilters()">
-    <option value="all">Série completa (até 2023)</option>
+    <option value="all">Série completa</option>
     <option value="2022">2022</option>
     <option value="2021">2021</option>
     <option value="2020">2020</option>
@@ -89,10 +93,10 @@
 
     <div class="kpi-grid">
       <div class="kpi-card">
-        <span class="kpi-label">Brasileiros com diabetes</span>
-        <span class="kpi-value">16,8 mi</span>
-        <span class="kpi-sub">SBD / IDF 2023</span>
-        <span class="kpi-trend up">↑ 7,2% vs 2019</span>
+        <span class="kpi-label">Adultos com diabetes (IDF)</span>
+        <span class="kpi-value">15,7 mi</span>
+        <span class="kpi-sub">IDF Atlas 10ª ed. (2021) · 20–79 anos</span>
+        <span class="kpi-trend up">16,6 mi em 2024 (11ª ed.)</span>
       </div>
       <div class="kpi-card">
         <span class="kpi-label">Prevalência adultos</span>
@@ -129,24 +133,24 @@
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Evolução da prevalência de diabetes — Brasil (2006–2024)</h3>
-        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024 (SVSA/MS) — série oficial mais recente · 2022 sem coleta</p>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024 (SVSA/MS), Tabela 51 — dado oficial · 2022 sem coleta</p>
         <div class="legend-row">
           <span><span class="leg-dot" style="background:#0072B2"></span> Prevalência total (%)</span>
           <span><span class="leg-dot" style="background:#D55E00"></span> Feminino (%)</span>
           <span><span class="leg-dot" style="background:#009E73"></span> Masculino (%)</span>
           <span><span class="leg-dot" style="background:rgba(0,114,178,.2)"></span> IC 95% (aprox.)</span>
         </div>
-        <div style="position:relative;height:280px"><canvas id="chartOverviewTrend" role="img" aria-label="Evolução da prevalência de diabetes no Brasil de 2006 a 2023 com intervalo de confiança aproximado"></canvas></div>
-        <div class="chart-note"><i>Sobre o IC:</i> banda calculada por erro-padrão binomial com n efetivo estimado (~25.000, após efeito de desenho). É uma <strong>aproximação</strong> — os IC oficiais do Vigitel constam nos relatórios do Ministério da Saúde e seriam usados na versão final. (Aparece com o filtro de sexo em "Ambos".)</div>
+        <div style="position:relative;height:280px"><canvas id="chartOverviewTrend" role="img" aria-label="Evolução da prevalência de diabetes no Brasil de 2006 a 2024 com intervalo de confiança aproximado"></canvas></div>
+        <div class="chart-note"><i>Sobre o IC:</i> banda aproximada por erro-padrão binomial, com o número de entrevistas de cada ano (Quadro 1 do relatório: de 54.369 em 2006 a 27.048 em 2024) dividido por um efeito do desenho assumido de 2. É uma <strong>aproximação</strong> — a banda alarga a partir de 2020, quando a amostra caiu pela metade. (Aparece com o filtro de sexo em "Ambos".)</div>
       </div>
     </div>
 
     <div class="charts-row">
       <div class="chart-card">
-        <h3>Prevalência por faixa etária (2023)</h3>
-        <p class="chart-src">Fonte: Vigitel 2023</p>
-        <div style="position:relative;height:250px"><canvas id="chartAgeGroup" role="img" aria-label="Prevalência de diabetes por faixa etária em 2023"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> a prevalência salta após os 45 anos e ultrapassa 30% nos idosos — o envelhecimento populacional pressiona a demanda do SUS.</div>
+        <h3>Prevalência por faixa etária — 2006 × 2024 (%)</h3>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024, Tabela 51 (oficial) · o filtro de período muda o ano final</p>
+        <div style="position:relative;height:250px"><canvas id="chartAgeGroup" role="img" aria-label="Prevalência de diabetes por faixa etária"></canvas></div>
+        <div class="chart-insight"><b>Leitura:</b> a prevalência salta após os 45 anos e chega a <b>31,4%</b> entre os idosos (65+) em 2024 — o grupo que mais cresceu em pontos percentuais (+0,57 pp/ano, Tab. 52). O envelhecimento populacional pressiona a demanda do SUS.</div>
       </div>
       <div class="chart-card">
         <h3>Projeção global: adultos com DM (milhões)</h3>
@@ -173,11 +177,11 @@
       </div>
       <div class="info-card green">
         <h4>Gestacional — DMG</h4>
-        <p>Hiperglicemia diagnosticada na gestação. Risco aumentado para DM2 pós-parto em mãe e filho. Prevalência de 18% das gestações no Brasil (Federação Brasileira de Ginecologia 2022).</p>
+        <p>Hiperglicemia diagnosticada na gestação. Risco aumentado para DM2 pós-parto em mãe e filho. Com os critérios diagnósticos atuais, estima-se prevalência em torno de 18% das gestações no SUS (OPAS/MS/FEBRASGO/SBD, 2016).</p>
       </div>
       <div class="info-card amber">
         <h4>Pré-diabetes</h4>
-        <p>Glicemia de jejum entre 100–125 mg/dL ou HbA1c entre 5,7–6,4%. Estima-se que 25% dos adultos brasileiros estejam nesta condição (SBD 2023). Reversível com mudança de estilo de vida.</p>
+        <p>Glicemia de jejum entre 100–125 mg/dL ou HbA1c entre 5,7–6,4%. Estado de risco aumentado para DM2 e doença cardiovascular, potencialmente reversível com mudança de estilo de vida.</p>
       </div>
     </div>
   </section>
@@ -189,38 +193,38 @@
       <p>Dados de prevalência por estado, região, sexo e escolaridade — Vigitel + PNS + IBGE</p>
     </div>
     <div class="kpi-grid">
-      <div class="kpi-card"><span class="kpi-label">Norte</span><span class="kpi-value">8,1%</span><span class="kpi-sub">menor prevalência</span></div>
-      <div class="kpi-card"><span class="kpi-label">Nordeste</span><span class="kpi-value">9,8%</span><span class="kpi-sub">Vigitel 2023</span></div>
-      <div class="kpi-card"><span class="kpi-label">Centro-Oeste</span><span class="kpi-value">9,4%</span><span class="kpi-sub">Vigitel 2023</span></div>
-      <div class="kpi-card"><span class="kpi-label">Sudeste</span><span class="kpi-value">10,8%</span><span class="kpi-sub">maior prevalência</span></div>
-      <div class="kpi-card"><span class="kpi-label">Sul</span><span class="kpi-value">10,3%</span><span class="kpi-sub">Vigitel 2023</span></div>
-      <div class="kpi-card"><span class="kpi-label">Distrito Federal</span><span class="kpi-value">9,6%</span><span class="kpi-sub">Vigitel 2023</span></div>
+      <div class="kpi-card"><span class="kpi-label">Prevalência total (2024)</span><span class="kpi-value">12,9%</span><span class="kpi-sub">Vigitel 2006–2024 (oficial)</span><span class="kpi-trend up">↑ 135% vs 2006</span></div>
+      <div class="kpi-card"><span class="kpi-label">Mulheres (2024)</span><span class="kpi-value">14,3%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Homens (2024)</span><span class="kpi-value">11,2%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Razão mulheres / homens</span><span class="kpi-value">1,28×</span><span class="kpi-sub">Vigitel 2024</span></div>
+      <div class="kpi-card"><span class="kpi-label">Crescimento anual (TCAC)</span><span class="kpi-value" id="kpiCagrPrev">—</span><span class="kpi-sub">2006 → 2024 (18 anos)</span></div>
+      <div class="kpi-card"><span class="kpi-label">PNS 2019 (nacional)</span><span class="kpi-value">7,7%</span><span class="kpi-sub">inclui interior e zona rural</span></div>
     </div>
     <div class="charts-row">
       <div class="chart-card wide">
-        <h3>Prevalência por estado (capitais) — Vigitel 2023 (%)</h3>
-        <p class="chart-src">Fonte: Vigitel 2023 — Ministério da Saúde</p>
-        <div style="position:relative;height:380px"><canvas id="chartStatePrevalence" role="img" aria-label="Prevalência de diabetes por estado (capitais) em 2023"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> capitais do Sudeste/Sul lideram; o gradiente reflete envelhecimento, urbanização e maior acesso a diagnóstico — não necessariamente mais doença no Norte (possível subdiagnóstico).</div>
+        <h3>Prevalência por estado (capitais) — Vigitel (%)</h3>
+        <p class="chart-src">Fonte: Vigitel 2023 — volume <em>2006–2023: morbidade referida</em>, Tabela 2 (oficial; ponderação anterior à revisão pelo Censo 2022)</p>
+        <div style="position:relative;height:380px"><canvas id="chartStatePrevalence" role="img" aria-label="Prevalência de diabetes por estado (capitais)"></canvas></div>
+        <div class="chart-insight"><b>Leitura:</b> em 2023, as maiores prevalências foram em <b>São Paulo e Brasília (12,1%)</b>, Porto Alegre (12,0%), Natal (11,8%) e Fortaleza (11,6%); as menores, em <b>Rio Branco (5,6%)</b> e São Luís (6,0%). As capitais do Norte tendem a valores menores — combinação de população mais jovem e possível subdiagnóstico, não necessariamente menos doença.</div>
       </div>
     </div>
     <div class="charts-row">
       <div class="chart-card">
-        <h3>Prevalência por escolaridade (%)</h3>
-        <p class="chart-src">Fonte: Vigitel 2023</p>
+        <h3>Prevalência por nível de instrução — 2006 × 2024 (%)</h3>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024, Tabela 51 (oficial)</p>
         <div style="position:relative;height:260px"><canvas id="chartEducation" role="img" aria-label="Prevalência de diabetes por nível de escolaridade"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> prevalência ~3× maior na menor escolaridade — forte determinante social da saúde.</div>
+        <div class="chart-insight"><b>Leitura:</b> em 2024, <b>24,0%</b> entre quem não tem instrução ou tem fundamental incompleto contra <b>9,0%</b> com superior completo (2,7×) — e esse grupo cresceu mais rápido (+0,79 pp/ano). Parte do gradiente reflete a idade mais alta desse grupo; o relatório não ajusta por idade.</div>
       </div>
       <div class="chart-card">
-        <h3>Prevalência por sexo e faixa etária (%)</h3>
-        <p class="chart-src">Fonte: Vigitel 2023</p>
-        <div style="position:relative;height:260px"><canvas id="chartSexAge" role="img" aria-label="Prevalência de diabetes por sexo e faixa etária em 2023"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> mulheres têm prevalência referida um pouco maior — em parte por maior procura por diagnóstico (viés de detecção).</div>
+        <h3>Evolução por faixa etária (2006–2024, %)</h3>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024, Tabela 51 (oficial) · 2022 sem coleta</p>
+        <div style="position:relative;height:260px"><canvas id="chartSexAge" role="img" aria-label="Evolução da prevalência de diabetes por faixa etária, 2006 a 2024"></canvas></div>
+        <div class="chart-insight"><b>Leitura:</b> o aumento concentra-se nas faixas acima de 45 anos; abaixo de 35 anos a prevalência segue baixa e sem tendência significativa no período recente (Tab. 52).</div>
       </div>
       <div class="chart-card">
-        <h3>Tendência temporal por sexo (2006–2023)</h3>
-        <p class="chart-src">Fonte: Vigitel 2006–2023</p>
-        <div style="position:relative;height:260px"><canvas id="chartSexTrend" role="img" aria-label="Tendência de prevalência por sexo de 2006 a 2023"></canvas></div>
+        <h3>Tendência temporal por sexo (2006–2024)</h3>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024, Tabela 51 (oficial)</p>
+        <div style="position:relative;height:260px"><canvas id="chartSexTrend" role="img" aria-label="Tendência de prevalência por sexo de 2006 a 2024"></canvas></div>
         <div class="chart-insight"><b>Leitura:</b> ambos os sexos sobem de forma sustentada desde 2006 — tendência estrutural, não flutuação pontual.</div>
       </div>
     </div>
@@ -236,14 +240,14 @@
       <div class="kpi-card"><span class="kpi-label">Óbitos (2025)</span><span class="kpi-value">72.151</span><span class="kpi-sub">SIM/DATASUS (preliminar)</span><span class="kpi-trend up">↑ 21% vs 2015</span></div>
       <div class="kpi-card"><span class="kpi-label">Pico — 2021 (COVID)</span><span class="kpi-value">78.258</span><span class="kpi-sub">maior valor da série</span></div>
       <div class="kpi-card"><span class="kpi-label">Óbitos (2000)</span><span class="kpi-value">35.284</span><span class="kpi-sub">dobrou em ~20 anos</span></div>
-      <div class="kpi-card"><span class="kpi-label">Idade média do óbito</span><span class="kpi-value">≈ 69 anos</span><span class="kpi-sub">SIM (predomínio 60+)</span></div>
-      <div class="kpi-card"><span class="kpi-label">% feminino</span><span class="kpi-value">≈ 52%</span><span class="kpi-sub">ligeiro predomínio</span></div>
+      <div class="kpi-card"><span class="kpi-label">Óbitos com 60 anos ou mais</span><span class="kpi-value">82,7%</span><span class="kpi-sub">SIM 2025 (idade informada)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Óbitos sem tipo especificado</span><span class="kpi-value">57,6%</span><span class="kpi-sub">CID E14 — SIM 2025</span></div>
       <div class="kpi-card"><span class="kpi-label">Total 2000–2025</span><span class="kpi-value">1,5 mi</span><span class="kpi-sub">óbitos acumulados</span></div>
     </div>
     <div class="charts-row">
       <div class="chart-card wide">
-        <h3>Óbitos por diabetes no Brasil (2000–2024)</h3>
-        <p class="chart-src">Fonte: DATASUS/SIM via TabNet — CID-10 E10–E14, por residência (2024 preliminar)</p>
+        <h3>Óbitos por diabetes no Brasil (2000–2025)</h3>
+        <p class="chart-src">Fonte: DATASUS/SIM via TabNet — CID-10 E10–E14, por residência (2024–2025 preliminares)</p>
         <div class="legend-row">
           <span><span class="leg-dot" style="background:#D55E00"></span> Total de óbitos</span>
         </div>
@@ -283,7 +287,7 @@
         <h3>Taxa bruta × padronizada por idade — por região (2025)</h3>
         <p class="chart-src">Padronização direta (método direto) · óbitos SIM 2025 ÷ pop. IBGE/SVS 2024, por faixa etária · padrão = Brasil</p>
         <div style="position:relative;height:280px"><canvas id="chartStandardized" role="img" aria-label="Taxa de mortalidade bruta versus padronizada por idade, por região"></canvas></div>
-        <div class="chart-insight"><b>Leitura (ponto técnico):</b> a padronização <strong>remove o efeito da estrutura etária</strong>. O <strong>Norte</strong> tem a <em>menor</em> taxa bruta (população jovem), mas a <em>maior</em> padronizada — ou seja, <strong>em cada idade morre-se mais de diabetes no Norte</strong> (pior acesso/controle). A comparação bruta esconde essa desigualdade; a padronizada a revela.</div>
+        <div class="chart-insight"><b>Leitura (ponto técnico):</b> a padronização <strong>remove o efeito da estrutura etária</strong>. O <strong>Norte</strong> tem uma das <em>menores</em> taxas brutas (população jovem), mas a <em>maior</em> padronizada — ou seja, <strong>em cada idade morre-se mais de diabetes no Norte</strong> (padrão compatível com menor acesso ao diagnóstico e ao controle da doença). A comparação bruta esconde essa desigualdade; a padronizada a revela.</div>
       </div>
       <div class="chart-card">
         <h3>Óbitos por diabetes segundo raça/cor (2025)</h3>
@@ -341,20 +345,20 @@
   <section id="tab-riskfactors" class="tab-section">
     <div class="section-header">
       <h2>Fatores de Risco para Diabetes</h2>
-      <p>Obesidade, sedentarismo, alimentação, tabagismo — Vigitel 2023 e PNS 2019</p>
+      <p>Obesidade, sedentarismo, alimentação, tabagismo — Vigitel 2024 e PNS 2019</p>
     </div>
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">Obesidade (IMC≥30)</span><span class="kpi-value">25,7%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span><span class="kpi-trend up">↑ 118% desde 2006</span></div>
       <div class="kpi-card"><span class="kpi-label">Excesso de peso (IMC≥25)</span><span class="kpi-value">62,6%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
       <div class="kpi-card"><span class="kpi-label">Fisicamente inativos</span><span class="kpi-value">9,4%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
-      <div class="kpi-card"><span class="kpi-label">Consumo abusivo de álcool</span><span class="kpi-value">20,4%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Consumo episódico pesado de álcool</span><span class="kpi-value">20,4%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
       <div class="kpi-card"><span class="kpi-label">Fumantes</span><span class="kpi-value">11,5%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span><span class="kpi-trend down">↓ 4,2 pp desde 2006</span></div>
       <div class="kpi-card"><span class="kpi-label">Hipertensão arterial</span><span class="kpi-value">29,7%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
     </div>
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Evolução do excesso de peso, diabetes e hipertensão (2006–2024)</h3>
-        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024 (SVSA/MS) — dado oficial real. 2022 sem coleta.</p>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024 (SVSA/MS), Tabelas 1, 47 e 51 — dado oficial. 2022 sem coleta.</p>
         <div class="legend-row">
           <span><span class="leg-dot" style="background:#D55E00"></span> Excesso de peso (%)</span>
           <span><span class="leg-dot" style="background:#0072B2"></span> Diabetes (%)</span>
@@ -388,8 +392,8 @@
     </div>
     <div class="charts-row">
       <div class="chart-card wide">
-        <h3>Prevalência de diabetes por estado — capitais (Vigitel 2023, %)</h3>
-        <p class="chart-src">Fonte: Vigitel 2023. Valores referentes às capitais estaduais.</p>
+        <h3>Prevalência de diabetes por estado — capitais (Vigitel, %)</h3>
+        <p class="chart-src">Valores das capitais estaduais · Vigitel 2023 — volume <em>2006–2023: morbidade referida</em>, Tabela 2 (oficial; ponderação anterior à revisão pelo Censo 2022)</p>
         <div id="brazilMap" style="width:100%;min-height:480px;display:flex;align-items:center;justify-content:center;"></div>
         <div id="mapLegend" style="margin-top:12px"></div>
         <div class="chart-note"><i>Limitação do mapa:</i> o Vigitel coleta apenas nas capitais. O valor da capital é usado para colorir todo o estado — uma aproximação. Para prevalência por UF completa (incluindo interior), a fonte adequada é a PNS (aba PNS/Fontes).</div>
@@ -398,9 +402,9 @@
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Comparativo estadual — prevalência (%) e taxa de mortalidade (por 100k hab)</h3>
-        <p class="chart-src">Fonte: prevalência Vigitel 2023 (capitais) + mortalidade SIM/DATASUS 2025 ÷ Censo IBGE 2022</p>
+        <p class="chart-src">Fonte: prevalência na capital (Vigitel 2023, oficial) + mortalidade SIM/DATASUS 2025 ÷ Censo IBGE 2022</p>
         <div style="position:relative;height:360px"><canvas id="chartStateComparison" role="img" aria-label="Comparativo de prevalência e mortalidade por estado"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> prevalência e mortalidade caminham juntas entre as UFs — a relação formal (r, IC, p) está na aba Análise Estatística.</div>
+        <div class="chart-insight"><b>Leitura:</b> prevalência e mortalidade <b>não</b> caminham juntas entre as UFs — ES e RS têm a mortalidade mais alta, mas prevalências distintas; DF e SP têm alta prevalência e mortalidade baixa. A relação formal (r, IC, p) está na aba Análise Estatística.</div>
       </div>
     </div>
   </section>
@@ -416,31 +420,31 @@
     </div>
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">DM — 2006</span><span class="kpi-value">5,5%</span><span class="kpi-sub">1ª edição Vigitel</span></div>
-      <div class="kpi-card"><span class="kpi-label">DM — 2010</span><span class="kpi-value">6,9%</span><span class="kpi-sub">Vigitel</span></div>
-      <div class="kpi-card"><span class="kpi-label">DM — 2015</span><span class="kpi-value">7,8%</span><span class="kpi-sub">Vigitel</span></div>
-      <div class="kpi-card"><span class="kpi-label">DM — 2019</span><span class="kpi-value">8,1%</span><span class="kpi-sub">Vigitel</span></div>
-      <div class="kpi-card"><span class="kpi-label">DM — 2021</span><span class="kpi-value">10,3%</span><span class="kpi-sub">Vigitel</span></div>
+      <div class="kpi-card"><span class="kpi-label">DM — 2010</span><span class="kpi-value">6,9%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
+      <div class="kpi-card"><span class="kpi-label">DM — 2015</span><span class="kpi-value">7,8%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
+      <div class="kpi-card"><span class="kpi-label">DM — 2019</span><span class="kpi-value">8,2%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
+      <div class="kpi-card"><span class="kpi-label">DM — 2021</span><span class="kpi-value">10,3%</span><span class="kpi-sub">Vigitel (oficial)</span></div>
       <div class="kpi-card"><span class="kpi-label">DM — 2024</span><span class="kpi-value">12,9%</span><span class="kpi-sub">Vigitel 2024 (oficial)</span></div>
     </div>
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Indicadores Vigitel — evolução 2006–2024 (capitais brasileiras)</h3>
-        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024 (SVSA/MS) — dado oficial real. 2022 sem coleta.</p>
+        <p class="chart-src">Fonte: VIGITEL BRASIL 2006–2024 (SVSA/MS), Tabelas 1, 47 e 51 — dado oficial. 2022 sem coleta.</p>
         <div class="legend-row">
           <span><span class="leg-dot" style="background:#0072B2"></span> Diabetes (%)</span>
           <span><span class="leg-dot" style="background:#D55E00"></span> Excesso de peso (%)</span>
           <span><span class="leg-dot" style="background:#CC79A7"></span> Hipertensão (%)</span>
         </div>
         <div style="position:relative;height:300px"><canvas id="chartVigitelAll" role="img" aria-label="Evolução dos indicadores Vigitel de 2006 a 2024"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> diabetes, obesidade e hipertensão sobem juntas enquanto o tabagismo cai — o perfil de risco brasileiro mudou de fumo para excesso de peso.</div>
+        <div class="chart-insight"><b>Leitura:</b> diabetes, excesso de peso e hipertensão sobem juntos de 2006 a 2024 — coevolução analisada formalmente (correlação e regressão) na aba Análise Estatística.</div>
       </div>
     </div>
     <div class="charts-row">
       <div class="chart-card wide">
-        <h3>DM por capital (Vigitel 2023)</h3>
-        <p class="chart-src">26 capitais + DF</p>
-        <div style="position:relative;height:500px"><canvas id="chartVigitelCidades" role="img" aria-label="Prevalência de diabetes por capital brasileira em 2023"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> cores por região mostram o gradiente Sul/Sudeste &gt; Norte; use o filtro de Região para isolar cada bloco.</div>
+        <h3>DM por capital (Vigitel)</h3>
+        <p class="chart-src">26 capitais + DF, 2023 · Vigitel 2023 — volume <em>2006–2023: morbidade referida</em>, Tabela 2 (oficial; ponderação anterior à revisão pelo Censo 2022)</p>
+        <div style="position:relative;height:500px"><canvas id="chartVigitelCidades" role="img" aria-label="Prevalência de diabetes por capital brasileira"></canvas></div>
+        <div class="chart-insight"><b>Leitura:</b> a variação entre capitais é grande (5,6% a 12,1%) e não segue só a região: Natal e Fortaleza estão entre as mais altas, e Florianópolis entre as mais baixas. Use o filtro de Região para isolar cada bloco.</div>
       </div>
     </div>
   </section>
@@ -463,27 +467,27 @@
         <tbody>
           <tr><td style="text-align:left">Vigitel 2024</td><td><b>12,9%</b> dos adultos</td><td>DM diagnosticado, autorreferido</td><td>Capitais + DF · telefônico · 18+</td></tr>
           <tr><td style="text-align:left">PNS 2019</td><td><b>7,7%</b> (~12 mi)</td><td>DM diagnosticado, autorreferido</td><td>Nacional (incl. rural) · domiciliar · 18+</td></tr>
-          <tr><td style="text-align:left">PNS 2019 + HbA1c</td><td><b>~10,2%</b></td><td>DM diagnosticado <em>+ não diagnosticado</em> (laboratório)</td><td>Subamostra com coleta de sangue</td></tr>
-          <tr><td style="text-align:left">IDF Atlas 2021</td><td><b>16,8 mi</b></td><td>Estimativa modelada (diagnosticado + oculto)</td><td>Modelo · adultos 20–79 · 6º do mundo</td></tr>
-          <tr><td style="text-align:left">Estimativa MS/SBD</td><td><b>~20 mi</b></td><td>Projeção de carga total da doença</td><td>Modelo demográfico atualizado</td></tr>
+          <tr><td style="text-align:left">PNS 2013 + exames (2014–15)</td><td><b>8,4%</b></td><td>DM por HbA1c ≥ 6,5% <em>ou</em> uso de medicamento (inclui não diagnosticados)</td><td>Subamostra com coleta de sangue (Malta et al., 2019)</td></tr>
+          <tr><td style="text-align:left">IDF Atlas 2021</td><td><b>15,7 mi</b></td><td>Estimativa modelada (diagnosticado + oculto)</td><td>Modelo · adultos 20–79 · 6º do mundo (16,6 mi em 2024)</td></tr>
+          <tr><td style="text-align:left">SBD (divulgação institucional)</td><td><b>~20 mi</b></td><td>Carga total estimada (inclui não diagnosticados)</td><td>Método não detalhado — usar com cautela</td></tr>
         </tbody>
       </table>
       <p style="font-size:12px;color:var(--ink-3);margin-top:8px"><b>Como ler:</b> quanto mais o método captura o <em>diabetes oculto</em> (não diagnosticado, ~metade dos casos) e quanto maior a faixa etária, maior o número. Vigitel &gt; PNS porque capitais têm mais acesso a diagnóstico; IDF &gt; PNS porque estima também os casos não diagnosticados. <strong>Triangular as fontes</strong>, em vez de escolher uma, é a prática correta.</p>
     </div>
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">Prevalência DM (PNS 2019)</span><span class="kpi-value">7,7%</span><span class="kpi-sub">diagnóstico médico referido</span><span class="kpi-trend up">↑ 24% vs 2013</span></div>
-      <div class="kpi-card"><span class="kpi-label">Pessoas com DM</span><span class="kpi-value">12 mi+</span><span class="kpi-sub">PNS 2019 (18+ anos)</span></div>
-      <div class="kpi-card"><span class="kpi-label">Em risco de DM</span><span class="kpi-value">28 mi</span><span class="kpi-sub">19% dos adultos (escore PNS)</span></div>
-      <div class="kpi-card"><span class="kpi-label">Atendimentos APS 2023</span><span class="kpi-value">30 mi</span><span class="kpi-sub">MS — atenção primária</span></div>
-      <div class="kpi-card"><span class="kpi-label">Gasto saúde DM — Brasil</span><span class="kpi-value">US$ 42 bi</span><span class="kpi-sub">IDF Atlas 11ª ed. 2024</span></div>
-      <div class="kpi-card"><span class="kpi-label">Projeção custo 2030</span><span class="kpi-value">R$ 27 bi</span><span class="kpi-sub">SBD/MS estimativa</span></div>
+      <div class="kpi-card"><span class="kpi-label">Pessoas com DM</span><span class="kpi-value">~12,3 mi</span><span class="kpi-sub">PNS 2019 (18+ anos)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Mulheres × homens</span><span class="kpi-value">8,4% × 6,9%</span><span class="kpi-sub">PNS 2019</span></div>
+      <div class="kpi-card"><span class="kpi-label">Adultos com DM (IDF)</span><span class="kpi-value">15,7 mi</span><span class="kpi-sub">IDF 2021 · 6º do mundo</span></div>
+      <div class="kpi-card"><span class="kpi-label">Gasto em saúde com DM</span><span class="kpi-value">US$ 42,9 bi</span><span class="kpi-sub">IDF 2021 · 3º do mundo</span></div>
+      <div class="kpi-card"><span class="kpi-label">Gasto em 2024</span><span class="kpi-value">US$ 45,1 bi</span><span class="kpi-sub">IDF 11ª ed. · mantém o 3º lugar</span></div>
     </div>
     <div class="charts-row">
       <div class="chart-card">
         <h3>Vigitel vs PNS — prevalência de DM (2019, %)</h3>
         <p class="chart-src">Vigitel (capitais, telefônico) vs PNS (nacional, domiciliar)</p>
         <div style="position:relative;height:240px"><canvas id="chartFontesComp" role="img" aria-label="Comparação de prevalência de diabetes entre Vigitel e PNS"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> a diferença Vigitel (8,1%) × PNS (7,7%) não é erro — é método: telefônico/capitais vs domiciliar/nacional. Triangular fontes é boa prática.</div>
+        <div class="chart-insight"><b>Leitura:</b> a diferença Vigitel (8,2%) × PNS (7,7%) não é erro — é método: telefônico/capitais vs domiciliar/nacional. Triangular fontes é boa prática.</div>
       </div>
       <div class="chart-card">
         <h3>PNS — evolução 2013 → 2019 por sexo (%)</h3>
@@ -492,7 +496,7 @@
       </div>
       <div class="chart-card">
         <h3>PNS 2019 — prevalência por região (%)</h3>
-        <p class="chart-src">Fonte: PNS 2019 — inquérito domiciliar nacional</p>
+        <p class="chart-src">Fonte: IBGE, PNS 2019 (Brasil e Grandes Regiões), Gráfico 34 — dado oficial · Brasil = 7,7%</p>
         <div style="position:relative;height:240px"><canvas id="chartPnsRegiao" role="img" aria-label="Prevalência de diabetes por região na PNS 2019"></canvas></div>
       </div>
     </div>
@@ -504,10 +508,10 @@
         <div class="chart-insight"><b>Leitura:</b> cada edição do IDF Atlas revisa o número para cima — a estimativa de 2050 já passa de 850 milhões.</div>
       </div>
       <div class="chart-card">
-        <h3>Custo do diabetes no Brasil — estimativas (R$ bilhões)</h3>
-        <p class="chart-src">Fontes: estudos SUS (Bahia et al.), IDF Atlas 2024, projeção SBD/MS · <b>escopos distintos</b> (* = estimativa/projeção)</p>
-        <div style="position:relative;height:260px"><canvas id="chartCustoBrasil" role="img" aria-label="Estimativas de custo do diabetes no Brasil por diferentes recortes"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> as barras <strong>não são comparáveis entre si</strong> — o custo <em>direto no SUS</em> (estudos) é da ordem de R$ 4–5 bi/ano, enquanto o IDF estima ~R$ 42 bi para o <em>sistema de saúde total</em> (público + privado). Recortes diferentes, mas todos apontam para uma conta alta e crescente.</div>
+        <h3>Gasto em saúde relacionado ao diabetes — 3 maiores do mundo (US$ bilhões, 2021)</h3>
+        <p class="chart-src">Fonte: IDF Diabetes Atlas 10ª ed. (2021) · adultos 20–79 · sistema de saúde total (público + privado) · estimativa modelada</p>
+        <div style="position:relative;height:260px"><canvas id="chartCustoBrasil" role="img" aria-label="Gasto em saúde relacionado ao diabetes nos três países que mais gastam"></canvas></div>
+        <div class="chart-insight"><b>Leitura:</b> o Brasil é o <strong>3º país que mais gasta</strong> com diabetes (US$ 42,9 bi em 2021; US$ 45,1 bi em 2024, na 11ª ed.). Para escala: as internações por diabetes no SUS somaram R$ 175,2 mi em 2025 (SIH) — apenas o componente hospitalar público, uma fração pequena do gasto total.</div>
       </div>
     </div>
     <div class="table-section">
@@ -515,15 +519,15 @@
       <table class="data-table">
         <thead><tr><th>Fonte</th><th>Órgão</th><th>Tipo de dado</th><th>Cobertura</th><th>Período</th></tr></thead>
         <tbody>
-          <tr><td>SIM</td><td>DATASUS/MS</td><td>Mortalidade (CID-10 E10–E14)</td><td>Nacional / municipal</td><td>1996–2024</td></tr>
-          <tr><td>SIH/SUS</td><td>DATASUS/MS</td><td>Internações e procedimentos hospitalares</td><td>Nacional / municipal</td><td>2008–2026*</td></tr>
+          <tr><td>SIM</td><td>DATASUS/MS</td><td>Mortalidade (CID-10 E10–E14)</td><td>Nacional / UF</td><td>2000–2025 (mensal 2015–2020)</td></tr>
+          <tr><td>SIH/SUS</td><td>DATASUS/MS</td><td>Internações e procedimentos hospitalares</td><td>Nacional / região</td><td>2010–2026*</td></tr>
           <tr><td>Vigitel</td><td>Ministério da Saúde</td><td>Fatores de risco autorreferidos</td><td>26 capitais + DF</td><td>2006–2024</td></tr>
           <tr><td>PNS</td><td>IBGE + Fiocruz</td><td>Inquérito domiciliar de saúde</td><td>Nacional (incl. rural)</td><td>2013, 2019</td></tr>
           <tr><td>Diabetes Atlas</td><td>IDF</td><td>Estimativas globais e por país</td><td>Internacional</td><td>9ª–11ª ed.</td></tr>
-          <tr><td>Censo / projeções</td><td>IBGE</td><td>População (denominadores p/ taxas)</td><td>Nacional / municipal</td><td>2010, 2022</td></tr>
-          <tr><td>SBD</td><td>Soc. Bras. de Diabetes</td><td>Diretrizes, prevalência clínica</td><td>Nacional</td><td>Anual</td></tr>
-          <tr><td>Global Health Obs.</td><td>OMS/WHO</td><td>Indicadores DCNT, ODS 3.4</td><td>Internacional</td><td>Contínuo</td></tr>
-          <tr><td>e-Gestor APS</td><td>Ministério da Saúde</td><td>Atendimentos atenção primária</td><td>Nacional / municipal</td><td>2023</td></tr>
+          <tr><td>Censo / estimativas</td><td>IBGE / MS</td><td>População (denominadores p/ taxas)</td><td>UF; região × faixa etária</td><td>2022; 2024</td></tr>
+          <tr><td>Pima Indians Diabetes</td><td>NIDDK (EUA)</td><td>Dados clínicos individuais (benchmark de ML)</td><td>768 mulheres</td><td>—</td></tr>
+          <tr><td>SBD</td><td>Soc. Bras. de Diabetes</td><td>Diretrizes clínicas (classificação e critérios)</td><td>Nacional</td><td>—</td></tr>
+          <tr><td>ANS / D-TISS</td><td>ANS</td><td>Saúde suplementar — <em>avaliada e excluída</em>: a CID não é exigida nos atendimentos ambulatoriais (decisão judicial) e é opcional nas internações</td><td>—</td><td>LAI 25072.015811/2026-30 (resp. 13/04/2026)</td></tr>
           <tr><td>Portal Dados Abertos</td><td>dados.gov.br</td><td>Catálogo de datasets públicos</td><td>Nacional</td><td>Contínuo</td></tr>
         </tbody>
       </table>
@@ -556,7 +560,7 @@
       <div class="stat-hero">
         <span class="stat-hero-label">r — Excesso de peso × Diabetes</span>
         <span class="stat-hero-value" id="kpiCorrObDi">—</span>
-        <span class="stat-hero-sub">Pearson · Vigitel 2006–2023</span>
+        <span class="stat-hero-sub">Pearson · Vigitel 2006–2024</span>
         <div class="stat-hero-viz"><canvas id="miniCorrObDi" role="img" aria-label="Mini dispersão obesidade e diabetes"></canvas></div>
       </div>
       <div class="stat-hero">
@@ -572,15 +576,15 @@
         <div class="stat-hero-viz"><canvas id="miniR2" role="img" aria-label="Gauge de R quadrado"></canvas></div>
       </div>
       <div class="stat-hero">
-        <span class="stat-hero-label">CAGR prevalência</span>
+        <span class="stat-hero-label">TCAC da prevalência</span>
         <span class="stat-hero-value" id="kpiCagr">—</span>
-        <span class="stat-hero-sub">crescimento anual 2006–2023</span>
+        <span class="stat-hero-sub">crescimento anual composto 2006–2024</span>
         <div class="stat-hero-viz"><canvas id="miniCagr" role="img" aria-label="Mini série temporal da prevalência"></canvas></div>
       </div>
       <div class="stat-hero">
-        <span class="stat-hero-label">Casos estimados (prev.×pop)</span>
+        <span class="stat-hero-label">Carga estimada (prev.×pop)</span>
         <span class="stat-hero-value" id="kpiTotalCases">—</span>
-        <span class="stat-hero-sub">aproximação ilustrativa</span>
+        <span class="stat-hero-sub">superestima — só p/ ordenar UFs</span>
         <div class="stat-hero-viz"><canvas id="miniCases" role="img" aria-label="Mini barras de casos por estado"></canvas></div>
       </div>
       <div class="stat-hero">
@@ -626,7 +630,7 @@
       </div>
       <div class="chart-card">
         <h3>Distribuição da prevalência por região (min–média–máx)</h3>
-        <p class="chart-src">Amplitude das UFs em cada região · Vigitel 2023</p>
+        <p class="chart-src">Amplitude das capitais em cada região · Vigitel 2023 (oficial)</p>
         <div style="position:relative;height:300px"><canvas id="chartDistRegion" role="img" aria-label="Distribuição da prevalência por região mostrando mínimo média e máximo"></canvas></div>
       </div>
     </div>
@@ -670,6 +674,7 @@
 
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">AUC-ROC</span><span class="kpi-value" id="mlAuc">—</span><span class="kpi-sub">poder discriminativo</span></div>
+      <div class="kpi-card"><span class="kpi-label">AP (AUC-PR)</span><span class="kpi-value" id="mlAp">—</span><span class="kpi-sub">precisão média (classe +)</span></div>
       <div class="kpi-card"><span class="kpi-label">Acurácia</span><span class="kpi-value" id="mlAcc">—</span><span class="kpi-sub">conjunto de teste</span></div>
       <div class="kpi-card"><span class="kpi-label">Precisão</span><span class="kpi-value" id="mlPrec">—</span><span class="kpi-sub">VP / (VP+FP)</span></div>
       <div class="kpi-card"><span class="kpi-label">Recall (sensib.)</span><span class="kpi-value" id="mlRec">—</span><span class="kpi-sub">VP / (VP+FN)</span></div>
@@ -716,7 +721,7 @@
       </div>
       <div class="chart-card">
         <h3>Resíduo (ruído + anomalias)</h3>
-        <p class="chart-src">Anomalia destacada: excesso de óbitos em abr–jun/2020 (COVID-19), agora com dado real</p>
+        <p class="chart-src">Anomalia destacada: abr–jun/2020, início da pandemia de COVID-19 (SIM/DATASUS, série mensal real)</p>
         <div style="position:relative;height:240px"><canvas id="chartDecompResid" role="img" aria-label="Componente residual da decomposição com anomalia COVID"></canvas></div>
       </div>
     </div>
@@ -785,8 +790,9 @@
     <div class="charts-row">
       <div class="chart-card wide">
         <h3>Coeficientes aprendidos pelo modelo (peso padronizado de cada feature)</h3>
-        <p class="chart-src">Valores reais resultantes do treino. Quanto maior o |peso|, maior a influência da variável na previsão. Glicose tende a dominar — coerente com a fisiopatologia do diabetes.</p>
+        <p class="chart-src">Valores reais resultantes do treino. Quanto maior o |peso|, maior a influência da variável na previsão. Glicose tende a dominar — coerente com a fisiopatologia do diabetes. Passe o mouse para ver a razão de chances (OR).</p>
         <div style="position:relative;height:280px"><canvas id="chartCoef" role="img" aria-label="Coeficientes aprendidos pela regressão logística"></canvas></div>
+        <div id="coefOdds" class="chart-insight" style="margin-top:10px"></div>
       </div>
     </div>
 
@@ -803,6 +809,13 @@
         <div style="position:relative;height:300px"><canvas id="chartROC" role="img" aria-label="Curva ROC do modelo treinado"></canvas></div>
       </div>
     </div>
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <h3>Curva Precisão–Revocação — <span id="prAp">AP</span></h3>
+        <p class="chart-src">Complementa a ROC em cenário de <strong>prevalência baixa</strong>: foca o desempenho sobre a classe positiva (diabéticos), onde a ROC pode ser otimista. A linha tracejada é a <strong>linha de base</strong> (prevalência de positivos no teste) — equivale a um classificador aleatório; a curva precisa ficar acima dela.</p>
+        <div style="position:relative;height:300px"><canvas id="chartPR" role="img" aria-label="Curva Precisão-Revocação do modelo treinado"></canvas></div>
+      </div>
+    </div>
 
     <!-- MODELO ECOLÓGICO (nível populacional) -->
     <div class="section-header" style="margin-top:2rem">
@@ -810,7 +823,7 @@
       <p>Usa <strong>todas as séries agregadas</strong> do painel para prever a prevalência nacional — o modelo que os dados do dashboard de fato suportam</p>
     </div>
     <div class="info-banner">
-      <strong>Dois modelos, dois tipos de dado.</strong> O classificador acima prevê o risco <em>individual</em> e exige dados de pacientes (Pima). Este modelo é <strong>ecológico</strong>: uma <strong>regressão linear múltipla</strong> que prevê a <em>prevalência populacional</em> de diabetes a partir de <strong>excesso de peso e hipertensão</strong> (VIGITEL 2006–2024, dado oficial real). É a forma correta de aproveitar os dados agregados — sem cometer falácia ecológica ao confundir os níveis. Validado por <strong>leave-one-out cross-validation</strong>.
+      <strong>Dois modelos, dois tipos de dado.</strong> O classificador acima prevê o risco <em>individual</em> e exige dados de pacientes (Pima). Este modelo é <strong>ecológico</strong>: uma <strong>regressão linear múltipla</strong> que prevê a <em>prevalência populacional</em> de diabetes a partir de <strong>excesso de peso e hipertensão</strong> (VIGITEL 2006–2024). É a forma correta de aproveitar os dados agregados — sem cometer falácia ecológica ao confundir os níveis. Validado por <strong>leave-one-out cross-validation</strong>.
     </div>
     <div class="kpi-grid">
       <div class="kpi-card"><span class="kpi-label">R²</span><span class="kpi-value" id="ecoR2">—</span><span class="kpi-sub">variância explicada</span></div>
@@ -822,7 +835,7 @@
         <h3>Observado × previsto — prevalência nacional (%)</h3>
         <p class="chart-src">Regressão múltipla sobre excesso de peso + hipertensão (Vigitel 2006–2024)</p>
         <div style="position:relative;height:280px"><canvas id="chartEco" role="img" aria-label="Prevalência observada versus prevista pelo modelo ecológico"></canvas></div>
-        <div class="chart-insight"><b>Leitura:</b> o modelo acompanha de perto a série real (erro fora da amostra &lt; 0,55 pp) — bom para <em>prever</em> a prevalência agregada.</div>
+        <div class="chart-insight"><b>Leitura:</b> o modelo acompanha a série real; o erro fora da amostra (RMSE da validação <em>leave-one-out</em>, acima) mede quanto ele erra ao prever um ano não usado no ajuste — adequado para <em>prever</em> a prevalência agregada, não para atribuir causas.</div>
       </div>
       <div class="chart-card">
         <h3>Coeficientes do modelo</h3>
@@ -854,7 +867,7 @@
     </div>
 
     <div class="table-section">
-      <h3>Roadmap de modelagem — próximos passos (TCC Cap. 5–6)</h3>
+      <h3>Etapas de modelagem — situação</h3>
       <table class="data-table">
         <thead><tr><th>Etapa</th><th>Técnica</th><th>Objetivo</th><th>Status</th></tr></thead>
         <tbody>
@@ -862,7 +875,7 @@
           <tr><td>Modelo populacional</td><td>Regressão linear múltipla + LOOCV</td><td>Prever prevalência (dados agregados)</td><td>✔ Treinado e avaliado</td></tr>
           <tr><td>Dado nacional individual</td><td>Microdados PNS 2019 (IBGE)</td><td>Re-treinar com população brasileira</td><td>✔ Integrado ao painel (ROC, matriz de confusão, coeficientes)</td></tr>
           <tr><td>Modelos avançados</td><td>Random Forest / XGBoost</td><td>Capturar não-linearidades e interações</td><td>✔ Integrado — 3 modelos com validação cruzada k=5</td></tr>
-          <tr><td>Séries temporais</td><td>SARIMA / Prophet</td><td>Prever internações com sazonalidade</td><td>Planejado (Parte D)</td></tr>
+          <tr><td>Séries temporais</td><td>Decomposição + SARIMA</td><td>Prever óbitos mensais com sazonalidade</td><td>✔ Implementado (backtest + validação externa 2021)</td></tr>
           <tr><td>Explicabilidade</td><td>SHAP / importância de features</td><td>Interpretar decisões do modelo</td><td>Parcial (coef. + importância RF)</td></tr>
         </tbody>
       </table>
@@ -887,22 +900,27 @@
       </p>
     </div>
 
-    <!-- OBJETIVOS -->
-    <div class="charts-row">
-      <div class="chart-card">
-        <h3>Objetivo geral</h3>
-        <p style="margin-top:6px;line-height:1.7">Consolidar, analisar e visualizar de forma integrada e reprodutível os dados públicos sobre diabetes mellitus no Brasil, sob o arcabouço metodológico <strong>CRISP-DM</strong>, desenvolvendo um modelo preditivo de risco como prova de conceito e comunicando os resultados por meio de um painel interativo.</p>
-      </div>
-      <div class="chart-card">
-        <h3>Objetivos específicos</h3>
-        <ol style="margin:8px 0 0 18px;line-height:1.8;font-size:14px">
-          <li><strong>Caracterizar</strong> a evolução temporal da prevalência e da mortalidade por diabetes (2006–2023).</li>
-          <li><strong>Analisar</strong> a distribuição geográfica e por subgrupos (sexo, escolaridade e faixa etária).</li>
-          <li><strong>Quantificar</strong> a associação entre fatores de risco e diabetes por inferência estatística (correlação com intervalo de confiança e p-valor).</li>
-          <li><strong>Desenvolver e avaliar</strong> um classificador de risco por regressão logística, reportando métricas de desempenho no conjunto de teste.</li>
-          <li><strong>Disponibilizar</strong> um painel interativo e reprodutível como instrumento de comunicação científica e apoio à decisão.</li>
-        </ol>
-      </div>
+    <!-- OBJETIVOS (alinhados ao Cap. 2 do TCC: OE1–OE9) -->
+    <div class="chart-card">
+      <h3>Objetivo geral</h3>
+      <p style="margin-top:6px;line-height:1.7">Desenvolver e avaliar uma solução analítica integrada para a caracterização epidemiológica do diabetes mellitus no Brasil, a partir de dados públicos e oficiais (SIM, SIH/SUS, Vigitel, PNS e Censo), composta por um processo reprodutível de preparação de dados, análises estatísticas e de séries temporais, modelos de aprendizado de máquina para a predição do risco e um dashboard web interativo, sob o arcabouço <strong>CRISP-DM</strong>.</p>
+    </div>
+    <div class="table-section">
+      <h3>Objetivos específicos e grau de atendimento</h3>
+      <table class="data-table">
+        <thead><tr><th style="width:6%">OE</th><th>Objetivo</th><th style="width:24%">Onde ver no painel</th><th style="width:12%">Status</th></tr></thead>
+        <tbody>
+            <tr><td><b>OE1</b></td><td style="text-align:left"><strong>Fundamentar teoricamente</strong> o estudo: diabetes e epidemiologia, sistemas de informação em saúde, métodos estatísticos e de aprendizado de máquina, visualização e CRISP-DM.</td><td style="text-align:left">Texto do TCC (Cap. 3)</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
+            <tr><td><b>OE2</b></td><td style="text-align:left"><strong>Identificar, avaliar e auditar as fontes</strong>, incorporando apenas indicadores rastreáveis e sinalizando valores preliminares e estimados.</td><td style="text-align:left">PNS / Fontes (catálogo; ANS avaliada e excluída)</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
+            <tr><td><b>OE3</b></td><td style="text-align:left"><strong>Construir um processo reprodutível</strong> de extração, tratamento e consolidação (TabNet, microdados da PNS, taxas brutas e padronizadas).</td><td style="text-align:left">Mortalidade · Exportar CSV</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
+            <tr><td><b>OE4</b></td><td style="text-align:left"><strong>Caracterizar a evolução temporal</strong> da prevalência, da mortalidade e das internações, testando a tendência (H1) e projetando a prevalência.</td><td style="text-align:left">Visão Geral · Mortalidade · Internações · Análise</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
+            <tr><td><b>OE5</b></td><td style="text-align:left"><strong>Analisar a distribuição geográfica e por subgrupos</strong> (região, UF, capital, sexo, idade, escolaridade, raça/cor), com padronização por idade.</td><td style="text-align:left">Prevalência · Distribuição Geográfica · Mortalidade</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
+            <tr><td><b>OE6</b></td><td style="text-align:left"><strong>Quantificar associações</strong> por inferência estatística (H2, H3), com IC 95% e p-valor, e regressão múltipla validada por LOOCV.</td><td style="text-align:left">Análise Estatística · Modelagem</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
+            <tr><td><b>OE7</b></td><td style="text-align:left"><strong>Modelar a série mensal de óbitos</strong>: decomposição, SARIMA e avaliação por backtest (RMSE, MAPE).</td><td style="text-align:left">Modelagem Preditiva</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
+            <tr><td><b>OE8</b></td><td style="text-align:left"><strong>Desenvolver e avaliar modelos de ML</strong>: logística no navegador (Pima) e logística × Random Forest × XGBoost (PNS 2019), com AUC, AP, matriz de confusão e OR (H4, H5).</td><td style="text-align:left">Modelagem Preditiva</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
+            <tr><td><b>OE9</b></td><td style="text-align:left"><strong>Disponibilizar o dashboard</strong> interativo, acessível e reprodutível, com filtros, notas metodológicas, exportação e avaliação automática das hipóteses.</td><td style="text-align:left">Todas as abas</td><td><span class="hyp-badge hyp-ok">Atendido</span></td></tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- HIPÓTESES (avaliadas ao vivo) -->
@@ -912,7 +930,7 @@
         <thead><tr><th style="width:30%">Hipótese</th><th>Como foi testada</th><th>Resultado</th><th>Status</th></tr></thead>
         <tbody>
           <tr>
-            <td><strong>H1.</strong> A prevalência de diabetes cresceu de forma significativa entre 2006–2023.</td>
+            <td><strong>H1.</strong> A prevalência de diabetes cresceu de forma significativa entre 2006–2024.</td>
             <td>Regressão linear (OLS) da prevalência Vigitel sobre o ano + teste t do coeficiente.</td>
             <td id="h1Stat">—</td>
             <td><span class="hyp-badge" id="h1Badge">—</span></td>
@@ -949,12 +967,12 @@
     <!-- PRINCIPAIS ACHADOS -->
     <h3 style="font-family:'Plus Jakarta Sans';font-size:18px;margin:0 0 12px">Principais achados</h3>
     <div class="kpi-grid">
-      <div class="kpi-card"><span class="kpi-label">Crescimento da prevalência</span><span class="kpi-value">5,3% → 10,2%</span><span class="kpi-sub">Vigitel 2006 → 2023 (quase 2×)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Crescimento da prevalência</span><span class="kpi-value">5,5% → 12,9%</span><span class="kpi-sub">Vigitel 2006 → 2024 (2,3×)</span></div>
       <div class="kpi-card"><span class="kpi-label">Excesso de peso × Diabetes</span><span class="kpi-value" id="achadoR">—</span><span class="kpi-sub">correlação de Pearson</span></div>
-      <div class="kpi-card"><span class="kpi-label">Desigualdade social</span><span class="kpi-value">~3×</span><span class="kpi-sub">menor vs maior escolaridade</span></div>
-      <div class="kpi-card"><span class="kpi-label">Carga absoluta</span><span class="kpi-value">16,8 mi</span><span class="kpi-sub">6º país do mundo (IDF)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Mortalidade padronizada — Norte</span><span class="kpi-value">41,8</span><span class="kpi-sub">/100 mil: uma das menores taxas brutas, a maior padronizada</span></div>
+      <div class="kpi-card"><span class="kpi-label">Adultos com diabetes</span><span class="kpi-value">15,7 mi</span><span class="kpi-sub">6º país do mundo (IDF 2021)</span></div>
       <div class="kpi-card"><span class="kpi-label">Desempenho do modelo</span><span class="kpi-value" id="achadoAuc">—</span><span class="kpi-sub">AUC no conjunto de teste</span></div>
-      <div class="kpi-card"><span class="kpi-label">Custo projetado</span><span class="kpi-value">R$ 27 bi</span><span class="kpi-sub">em 2030 (SBD/MS)</span></div>
+      <div class="kpi-card"><span class="kpi-label">Gasto em saúde com DM</span><span class="kpi-value">US$ 42,9 bi</span><span class="kpi-sub">3º do mundo (IDF 2021)</span></div>
     </div>
 
     <!-- CONCLUSÕES -->
@@ -962,9 +980,9 @@
       <div class="chart-card wide">
         <h3>Conclusões</h3>
         <div style="line-height:1.75;font-size:14.5px;margin-top:8px">
-          <p>A análise dos dados públicos evidencia, com sustentação estatística, que o diabetes mellitus configura um problema de saúde pública <strong>crescente, socialmente desigual e economicamente oneroso</strong> no Brasil. A prevalência autorreferida elevou-se de forma estatisticamente significativa entre 2006 e 2023 (H1: tendência linear positiva, p&lt;0,001), em trajetória fortemente correlacionada à da obesidade (H2: r&nbsp;≈&nbsp;0,97, p&lt;0,001). O agravo concentra-se em estratos de maior idade, menor escolaridade e nas unidades federativas mais urbanizadas, o que reforça o papel dos <strong>determinantes sociais da saúde</strong>.</p>
+          <p>A análise dos dados públicos evidencia, com sustentação estatística, que o diabetes mellitus configura um problema de saúde pública <strong>crescente, socialmente desigual e economicamente oneroso</strong> no Brasil. A prevalência autorreferida mais que dobrou entre 2006 e 2024 (H1: tendência linear positiva, p&lt;0,001, confirmada pelo relatório oficial) e <strong>acelerou desde 2019</strong> (0,90 p.p./ano, ante cerca de 0,25 antes), de modo que a projeção linear é conservadora. A trajetória acompanha a do excesso de peso (H2: r&nbsp;≈&nbsp;0,93, p&lt;0,001), mas essa correlação reflete sobretudo a <strong>tendência comum</strong> às duas séries: removida a tendência, r&nbsp;≈&nbsp;0,27 (não significativo) — os dados agregados mostram coevolução, não efeito. O agravo concentra-se nas idades mais avançadas (82,7% dos óbitos ocorrem a partir dos 60 anos) e nos grupos de menor escolaridade, e a padronização por idade revela maior mortalidade no Norte — evidências do papel dos <strong>determinantes sociais da saúde</strong>.</p>
           <p style="margin-top:10px">No plano da modelagem preditiva, a prova de conceito demonstra ser viável <strong>classificar o risco de diabetes com poder discriminativo adequado</strong> a partir de variáveis clínicas (H4: AUC no conjunto de teste), tendo a glicemia e o índice de massa corporal como preditores de maior peso (H5) — resultado coerente com a fisiopatologia da doença. Tais achados respaldam o potencial de instrumentos de triagem orientados por dados na atenção primária à saúde.</p>
-          <p style="margin-top:10px">Quanto à correlação ecológica entre prevalência e mortalidade estaduais (H3), embora significativa, foi classificada apenas como <strong>parcialmente sustentada</strong>, dado que associações em nível agregado não autorizam inferências sobre indivíduos. Conclui-se, em resposta à pergunta de pesquisa, que os dados abertos brasileiros são <strong>adequados para caracterizar e monitorar</strong> o diabetes e para <strong>fundamentar modelos preditivos</strong>, desde que submetidos a tratamento estatístico rigoroso e à explicitação transparente de suas limitações.</p>
+          <p style="margin-top:10px">A correlação ecológica entre prevalência e mortalidade estaduais (H3) <strong>não foi sustentada</strong>: com os valores oficiais das capitais, a associação é fraca e não significativa — a mortalidade por UF reflete também a estrutura etária, o acesso ao diagnóstico e ao cuidado, e a prevalência da capital representa mal o interior. O <strong>Norte</strong> resume o problema: tem a menor prevalência referida (capitais e PNS), mas a maior mortalidade padronizada e a maior taxa de internações por habitante — padrão compatível com lacunas no diagnóstico e no controle da doença. Além disso, associações em nível agregado não autorizam inferências sobre indivíduos. Conclui-se, em resposta à pergunta de pesquisa, que os dados abertos brasileiros são <strong>adequados para caracterizar e monitorar</strong> o diabetes e para <strong>fundamentar modelos preditivos</strong>, desde que submetidos a tratamento estatístico rigoroso e à explicitação transparente de suas limitações.</p>
         </div>
       </div>
     </div>
@@ -978,18 +996,23 @@
           <li>Vigitel cobre apenas capitais; o mapa usa o valor da capital para a UF inteira.</li>
           <li>Correlações estaduais são dados agregados — sujeitas à <strong>falácia ecológica</strong>.</li>
           <li>A projeção OLS ignora autocorrelação temporal (IC otimista).</li>
-          <li>O modelo foi treinado no Pima (benchmark internacional), não em dado brasileiro.</li>
+          <li>O modelo didático foi treinado no Pima (benchmark internacional), não em dado brasileiro — a validação nacional usa os microdados da PNS 2019 (logo acima).</li>
+          <li>Sob prevalência baixa, a alta sensibilidade do classificador tem como custo muitos falsos positivos (precisão apenas moderada) — explicitado pela <strong>curva Precisão–Revocação</strong> e pelo AP na aba de Modelagem.</li>
           <li>Amputações de MMII (SIH) são de todas as causas — o cubo de procedimentos não cruza com o diagnóstico de diabetes.</li>
+          <li>Óbitos: 57,6% codificados como diabetes não especificado (E14); a causa básica subestima a mortalidade associada; 2024–2025 preliminares.</li>
+          <li>Séries anuais curtas (18 anos) e com tendência comum: correlações temporais não separam o efeito de cada fator.</li>
         </ul>
       </div>
       <div class="chart-card">
         <h3>Trabalhos futuros</h3>
-        <p style="font-size:12.5px;color:var(--ink-3);margin:6px 0 4px"><b>Já implementado:</b> modelo PNS 2019 (Logística/RF/XGBoost com ROC, matriz de confusão e coeficientes), validação cruzada k=5, SARIMA, padronização por idade, recorte por raça/cor, ETL via TabNet e repositório versionado.</p>
+        <p style="font-size:12.5px;color:var(--ink-3);margin:6px 0 4px"><b>Já implementado:</b> modelo PNS 2019 (Logística/RF/XGBoost com ROC, matriz de confusão e coeficientes), validação cruzada k=5, curva Precisão–Revocação (AP) e razão de chances (OR), SARIMA, padronização por idade, recorte por raça/cor, ETL via TabNet e repositório versionado.</p>
         <ul style="margin:8px 0 0 18px;line-height:1.75;font-size:13.5px">
-          <li>Análise <strong>espacial</strong> (I de Moran, autocorrelação) e granularidade municipal.</li>
-          <li>Padronização por idade também por <strong>UF e por sexo</strong> (feita por região).</li>
-          <li>Incorporar <strong>diabetes não diagnosticado</strong> (HbA1c/glicemia) quando a PNS 2024/2025 for divulgada.</li>
-          <li>Modelos de <strong>sobrevivência</strong> e séries com variáveis exógenas (SARIMAX).</li>
+          <li>Mortalidade por <strong>causas múltiplas</strong> e taxas padronizadas por idade para cada ano e cada UF.</li>
+          <li>Microdados do SIH/SUS para ligar procedimentos a diagnósticos (amputações por diabetes) e analisar internações por residência.</li>
+          <li>Estimativas para <strong>todas as UFs</strong> (pequenas áreas, PNS + Vigitel) e gradientes de escolaridade ajustados por idade.</li>
+          <li>Incorporar <strong>diabetes não diagnosticado</strong> (exames laboratoriais) — chave para explicar o caso do Norte.</li>
+          <li>Modelos: mais preditores da PNS, imputação múltipla, <strong>calibração</strong>, limiar por custo e validação externa.</li>
+          <li>Painel: atualização automática dos dados, análise espacial e avaliação de usabilidade com gestores.</li>
         </ul>
       </div>
     </div>
@@ -999,19 +1022,19 @@
 
 <footer class="site-footer">
   <div class="footer-inner">
-    <p><strong>Fontes:</strong> DATASUS (SIM — mortalidade; SIH — internações/procedimentos, via TabNet) · Vigitel/MS 2006–2024 · PNS 2013/2019 (IBGE/Fiocruz) · IBGE Censo 2022 · SBD — Sociedade Brasileira de Diabetes · IDF Diabetes Atlas 9ª–11ª ed. (2019–2024) · OMS/WHO (ODS 3.4)</p>
+    <p><strong>Fontes:</strong> DATASUS (SIM — mortalidade; SIH — internações/procedimentos, via TabNet) · Vigitel/MS 2006–2024 · PNS 2013/2019 (IBGE/Fiocruz) · IBGE Censo 2022 · IDF Diabetes Atlas 9ª–11ª ed. (2019–2025) · Pima Indians Diabetes Dataset (NIDDK) · SBD (diretrizes clínicas)</p>
     <p><strong>Metodologia:</strong> CRISP-DM · estatística inferencial (Pearson com IC 95% de Fisher e p-valor da distribuição t) · regressão OLS com IC 95% · decomposição aditiva de série temporal · <strong>regressão logística treinada ao vivo</strong> (gradiente descendente, split estratificado treino/teste) com avaliação real (matriz de confusão, ROC, AUC). Todos os cálculos são executados no navegador; modelo reproduzível (seed fixa).</p>
-    <p><strong>Reprodutibilidade:</strong> pipeline de ETL (aquisição → limpeza → transformação → exportação) documentado em <code>notebooks/etl_diabetes.ipynb</code>, com <code>requirements.txt</code> e validação cruzada do modelo em <code>scikit-learn</code>.</p>
+    <p><strong>Reprodutibilidade:</strong> pipeline em Python documentado nos notebooks <code>etl_diabetes.ipynb</code> e <code>modelagem_pns.ipynb</code> (com <code>requirements.txt</code>) e nos scripts de extração e modelagem (<code>baixar_anual_mortalidade.py</code>, <code>baixar_sim_dim.py</code>, <code>baixar_sih.py</code>, <code>rodar_pns.py</code>, <code>rodar_sarima.py</code>), mantidos fora do repositório público pelo volume dos microdados; estatísticas, modelo Pima e hipóteses recalculados no navegador a partir de <code>data.js</code>.</p>
     <p>Dashboard desenvolvido para o TCC de Piettro Pevidor Nakashoji — Ciência de Dados · IESB · 2026 | Modelo treinado sobre o Pima Indians Diabetes Dataset (NIDDK), dado clínico real. Valores epidemiológicos seguem as fontes citadas; estimativas sinalizadas quando aplicável. Ferramenta acadêmica — não substitui avaliação clínica.</p>
   </div>
 </footer>
 
-<script src="data.js?v=28"></script>
-<script src="pima.js?v=28"></script>
-<script src="ml.js?v=28"></script>
-<script src="serie_mensal.js?v=28"></script>
-<script src="charts.js?v=28"></script>
-<script src="map.js?v=28"></script>
-<script src="app.js?v=28"></script>
+<script src="data.js?v=34"></script>
+<script src="pima.js?v=34"></script>
+<script src="ml.js?v=34"></script>
+<script src="serie_mensal.js?v=34"></script>
+<script src="charts.js?v=34"></script>
+<script src="map.js?v=34"></script>
+<script src="app.js?v=34"></script>
 </body>
 </html>

@@ -18,6 +18,12 @@ const REGION_COLORS = { N:'#56B4E9', NE:'#E69F00', CO:'#CC79A7', SE:'#0072B2', S
 
 const GRID_COLOR  = 'rgba(0,0,0,.06)';
 const TICK_COLOR  = '#64748b';
+// eixos numéricos no padrão brasileiro (9.000; 0,5)
+if (typeof Chart !== 'undefined') Chart.defaults.locale = 'pt-BR';
+// número com vírgula decimal
+const br = (x, d) => x.toFixed(d).replace('.', ',');
+// todos os anos de a até b (inclusive)
+const yearRange = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
 
 // ─────────────────────────────────────────────────────────────
 // FILTROS — helpers lidos por todos os renderizadores
@@ -34,9 +40,15 @@ function yrIdx(years) {
   return years.map((_, i) => i).filter(i => y === 'all' || years[i] <= +y);
 }
 // aplica filtro de ano a labels + N séries; retorna { labels, series:[...] }
+// Anos sem coleta (ex.: Vigitel 2022) entram como lacuna (null), para que o eixo
+// mantenha o espaçamento real entre os anos e a linha seja interrompida ali.
 function cutTS(years, ...series) {
-  const idx = yrIdx(years);
-  return { labels: idx.map(i => years[i]), series: series.map(s => idx.map(i => s[i])) };
+  const idx = yrIdx(years), labels = [], out = series.map(() => []);
+  idx.forEach((i, k) => {
+    if (k > 0) for (let y = years[idx[k - 1]] + 1; y < years[i]; y++) { labels.push(y); out.forEach(s => s.push(null)); }
+    labels.push(years[i]); series.forEach((s, j) => out[j].push(s[i]));
+  });
+  return { labels, series: out };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -84,6 +96,13 @@ const Stats = {
     return _tTwoSidedP(t, df);
   },
 };
+
+// Taxa de crescimento anual composta: usa o INTERVALO DE ANOS (t_f − t_i), não o
+// número de observações − 1 (a série do Vigitel não tem 2022).
+function tcac(years, vals) {
+  const n = years.length, dt = years[n - 1] - years[0];
+  return (Math.pow(vals[n - 1] / vals[0], 1 / dt) - 1) * 100;
+}
 
 // ── Regressão linear MÚLTIPLA (equações normais) + LOOCV ─────────────────
 function _solveLin(A, b) {
@@ -160,8 +179,9 @@ function fmtP(p) { return p < 0.001 ? 'p < 0,001' : 'p = ' + p.toFixed(3).replac
 function corrLabel(r, n) {
   if (!isFinite(r) || n < 3) return `amostra insuficiente (n = ${n})`;
   const ci = Stats.corrCI(r, n);
-  const ciTxt = isFinite(ci[0]) ? `IC95% [${ci[0].toFixed(2)}; ${ci[1].toFixed(2)}]` : 'IC95% n/d';
-  return `r = ${r.toFixed(3)} · ${ciTxt} · ${fmtP(Stats.corrP(r, n))} · n = ${n}`;
+  const c = v => v.toFixed(2).replace('.', ',');
+  const ciTxt = isFinite(ci[0]) ? `IC95% [${c(ci[0])}; ${c(ci[1])}]` : 'IC95% n/d';
+  return `r = ${r.toFixed(3).replace('.', ',')} · ${ciTxt} · ${fmtP(Stats.corrP(r, n))} · n = ${n}`;
 }
 
 function baseOpts(legendOpts) {
@@ -223,11 +243,13 @@ function renderOverviewTrend() {
   const [tot, fem, mas] = cut.series;
   const sex = F().sex;
   const ds = [];
-  // IC 95% aproximado (SE binomial, n efetivo ~25.000 estimado p/ Vigitel após design effect)
+  // IC 95% aproximado: erro-padrão binomial com n efetivo = entrevistas do ano (Quadro 1)
+  // ÷ efeito do desenho (deff = 2, valor conservador assumido; os IC oficiais exigem o desenho completo)
   if (sex === 'all') {
-    const nEff = 25000;
-    const up = tot.map(p => +(p + 1.96*Math.sqrt((p/100)*(1-p/100)/nEff)*100).toFixed(2));
-    const lo = tot.map(p => +(p - 1.96*Math.sqrt((p/100)*(1-p/100)/nEff)*100).toFixed(2));
+    const DEFF = 2, nAno = cutTS(d.years, d.entrevistas).series[0];
+    const half = (p, i) => 1.96 * Math.sqrt((p/100)*(1-p/100) / (nAno[i] / DEFF)) * 100;
+    const up = tot.map((p, i) => p == null ? null : +(p + half(p, i)).toFixed(2));
+    const lo = tot.map((p, i) => p == null ? null : +(p - half(p, i)).toFixed(2));
     ds.push({ label: 'IC95% sup', data: up, borderColor:'transparent', pointRadius:0, fill:false });
     ds.push({ label: 'IC95% (aprox.)', data: lo, borderColor:'transparent', pointRadius:0, fill:'-1', backgroundColor:'rgba(0,114,178,.15)' });
   }
@@ -253,22 +275,24 @@ function renderOverviewTrend() {
 //  Os tipos seguem descritos em faixas citadas (SBD/FEBRASGO) nos cards de texto.)
 
 function renderAgeGroup() {
+  // Vigitel 2006–2024, Tabela 51 (oficial): prevalência por faixa etária, 2006 × ano final
   const id = 'chartAgeGroup'; destroyChart(id);
-  const d = DATA.vigitelFaixaEtaria;
+  const d = DATA.vigitelFaixaEtaria, yrs = DATA.vigitelDM.years;
+  const iy = yrIdx(yrs), last = iy[iy.length - 1];
   saveChart(id, new Chart(document.getElementById(id), {
     type: 'bar',
     data: {
       labels: d.labels,
-      datasets: (function(){ const s=F().sex, ds=[];
-        ds.push({ label:'Total', data:d.total, backgroundColor:PALETTE.blue, borderRadius:4 });
-        if (s==='all'||s==='F') ds.push({ label:'Feminino', data:d.fem, backgroundColor:PALETTE.red+'99', borderRadius:4 });
-        if (s==='all'||s==='M') ds.push({ label:'Masculino', data:d.masc, backgroundColor:PALETTE.green+'99', borderRadius:4 });
-        return ds; })(),
+      datasets: [
+        { label: '2006', data: d.serie.map(s => s[0]), backgroundColor: PALETTE.gray + 'aa', borderRadius:4 },
+        { label: String(yrs[last]), data: d.serie.map(s => s[last]), backgroundColor: PALETTE.blue, borderRadius:4 },
+      ],
     },
-    options: { ...baseOpts({ display: false }),
+    options: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }),
       scales: { ...baseOpts().scales,
         y: { ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} } }
-      }
+      },
+      plugins: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }).plugins, tooltip:{ callbacks:{ label: ctx => `${ctx.dataset.label}: ${String(ctx.raw).replace('.', ',')}%` } } }
     },
   }));
 }
@@ -331,7 +355,7 @@ function renderStatePrevalence() {
     },
     options: { ...baseOpts(),
       scales: { ...baseOpts().scales,
-        y: { ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:6, max:12 },
+        y: { ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:4, max:13 },
         x: { ...baseOpts().scales.x, ticks:{ color: TICK_COLOR, font:{size:10}, maxRotation:65, autoSkip:false } }
       },
       plugins: { ...baseOpts().plugins,
@@ -346,39 +370,46 @@ function renderStatePrevalence() {
 }
 
 function renderEducation() {
+  // Vigitel 2006–2024, Tabela 51 (oficial): prevalência por nível de instrução, 2006 × ano final
   const id = 'chartEducation'; destroyChart(id);
-  const d = DATA.vigitelEscolaridade;
+  const d = DATA.vigitelEscolaridade, yrs = DATA.vigitelDM.years;
+  const iy = yrIdx(yrs), last = iy[iy.length - 1];
   saveChart(id, new Chart(document.getElementById(id), {
     type: 'bar',
     data: {
-      labels: d.labels,
-      datasets: (function(){ const s=F().sex, ds=[];
-        ds.push({ label:'Total', data:d.total, backgroundColor:PALETTE.blue, borderRadius:4 });
-        if (s==='all'||s==='F') ds.push({ label:'Feminino', data:d.fem, backgroundColor:PALETTE.red+'aa', borderRadius:4 });
-        if (s==='all'||s==='M') ds.push({ label:'Masculino', data:d.masc, backgroundColor:PALETTE.green+'aa', borderRadius:4 });
-        return ds; })(),
+      labels: d.labels.map(l => l.split('\n')),
+      datasets: [
+        { label: '2006', data: d.serie.map(s => s[0]), backgroundColor: PALETTE.gray + 'aa', borderRadius:4 },
+        { label: String(yrs[last]), data: d.serie.map(s => s[last]), backgroundColor: PALETTE.red + 'cc', borderRadius:4 },
+      ],
     },
-    options: { ...baseOpts({ display:false }),
-      scales:{ ...baseOpts().scales, y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} } } }
+    options: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }),
+      scales:{ ...baseOpts().scales,
+        y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} } },
+        x:{ ...baseOpts().scales.x, ticks:{ color:TICK_COLOR, font:{size:9}, autoSkip:false, maxRotation:0 } } },
+      plugins: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }).plugins, tooltip:{ callbacks:{ label: ctx => `${ctx.dataset.label}: ${String(ctx.raw).replace('.', ',')}%` } } }
     },
   }));
 }
 
 function renderSexAge() {
+  // Vigitel 2006–2024, Tabela 51 (oficial): evolução da prevalência por faixa etária
   const id = 'chartSexAge'; destroyChart(id);
   const d = DATA.vigitelFaixaEtaria;
+  const cut = cutTS(DATA.vigitelDM.years, ...d.serie);
+  const cores = ['#94a3b8', PALETTE.teal, PALETTE.green, PALETTE.amber, PALETTE.purple, PALETTE.red];
   saveChart(id, new Chart(document.getElementById(id), {
     type: 'line',
     data: {
-      labels: d.labels,
-      datasets: (function(){ const s=F().sex, ds=[];
-        ds.push({ label:'Total', data:d.total, borderColor:PALETTE.blue, fill:false, tension:.35, borderWidth:2.5, pointRadius:4 });
-        if (s==='all'||s==='F') ds.push({ label:'Feminino', data:d.fem, borderColor:PALETTE.red, fill:false, tension:.35, borderWidth:1.8, pointRadius:3, borderDash:[4,3] });
-        if (s==='all'||s==='M') ds.push({ label:'Masculino', data:d.masc, borderColor:PALETTE.green, fill:false, tension:.35, borderWidth:1.8, pointRadius:3, borderDash:[4,3] });
-        return ds; })(),
+      labels: cut.labels,
+      datasets: d.labels.map((l, i) => ({ label: l, data: cut.series[i], borderColor: cores[i], backgroundColor: cores[i],
+        fill: false, tension: .3, borderWidth: i === 5 ? 2.6 : 1.8, pointRadius: 2 })),
     },
-    options: { ...baseOpts({ display:false }),
-      scales:{ ...baseOpts().scales, y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} } } }
+    options: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR, boxWidth: 12 } }),
+      scales:{ ...baseOpts().scales,
+        y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} } },
+        x:{ ...baseOpts().scales.x, ticks:{ color:TICK_COLOR, font:{size:10}, maxRotation:45 } } },
+      plugins: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR, boxWidth: 12 } }).plugins, tooltip:{ callbacks:{ label: ctx => `${ctx.dataset.label}: ${String(ctx.raw).replace('.', ',')}%` } } }
     },
   }));
 }
@@ -397,7 +428,7 @@ function renderSexTrend() {
         if (s==='all'||s==='M') ds.push({ label:'Masculino', data:mas, borderColor:PALETTE.blue, fill:false, tension:.35, borderWidth:2 });
         return ds; })(),
     },
-    options: { ...baseOpts({ display:false }),
+    options: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }),
       scales:{ ...baseOpts().scales,
         y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:4, max:16 },
         x:{ ...baseOpts().scales.x, ticks:{ color:TICK_COLOR, font:{size:10}, maxRotation:45 } }
@@ -510,7 +541,7 @@ function renderStandardizedRates() {
     options: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }),
       scales: { ...baseOpts().scales,
         y: { ...baseOpts().scales.y, title: { display: true, text: 'Óbitos / 100k hab', color: TICK_COLOR, font: { size: 11 } } } },
-      plugins: { ...baseOpts().plugins, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}/100k` } } }
+      plugins: { ...baseOpts({ display: true, position: 'top', labels: { font: { size: 10 }, color: TICK_COLOR } }).plugins, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw}/100k` } } }
     },
   }));
 }
@@ -526,7 +557,7 @@ function renderMortalityRace() {
     options: { ...baseOpts(),
       scales: { y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } } },
         x: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 10 } }, title: { display: true, text: 'Nº de óbitos (2025)', color: TICK_COLOR, font: { size: 11 } } } },
-      plugins: { ...baseOpts().plugins, tooltip: { callbacks: { label: ctx => `${ctx.raw.toLocaleString('pt-BR')} (${(100 * ctx.raw / tot).toFixed(1)}%)` } } }
+      plugins: { ...baseOpts().plugins, tooltip: { callbacks: { label: ctx => `${ctx.raw.toLocaleString('pt-BR')} (${br(100 * ctx.raw / tot, 1)}%)` } } }
     },
   }));
 }
@@ -581,7 +612,7 @@ function renderHospComplication() {
     indexAxis: 'y',
     data: {
       labels: d.labels,
-      datasets: [{ label: 'Internações (2024)', data: d.n, backgroundColor: PALETTE.blue+'cc', borderRadius:3 }],
+      datasets: [{ label: 'Internações (2025)', data: d.n, backgroundColor: PALETTE.blue+'cc', borderRadius:3 }],
     },
     options: { ...baseOpts(),
       scales:{
@@ -637,7 +668,7 @@ function renderAmputations() {
 // ─────────────────────────────────────────────────────────────
 function renderObesityDiabetes() {
   const id = 'chartObesityDiabetes'; destroyChart(id);
-  const d = DATA.vigitel2024;                        // dado oficial real 2006–2024
+  const d = DATA.vigitel2024;                        // Vigitel 2006–2024 (sexo oficial; total calculado)
   const cut = cutTS(d.years, d.excessoPeso, d.diabetes, d.hipertensao);
   const [exc, dia, hip] = cut.series;
   saveChart(id, new Chart(document.getElementById(id), {
@@ -717,7 +748,7 @@ function renderStateComparison() {
     options: { ...baseOpts({ display:false }),
       scales:{
         x:{ grid:{color:GRID_COLOR}, ticks:{ color:TICK_COLOR, font:{size:10}, maxRotation:65, autoSkip:false } },
-        y:{ grid:{color:GRID_COLOR}, title:{ display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11} }, min:6, max:12, ticks:{ color:TICK_COLOR, font:{size:11} } },
+        y:{ grid:{color:GRID_COLOR}, title:{ display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11} }, min:4, max:13, ticks:{ color:TICK_COLOR, font:{size:11} } },
         y1:{ position:'right', grid:{drawOnChartArea:false}, ticks:{ color:PALETTE.red, font:{size:11}, stepSize:10 }, title:{ display:true, text:'Taxa mort./100k', color:PALETTE.red, font:{size:11} }, min:10, max:55 },
       }
     },
@@ -729,7 +760,7 @@ function renderStateComparison() {
 // ─────────────────────────────────────────────────────────────
 function renderVigitelAll() {
   const id = 'chartVigitelAll'; destroyChart(id);
-  const d = DATA.vigitel2024;                        // dado oficial real 2006–2024
+  const d = DATA.vigitel2024;                        // Vigitel 2006–2024 (sexo oficial; total calculado)
   const cut = cutTS(d.years, d.diabetes, d.excessoPeso, d.hipertensao);
   const [dia, exc, hip] = cut.series;
   saveChart(id, new Chart(document.getElementById(id), {
@@ -768,7 +799,7 @@ function renderVigitelCidades() {
     options: { ...baseOpts(),
       scales:{
         y:{ grid:{color:GRID_COLOR}, ticks:{ color:TICK_COLOR, font:{size:10} } },
-        x:{ grid:{color:GRID_COLOR}, ticks:{ color:TICK_COLOR, font:{size:11} }, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:6, max:12 }
+        x:{ grid:{color:GRID_COLOR}, ticks:{ color:TICK_COLOR, font:{size:11} }, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:4, max:13 }
       }
     },
   }));
@@ -824,7 +855,7 @@ function renderPnsRegiao() {
     type: 'bar',
     data: { labels: d.labels, datasets: [{ label: 'Prevalência (%)', data: d.prev, backgroundColor: cores, borderRadius:5 }] },
     options: { ...baseOpts(),
-      scales:{ ...baseOpts().scales, y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:5 } }
+      scales:{ ...baseOpts().scales, y:{ ...baseOpts().scales.y, title:{ display:true, text:'%', color:TICK_COLOR, font:{size:11} }, min:0 } }
     },
   }));
 }
@@ -846,19 +877,21 @@ function renderIdfEdicoes() {
 }
 
 function renderCustoBrasil() {
+  // Gasto total em saúde relacionado ao diabetes (IDF 2021) — três maiores do mundo
   const id = 'chartCustoBrasil'; destroyChart(id);
-  const d = DATA.custoBrasil;
+  const d = DATA.idfGasto;
   saveChart(id, new Chart(document.getElementById(id), {
     type: 'bar',
     data: {
-      labels: d.labels,
-      datasets: [{ label: 'R$ bilhões', data: d.valores, backgroundColor: [PALETTE.gray, PALETTE.blue, PALETTE.purple, PALETTE.red], borderRadius:5 }],
+      labels: d.paises,
+      datasets: [{ label: 'US$ bilhões (2021)', data: d.bilhoesUSD,
+        backgroundColor: d.paises.map(p => p === 'Brasil' ? PALETTE.red : PALETTE.blue + 'aa'), borderRadius:5 }],
     },
     options: { ...baseOpts(),
-      scales:{ ...baseOpts().scales, y:{ ...baseOpts().scales.y, title:{ display:true, text:'R$ bilhões', color:TICK_COLOR, font:{size:11} } } },
+      scales:{ ...baseOpts().scales, y:{ ...baseOpts().scales.y, title:{ display:true, text:'US$ bilhões', color:TICK_COLOR, font:{size:11} } } },
       plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{
-        label: ctx=>'R$ '+ctx.raw.toFixed(1)+' bi',
-        afterLabel: ctx=>DATA.custoBrasil.nota[ctx.dataIndex]
+        label: ctx => 'US$ ' + ctx.raw.toFixed(1).replace('.', ',') + ' bi (2021)',
+        afterLabel: ctx => d.paises[ctx.dataIndex] === 'Brasil' ? 'US$ ' + String(d.brasil2024).replace('.', ',') + ' bi em 2024 (11ª ed.)' : ''
       } } }
     },
   }));
@@ -873,23 +906,23 @@ function setText(id, txt) { const el = document.getElementById(id); if (el) el.t
 
 function renderForecast() {
   const id = 'chartForecast'; destroyChart(id);
-  const d = DATA.vigitel2024;                       // dado oficial real 2006–2024
+  const d = DATA.vigitel2024;                       // Vigitel 2006–2024 (sexo oficial; total calculado)
   const years = d.years;
   const reg = Stats.linreg(years, d.diabetes);
-  const futureYears = [2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035];
-  const allYears = [...years, ...futureYears];
+  // eixo com todos os anos (2022, sem coleta, fica como lacuna) até 2035
+  const allYears = yearRange(years[0], 2035);
 
-  // observado (com nulls no futuro); reta OLS cobrindo TODO o período (sólida no
-  // histórico, tracejada na projeção) — passa pelos pontos reais, sem "degrau".
-  const H = years.length;
-  const obs = [...d.diabetes, ...futureYears.map(()=>null)];
+  // observado (com nulls na lacuna e no futuro); reta OLS cobrindo TODO o período
+  // (sólida no histórico, tracejada na projeção) — passa pelos pontos reais, sem "degrau".
+  const H = allYears.indexOf(years[years.length - 1]) + 1;
+  const obs = allYears.map(y => years.includes(y) ? d.diabetes[years.indexOf(y)] : null);
   const trend = allYears.map(y => +reg.predict(y).toFixed(2));
 
-  setText('forecastEq', `ŷ = ${reg.slope.toFixed(3)}·ano ${reg.intercept<0?'−':'+'} ${Math.abs(reg.intercept).toFixed(1)} · R² = ${reg.r2.toFixed(3)}`);
-  setText('kpiR2Forecast', reg.r2.toFixed(3));
-  // CAGR
-  const cagr = ((d.diabetes[d.diabetes.length-1]/d.diabetes[0])**(1/(years.length-1)) - 1)*100;
-  setText('kpiCagr', '+'+cagr.toFixed(1)+'% a.a.');
+  setText('forecastEq', `ŷ = ${br(reg.slope, 3)}·ano ${reg.intercept<0?'−':'+'} ${br(Math.abs(reg.intercept), 1)} · R² = ${br(reg.r2, 3)}`);
+  setText('kpiR2Forecast', br(reg.r2, 3));
+  // TCAC (intervalo efetivo de anos: 2006→2024 = 18 anos)
+  const cagr = tcac(years, d.diabetes);
+  setText('kpiCagr', '+'+cagr.toFixed(1).replace('.', ',')+'% a.a.');
 
   saveChart(id, new Chart(document.getElementById(id), {
     type: 'line',
@@ -914,7 +947,7 @@ function renderForecast() {
 
 function renderScatterObDi() {
   const id = 'chartScatterObDi'; destroyChart(id);
-  const V = DATA.vigitel2024; const yi = yrIdx(V.years);   // dado oficial real
+  const V = DATA.vigitel2024; const yi = yrIdx(V.years);   // Vigitel 2006–2024 (sexo oficial; total calculado)
   const d = { obesidade: yi.map(i=>V.excessoPeso[i]), diabetes: yi.map(i=>V.diabetes[i]) };
   const pts = d.obesidade.map((o,i)=>({ x:o, y:d.diabetes[i] }));
   const reg = Stats.linreg(d.obesidade, d.diabetes);
@@ -973,7 +1006,7 @@ function renderScatterPrevMort() {
 
 function renderCorrHeatmap() {
   const el = document.getElementById('corrHeatmap'); if (!el) return;
-  const v = DATA.vigitel2024;                        // dado oficial real 2006–2024
+  const v = DATA.vigitel2024;                        // Vigitel 2006–2024 (sexo oficial; total calculado)
   const vars = [
     { key:'diabetes',    label:'DM' },
     { key:'excessoPeso', label:'Exc.peso' },
@@ -992,7 +1025,7 @@ function renderCorrHeatmap() {
         ? `rgba(26,86,219,${(0.12 + alpha*0.8).toFixed(2)})`
         : `rgba(231,76,60,${(0.12 + alpha*0.8).toFixed(2)})`;
       const txt = alpha > 0.55 ? '#fff' : '#1e293b';
-      html += `<div class="corr-cell" style="background:${bg};color:${txt}">${r.toFixed(2)}</div>`;
+      html += `<div class="corr-cell" style="background:${bg};color:${txt}">${br(r, 2)}</div>`;
     });
   });
   el.innerHTML = html;
@@ -1019,7 +1052,7 @@ function renderDistRegion() {
     options:{ ...baseOpts({ display:false }),
       scales:{
         x:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:10}} },
-        y:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11}}, min:6 },
+        y:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11}}, min:4 },
       },
       plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{
         label: ctx => ctx.datasetIndex===0
@@ -1050,7 +1083,7 @@ function renderBubble() {
     options:{ ...baseOpts({ display:false }),
       layout:{ padding:10 },
       scales:{
-        x:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11}}, min:6, max:12 },
+        x:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Prevalência (%)', color:TICK_COLOR, font:{size:11}}, min:4, max:13 },
         y:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}, stepSize:10}, title:{display:true, text:'Mortalidade /100k hab', color:TICK_COLOR, font:{size:11}}, min:10, max:60 },
       },
       plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{
@@ -1106,23 +1139,23 @@ function kpiSparkConfig() {
       { kind:'line', data:M.obitos, color:C.red },
       { kind:'line', data:I.total, color:C.blue },
       { kind:'line', data:I.custototal, color:C.amber },
-      { kind:'bar',  data:[140.9,74.2,33,32.2,19.5,16.8], colors:['#cbd5e1','#cbd5e1','#cbd5e1','#cbd5e1','#cbd5e1',C.red] },
+      { kind:'bar',  data:DATA.idfTopPaises.milhoes.slice(0,6), colors:['#cbd5e1','#cbd5e1','#cbd5e1','#cbd5e1','#cbd5e1',C.red] },
     ],
     prevalence: [
-      { kind:'meter', value:8.1, max:12, color:C.teal },
-      { kind:'meter', value:9.8, max:12, color:C.amber },
-      { kind:'meter', value:9.4, max:12, color:C.purple },
-      { kind:'meter', value:10.8, max:12, color:C.blue },
-      { kind:'meter', value:10.3, max:12, color:C.green },
-      { kind:'meter', value:9.6, max:12, color:'#64748b' },
+      { kind:'line', data:V.diabetes, color:C.blue },
+      { kind:'line', data:DATA.vigitelDM.fem, color:C.red },
+      { kind:'line', data:DATA.vigitelDM.masc, color:C.green },
+      { kind:'meter', value:1.28, max:2, color:C.purple },
+      { kind:'line', data:V.diabetes, color:C.amber },
+      { kind:'line', data:P.total, color:C.teal },
     ],
     mortality: [
       { kind:'line', data:M.obitos, color:C.red },
       { kind:'line', data:M.obitos, color:C.red },
-      { kind:'meter', value:51.3, max:100, color:C.red },
-      { kind:'meter', value:68.7, max:100, color:'#64748b' },
       { kind:'line', data:M.obitos, color:C.red },
-      { kind:'meter', value:180, max:200, color:C.amber },
+      { kind:'meter', value:82.7, max:100, color:C.red },
+      { kind:'meter', value:57.6, max:100, color:'#64748b' },
+      { kind:'line', data:M.obitos, color:C.amber },
     ],
     hospitalization: [
       { kind:'line', data:I.total, color:C.blue },
@@ -1150,11 +1183,11 @@ function kpiSparkConfig() {
     ],
     pns: [
       { kind:'line', data:P.total, color:C.blue },
-      { kind:'meter', value:12, max:17, color:C.blue },
-      { kind:'meter', value:28, max:30, color:C.red },
-      { kind:'meter', value:30, max:36, color:C.teal },
-      { kind:'meter', value:42, max:50, color:C.amber },
-      { kind:'meter', value:27, max:30, color:C.purple },
+      { kind:'meter', value:12.3, max:17, color:C.blue },
+      { kind:'line', data:P.fem, color:C.red },
+      { kind:'meter', value:15.7, max:20, color:C.teal },
+      { kind:'meter', value:42.9, max:50, color:C.amber },
+      { kind:'meter', value:45.1, max:50, color:C.purple },
     ],
     ml: (function(){
       // INTENCIONAL: só os 6 KPIs da 1ª linha (métricas do classificador ao vivo)
@@ -1228,7 +1261,7 @@ function sparkOpts(extra) {
 }
 
 function renderAnaliseMinis() {
-  const V = DATA.vigitel2024, E = DATA.estadosPrevalencia;   // dado oficial real
+  const V = DATA.vigitel2024, E = DATA.estadosPrevalencia;   // Vigitel 2006–2024 (sexo oficial; total calculado)
   const yi = yrIdx(V.years), si = stIdx();
   const v = { years: yi.map(i=>V.years[i]), diabetes: yi.map(i=>V.diabetes[i]), obesidade: yi.map(i=>V.excessoPeso[i]) };
   const e = { estados: si.map(i=>E.estados[i]), prev: si.map(i=>E.prev[i]), mort: si.map(i=>E.mort[i]), pop: si.map(i=>E.pop[i]) };
@@ -1283,7 +1316,7 @@ function renderAnaliseMinis() {
   saveChart(id, new Chart(document.getElementById(id), {
     type:'bar',
     data:{ labels: sorted.map((_,i)=>i), datasets:[{ data: sorted, backgroundColor: sorted.map(v=> v>=m?PALETTE.red+'cc':PALETTE.blue+'aa'), borderRadius:1, barPercentage:1, categoryPercentage:1 }] },
-    options: sparkOpts({ scales:{ x:{display:false}, y:{ display:false, min:6 } } }),
+    options: sparkOpts({ scales:{ x:{display:false}, y:{ display:false, min:4 } } }),
   }));
 }
 
@@ -1291,13 +1324,13 @@ function renderStatsTable() {
   const tbody = document.getElementById('statsTableBody'); if (!tbody) return;
   const idx = stIdx(), E = DATA.estadosPrevalencia;
   const series = [
-    { nome:'Prevalência DM por UF (%)',        a: idx.map(i=>E.prev[i]), dec:1 },
+    { nome:'Prevalência DM na capital (%) 2023', a: idx.map(i=>E.prev[i]), dec:1 },
     { nome:'Mortalidade por UF (/100k)',        a: idx.map(i=>E.mort[i]), dec:1 },
     { nome:'Prevalência DM Vigitel (%) 2006–24',a: DATA.vigitel2024.diabetes,    dec:1 },
     { nome:'Excesso de peso Vigitel (%) 2006–24',a: DATA.vigitel2024.excessoPeso, dec:1 },
     { nome:'Hipertensão Vigitel (%) 2006–24',   a: DATA.vigitel2024.hipertensao, dec:1 },
-    { nome:'Óbitos DM/ano (SIM) 2000–24',       a: DATA.mortalidade.obitos,      dec:0 },
-    { nome:'Internações/ano (SIH) 2010–24',     a: DATA.internacoes.total,       dec:0 },
+    { nome:'Óbitos DM/ano (SIM) 2000–25',       a: DATA.mortalidade.obitos,      dec:0 },
+    { nome:'Internações/ano (SIH) 2010–25',     a: DATA.internacoes.total,       dec:0 },
   ];
   tbody.innerHTML = series.map(s => {
     const f = (x)=> s.dec===0 ? Math.round(x).toLocaleString('pt-BR') : x.toFixed(s.dec);
@@ -1318,32 +1351,36 @@ function renderStatsTable() {
 // SÍNTESE & CONCLUSÕES — hipóteses avaliadas ao vivo
 // ─────────────────────────────────────────────────────────────
 function renderSintese() {
-  const V = DATA.vigitel2024, E = DATA.estadosPrevalencia;   // dado oficial real
+  const V = DATA.vigitel2024, E = DATA.estadosPrevalencia;   // Vigitel 2006–2024 (sexo oficial; total calculado)
   const BADGE = { ok:['hyp-badge hyp-ok','Confirmada'], part:['hyp-badge hyp-part','Parcial'], no:['hyp-badge hyp-no','Refutada'] };
   const setBadge = (id, st) => { const el = document.getElementById(id); if (el) { el.className = BADGE[st][0]; el.textContent = BADGE[st][1]; } };
 
   // H1 — tendência temporal (OLS + teste t do coeficiente)
   const reg = Stats.linreg(V.years, V.diabetes);
   const rT = Stats.pearson(V.years, V.diabetes), pT = Stats.corrP(rT, V.years.length);
-  setText('h1Stat', `inclinação = +${reg.slope.toFixed(3)} pp/ano · R² = ${reg.r2.toFixed(3)} · ${fmtP(pT)}`);
+  const vo = DATA.vigitelDM.variacaoOficial.periodo2006_2024;
+  setText('h1Stat', `inclinação = +${reg.slope.toFixed(3).replace('.', ',')} pp/ano · R² = ${reg.r2.toFixed(3).replace('.', ',')} · ${fmtP(pT)} · relatório oficial (Tab. 52): +${String(vo.pp).replace('.', ',')} pp/ano`);
   setBadge('h1Badge', (reg.slope > 0 && pT < 0.05) ? 'ok' : 'no');
 
   // H2 — excesso de peso × diabetes (Pearson + p)
   const rOD = Stats.pearson(V.excessoPeso, V.diabetes), pOD = Stats.corrP(rOD, V.excessoPeso.length);
-  setText('h2Stat', `r = ${rOD.toFixed(3)} · ${fmtP(pOD)} · n = ${V.excessoPeso.length}`);
+  // robustez: correlação dos resíduos após remover a tendência linear de cada série
+  const detr = a => { const g = Stats.linreg(V.years, a); return a.map((v, i) => v - g.predict(V.years[i])); };
+  const rDet = Stats.pearson(detr(V.excessoPeso), detr(V.diabetes)), pDet = Stats.corrP(rDet, V.years.length);
+  setText('h2Stat', `r = ${rOD.toFixed(3).replace('.', ',')} · ${fmtP(pOD)} · n = ${V.excessoPeso.length} · sem a tendência comum: r = ${br(rDet, 2)} (${fmtP(pDet)})`);
   setBadge('h2Badge', (rOD >= 0.7 && pOD < 0.05) ? 'ok' : (rOD >= 0.4 && pOD < 0.05 ? 'part' : 'no'));
-  setText('achadoR', 'r = ' + rOD.toFixed(2));
+  setText('achadoR', 'r = ' + rOD.toFixed(2).replace('.', ','));
 
-  // H3 — prevalência × mortalidade por UF (significativa, mas ecológica → no máximo "parcial")
+  // H3 — prevalência × mortalidade por UF (ecológica → no máximo "parcial", mesmo se significativa)
   const rPM = Stats.pearson(E.prev, E.mort), pPM = Stats.corrP(rPM, E.prev.length);
-  setText('h3Stat', `r = ${rPM.toFixed(3)} · ${fmtP(pPM)} · n = ${E.prev.length} UFs (dado agregado)`);
+  setText('h3Stat', `r = ${rPM.toFixed(3).replace('.', ',')} · ${fmtP(pPM)} · n = ${E.prev.length} UFs (dado agregado)` + ' · prevalência da capital, Vigitel 2023');
   setBadge('h3Badge', (rPM > 0 && pPM < 0.05) ? 'part' : 'no');
 
   // H4 — AUC do modelo treinado
   if (typeof ML !== 'undefined') {
     if (!ML.trained) ML.train();
     const auc = ML.metrics.auc;
-    setText('h4Stat', `AUC = ${auc.toFixed(3)} (teste, n = ${ML.metrics.nTest})`);
+    setText('h4Stat', `AUC = ${auc.toFixed(3).replace('.', ',')} (teste, n = ${ML.metrics.nTest})`);
     setBadge('h4Badge', auc > 0.75 ? 'ok' : (auc > 0.70 ? 'part' : 'no'));
     setText('achadoAuc', auc.toFixed(3).replace('.', ','));
 
@@ -1360,7 +1397,7 @@ function renderSintese() {
 // MODELO ECOLÓGICO (nível populacional) — usa TODAS as séries agregadas
 // ─────────────────────────────────────────────────────────────
 function renderEcological() {
-  const V = DATA.vigitel2024;                       // dado oficial real 2006–2024
+  const V = DATA.vigitel2024;                       // Vigitel 2006–2024 (sexo oficial; total calculado)
   const preds = [
     { key: 'excessoPeso', nome: 'Excesso de peso' },
     { key: 'hipertensao', nome: 'Hipertensão' },
@@ -1433,7 +1470,7 @@ function showPnsPlaceholder(msg) {
   if (msg) { host.innerHTML = `<div class="info-banner">${msg}</div>`; return; }
   host.innerHTML = `<div class="chart-note" style="font-size:13px">
     <i>Aguardando resultados da PNS.</i> Esta seção é preenchida com os números reais (Regressão Logística × Random Forest × XGBoost)
-    assim que você rodar <code>notebooks/modelagem_pns.ipynb</code> — ele gera <code>pns_results.js</code> ao lado do <code>index.html</code>.
+    assim que você rodar <code>notebooks/rodar_pns.py</code> — ele gera <code>pns_results.js</code> ao lado do <code>index.html</code>.
     Depois, recarregue esta página. Enquanto isso, o modelo individual de referência (acima) roda sobre o dataset Pima.</div>`;
 }
 
@@ -1575,7 +1612,7 @@ function buildPnsComparison(d) {
 // Forecast com intervalo de confiança 95% (mean response, t≈2.12 p/ df=16)
 function renderForecastCI() {
   const id = 'chartForecastCI'; destroyChart(id);
-  const d = DATA.vigitel2024;                       // dado oficial real 2006–2024
+  const d = DATA.vigitel2024;                       // Vigitel 2006–2024 (sexo oficial; total calculado)
   const years = d.years, y = d.diabetes, n = years.length;
   const reg = Stats.linreg(years, y);
   const mx = Stats.mean(years);
@@ -1584,17 +1621,17 @@ function renderForecastCI() {
   let sse = 0; years.forEach((xi,i)=> sse += (y[i]-reg.predict(xi))**2);
   const s = Math.sqrt(sse/(n-2));
   const tval = 2.12; // t crítico 95%, df=16
-  const future = [2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035];
-  const allYears = [...years, ...future];
+  // eixo com todos os anos (2022, sem coleta, fica como lacuna) até 2035
+  const allYears = yearRange(years[0], 2035);
 
-  const H = n;
-  const obs  = [...y, ...future.map(()=>null)];
+  const H = allYears.indexOf(years[n - 1]) + 1;
+  const obs  = allYears.map(yr => years.includes(yr) ? y[years.indexOf(yr)] : null);
   const trend = allYears.map(yr => +reg.predict(yr).toFixed(2));   // reta OLS em todo o período
   const seFit = yr => s * Math.sqrt(1/n + (yr-mx)**2/Sxx);
   const upper = allYears.map(yr => +(reg.predict(yr) + tval*seFit(yr)).toFixed(2));
   const lower = allYears.map(yr => +(reg.predict(yr) - tval*seFit(yr)).toFixed(2));
 
-  setText('forecastCiEq', `ŷ = ${reg.slope.toFixed(3)}·ano ${reg.intercept<0?'−':'+'} ${Math.abs(reg.intercept).toFixed(1)} · R² = ${reg.r2.toFixed(3)} · s = ${s.toFixed(2)}`);
+  setText('forecastCiEq', `ŷ = ${br(reg.slope, 3)}·ano ${reg.intercept<0?'−':'+'} ${br(Math.abs(reg.intercept), 1)} · R² = ${br(reg.r2, 3)} · s = ${br(s, 2)}`);
 
   saveChart(id, new Chart(document.getElementById(id), {
     type:'line',
@@ -1725,7 +1762,16 @@ function renderSarima() {
   const hi   = new Array(nObs).fill(null).concat(S.fc_hi);
   const lo   = new Array(nObs).fill(null).concat(S.fc_lo);
 
-  setText('sarimaCap', `${S.modelo} · AIC ${S.aic} · backtest 12 meses: MAPE ${String(S.backtest.mape_pct).replace('.', ',')}%`);
+  // Validação externa: soma das previsões de 2021 × total anual observado no SIM (não usado no ajuste)
+  let ext = '';
+  const i21 = DATA.mortalidade.anos.indexOf(2021);
+  const m21 = S.fc_labels.map((l, i) => l.startsWith('2021') ? i : -1).filter(i => i >= 0);
+  if (i21 >= 0 && m21.length === 12) {
+    const prev = m21.reduce((a, i) => a + S.fc_mean[i], 0), obs21 = DATA.mortalidade.obitos[i21];
+    const fmt = v => Math.round(v).toLocaleString('pt-BR');
+    ext = ` · validação externa 2021: previsto ${fmt(prev)} × observado ${fmt(obs21)} (erro ${((prev - obs21) / obs21 * 100).toFixed(1).replace('.', ',')}%)`;
+  }
+  setText('sarimaCap', `${S.modelo} · AIC ${String(S.aic).replace('.', ',')} · backtest 12 meses (2020): MAPE ${String(S.backtest.mape_pct).replace('.', ',')}%` + ext);
 
   saveChart(id, new Chart(document.getElementById(id), {
     type: 'line',
@@ -1761,7 +1807,31 @@ function renderROC() {
         x:{ type:'linear', min:0, max:1, grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'1 − Especificidade (FPR)', color:TICK_COLOR, font:{size:11}} },
         y:{ min:0, max:1, grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Sensibilidade (TPR)', color:TICK_COLOR, font:{size:11}} },
       },
-      plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{ label: ctx=> `FPR ${ctx.raw.x.toFixed(2)} · TPR ${ctx.raw.y.toFixed(2)}` } } }
+      plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{ label: ctx=> `FPR ${br(ctx.raw.x, 2)} · TPR ${br(ctx.raw.y, 2)}` } } }
+    },
+  }));
+}
+
+// Curva Precisão–Revocação (PR) — complementa a ROC em prevalência baixa
+function renderPRCurve() {
+  const id = 'chartPR'; destroyChart(id);
+  if (!ML.trained) ML.train();
+  if (!ML.pr) return;
+  const pr = ML.pr.map(p => ({ x: p[0], y: p[1] }));         // x=recall, y=precisão
+  const base = ML.prBaseline;
+  setText('prAp', 'AP = ' + ML.metrics.ap.toFixed(3).replace('.', ','));
+  saveChart(id, new Chart(document.getElementById(id), {
+    type: 'line',
+    data: { datasets: [
+      { label: 'Precisão–Revocação', data: pr, borderColor: PALETTE.green, backgroundColor: 'rgba(0,158,115,.12)', fill: true, tension: .2, borderWidth: 2.5, pointRadius: 2 },
+      { label: `Linha de base (${(base*100).toFixed(0)}%)`, data: [{ x: 0, y: base }, { x: 1, y: base }], borderColor: PALETTE.gray, borderDash: [5, 4], borderWidth: 1.5, pointRadius: 0, fill: false },
+    ]},
+    options: { ...baseOpts({ display: true }),
+      scales: {
+        x: { type: 'linear', min: 0, max: 1, grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } }, title: { display: true, text: 'Revocação / Sensibilidade (TPR)', color: TICK_COLOR, font: { size: 11 } } },
+        y: { min: 0, max: 1, grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } }, title: { display: true, text: 'Precisão (VP / VP+FP)', color: TICK_COLOR, font: { size: 11 } } },
+      },
+      plugins: { ...baseOpts({ display: true }).plugins, tooltip: { callbacks: { label: ctx => `Revocação ${br(ctx.raw.x, 2)} · Precisão ${br(ctx.raw.y, 2)}` } } }
     },
   }));
 }
@@ -1777,10 +1847,12 @@ function renderMlMetrics() {
   setText('mlRec', pct(m.rec));
   setText('mlF1', m.f1.toFixed(3).replace('.', ','));
   setText('mlSpec', pct(m.spec));
+  if (m.ap != null) setText('mlAp', m.ap.toFixed(3).replace('.', ','));
 
-  // gráfico de coeficientes aprendidos
+  // gráfico de coeficientes aprendidos — com razão de chances (OR = e^coef)
   const id = 'chartCoef'; destroyChart(id);
-  const pairs = ML.featNames.map((n,j)=>({ n, w: ML.weights[j] })).sort((a,b)=> Math.abs(b.w)-Math.abs(a.w));
+  const pairs = ML.featNames.map((n,j)=>({ n, w: ML.weights[j], or: Math.exp(ML.weights[j]) }))
+    .sort((a,b)=> Math.abs(b.w)-Math.abs(a.w));
   saveChart(id, new Chart(document.getElementById(id), {
     type:'bar', indexAxis:'y',
     data:{ labels: pairs.map(p=>p.n), datasets:[
@@ -1792,9 +1864,25 @@ function renderMlMetrics() {
         y:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}} },
         x:{ grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'coeficiente (log-odds, padronizado)', color:TICK_COLOR, font:{size:11}} },
       },
-      plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{ label: ctx=> 'peso = '+ctx.raw } } }
+      plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{
+        label: ctx => 'peso (log-odds) = ' + ctx.raw.toString().replace('.', ','),
+        afterLabel: ctx => { const p = pairs[ctx.dataIndex];
+          return 'OR = ' + p.or.toFixed(2).replace('.', ',') + '× por +1 desvio-padrão'; }
+      } } }
     },
   }));
+
+  // Razão de chances (odds ratio) dos 3 preditores dominantes, em texto claro
+  const el = document.getElementById('coefOdds');
+  if (el) {
+    const top = pairs.slice(0, 3).map(p => {
+      const dir = p.or >= 1 ? 'multiplica' : 'reduz';
+      const fat = p.or >= 1 ? p.or : 1 / p.or;
+      return `<b>${p.n}</b>: OR ${p.or.toFixed(2).replace('.', ',')}× — cada aumento de 1 desvio-padrão ${dir} a chance de diabetes por ${fat.toFixed(2).replace('.', ',')}×`;
+    }).join(' · ');
+    el.innerHTML = `<b>Razão de chances (OR = e<sup>coef</sup>):</b> ${top}. ` +
+      `<span style="color:var(--ink-3)">OR &gt; 1 = fator de risco; OR &lt; 1 = protetor. Como as variáveis estão padronizadas, o OR é por <em>+1 desvio-padrão</em> da variável.</span>`;
+  }
 }
 
 function renderConfMatrix() {
@@ -1882,6 +1970,7 @@ const TAB_RENDERERS = {
     renderTopCountries();
   },
   prevalence: () => {
+    setText('kpiCagrPrev', '+' + tcac(DATA.vigitel2024.years, DATA.vigitel2024.diabetes).toFixed(1).replace('.', ',') + '% a.a.');
     renderStatePrevalence();
     renderEducation();
     renderSexAge();
@@ -1949,6 +2038,7 @@ const TAB_RENDERERS = {
     renderSarima();
     renderConfMatrix();
     renderROC();
+    renderPRCurve();
     computeRisk();
   },
 };
