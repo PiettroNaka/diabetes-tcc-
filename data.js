@@ -165,7 +165,8 @@ const DATA = {
   // DADO REAL (SIM/TabNet 2025, Causa CID-BR-10, óbitos por residência): comparação
   // do diabetes com as principais causas de morte no Brasil.
   mortalidadeComparacao: {
-    causas: ['Doenças card.\nisquêmicas','AVC','Pneumonia','Diabetes','DPOC','Neoplasia\npulmão'],
+    // CID-BR-10: 068, 070, 074, 055, 076 (doenças crônicas das vias aéreas inferiores: DPOC, asma e outras), 039
+    causas: ['Doenças card.\nisquêmicas','AVC','Pneumonia','Diabetes','Vias aéreas inf.\n(DPOC, asma)','Neoplasia\npulmão'],
     obitos: [116962, 106970, 100304, 72151, 57436, 32430],
     cores:  ['#D55E00','#E69F00','#F0E442','#0072B2','#009E73','#CC79A7'],
   },
