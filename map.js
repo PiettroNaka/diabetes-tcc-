@@ -128,8 +128,8 @@ async function renderBrazilMap() {
         tooltip.style.top  = (event.clientY - 10) + 'px';
         tooltip.innerHTML = `
           <strong>${info.nome} (${id})</strong>
-          <span>Prevalência DM: ${info.prev.toFixed(1)}%</span><br>
-          <span>Mortalidade: ${info.mort.toFixed(1)}/100k hab</span><br>
+          <span>Prevalência DM: ${br(info.prev, 1)}%</span><br>
+          <span>Mortalidade: ${br(info.mort, 1)}/100k hab</span><br>
           <span style="color:#94a3b8;font-size:11px">Região: ${info.regiao}</span>`;
       })
       .on('mouseleave', function() {

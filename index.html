@@ -9,7 +9,7 @@
 <script src="vendor/chart.umd.js"></script>
 <script src="vendor/d3.min.js"></script>
 <script src="vendor/topojson.min.js"></script>
-<link rel="stylesheet" href="style.css?v=31">
+<link rel="stylesheet" href="style.css?v=32">
 </head>
 <body>
 
@@ -287,7 +287,7 @@
         <h3>Taxa bruta × padronizada por idade — por região (2025)</h3>
         <p class="chart-src">Padronização direta (método direto) · óbitos SIM 2025 ÷ pop. IBGE/SVS 2024, por faixa etária · padrão = Brasil</p>
         <div style="position:relative;height:280px"><canvas id="chartStandardized" role="img" aria-label="Taxa de mortalidade bruta versus padronizada por idade, por região"></canvas></div>
-        <div class="chart-insight"><b>Leitura (ponto técnico):</b> a padronização <strong>remove o efeito da estrutura etária</strong>. O <strong>Norte</strong> tem a <em>menor</em> taxa bruta (população jovem), mas a <em>maior</em> padronizada — ou seja, <strong>em cada idade morre-se mais de diabetes no Norte</strong> (pior acesso/controle). A comparação bruta esconde essa desigualdade; a padronizada a revela.</div>
+        <div class="chart-insight"><b>Leitura (ponto técnico):</b> a padronização <strong>remove o efeito da estrutura etária</strong>. O <strong>Norte</strong> tem uma das <em>menores</em> taxas brutas (população jovem), mas a <em>maior</em> padronizada — ou seja, <strong>em cada idade morre-se mais de diabetes no Norte</strong> (padrão compatível com menor acesso ao diagnóstico e ao controle da doença). A comparação bruta esconde essa desigualdade; a padronizada a revela.</div>
       </div>
       <div class="chart-card">
         <h3>Óbitos por diabetes segundo raça/cor (2025)</h3>
@@ -721,7 +721,7 @@
       </div>
       <div class="chart-card">
         <h3>Resíduo (ruído + anomalias)</h3>
-        <p class="chart-src">Anomalia destacada: excesso de óbitos em abr–jun/2020 (COVID-19), agora com dado real</p>
+        <p class="chart-src">Anomalia destacada: abr–jun/2020, início da pandemia de COVID-19 (SIM/DATASUS, série mensal real)</p>
         <div style="position:relative;height:240px"><canvas id="chartDecompResid" role="img" aria-label="Componente residual da decomposição com anomalia COVID"></canvas></div>
       </div>
     </div>
@@ -867,7 +867,7 @@
     </div>
 
     <div class="table-section">
-      <h3>Roadmap de modelagem — próximos passos (TCC Cap. 5–6)</h3>
+      <h3>Etapas de modelagem — situação</h3>
       <table class="data-table">
         <thead><tr><th>Etapa</th><th>Técnica</th><th>Objetivo</th><th>Status</th></tr></thead>
         <tbody>
@@ -1025,12 +1025,12 @@
   </div>
 </footer>
 
-<script src="data.js?v=31"></script>
-<script src="pima.js?v=31"></script>
-<script src="ml.js?v=31"></script>
-<script src="serie_mensal.js?v=31"></script>
-<script src="charts.js?v=31"></script>
-<script src="map.js?v=31"></script>
-<script src="app.js?v=31"></script>
+<script src="data.js?v=32"></script>
+<script src="pima.js?v=32"></script>
+<script src="ml.js?v=32"></script>
+<script src="serie_mensal.js?v=32"></script>
+<script src="charts.js?v=32"></script>
+<script src="map.js?v=32"></script>
+<script src="app.js?v=32"></script>
 </body>
 </html>

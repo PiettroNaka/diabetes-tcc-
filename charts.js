@@ -18,6 +18,12 @@ const REGION_COLORS = { N:'#56B4E9', NE:'#E69F00', CO:'#CC79A7', SE:'#0072B2', S
 
 const GRID_COLOR  = 'rgba(0,0,0,.06)';
 const TICK_COLOR  = '#64748b';
+// eixos numéricos no padrão brasileiro (9.000; 0,5)
+if (typeof Chart !== 'undefined') Chart.defaults.locale = 'pt-BR';
+// número com vírgula decimal
+const br = (x, d) => x.toFixed(d).replace('.', ',');
+// todos os anos de a até b (inclusive)
+const yearRange = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
 
 // ─────────────────────────────────────────────────────────────
 // FILTROS — helpers lidos por todos os renderizadores
@@ -34,9 +40,15 @@ function yrIdx(years) {
   return years.map((_, i) => i).filter(i => y === 'all' || years[i] <= +y);
 }
 // aplica filtro de ano a labels + N séries; retorna { labels, series:[...] }
+// Anos sem coleta (ex.: Vigitel 2022) entram como lacuna (null), para que o eixo
+// mantenha o espaçamento real entre os anos e a linha seja interrompida ali.
 function cutTS(years, ...series) {
-  const idx = yrIdx(years);
-  return { labels: idx.map(i => years[i]), series: series.map(s => idx.map(i => s[i])) };
+  const idx = yrIdx(years), labels = [], out = series.map(() => []);
+  idx.forEach((i, k) => {
+    if (k > 0) for (let y = years[idx[k - 1]] + 1; y < years[i]; y++) { labels.push(y); out.forEach(s => s.push(null)); }
+    labels.push(years[i]); series.forEach((s, j) => out[j].push(s[i]));
+  });
+  return { labels, series: out };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -236,8 +248,8 @@ function renderOverviewTrend() {
   if (sex === 'all') {
     const DEFF = 2, nAno = cutTS(d.years, d.entrevistas).series[0];
     const half = (p, i) => 1.96 * Math.sqrt((p/100)*(1-p/100) / (nAno[i] / DEFF)) * 100;
-    const up = tot.map((p, i) => +(p + half(p, i)).toFixed(2));
-    const lo = tot.map((p, i) => +(p - half(p, i)).toFixed(2));
+    const up = tot.map((p, i) => p == null ? null : +(p + half(p, i)).toFixed(2));
+    const lo = tot.map((p, i) => p == null ? null : +(p - half(p, i)).toFixed(2));
     ds.push({ label: 'IC95% sup', data: up, borderColor:'transparent', pointRadius:0, fill:false });
     ds.push({ label: 'IC95% (aprox.)', data: lo, borderColor:'transparent', pointRadius:0, fill:'-1', backgroundColor:'rgba(0,114,178,.15)' });
   }
@@ -545,7 +557,7 @@ function renderMortalityRace() {
     options: { ...baseOpts(),
       scales: { y: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } } },
         x: { grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 10 } }, title: { display: true, text: 'Nº de óbitos (2025)', color: TICK_COLOR, font: { size: 11 } } } },
-      plugins: { ...baseOpts().plugins, tooltip: { callbacks: { label: ctx => `${ctx.raw.toLocaleString('pt-BR')} (${(100 * ctx.raw / tot).toFixed(1)}%)` } } }
+      plugins: { ...baseOpts().plugins, tooltip: { callbacks: { label: ctx => `${ctx.raw.toLocaleString('pt-BR')} (${br(100 * ctx.raw / tot, 1)}%)` } } }
     },
   }));
 }
@@ -897,17 +909,17 @@ function renderForecast() {
   const d = DATA.vigitel2024;                       // Vigitel 2006–2024 (sexo oficial; total calculado)
   const years = d.years;
   const reg = Stats.linreg(years, d.diabetes);
-  const futureYears = [2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035];
-  const allYears = [...years, ...futureYears];
+  // eixo com todos os anos (2022, sem coleta, fica como lacuna) até 2035
+  const allYears = yearRange(years[0], 2035);
 
-  // observado (com nulls no futuro); reta OLS cobrindo TODO o período (sólida no
-  // histórico, tracejada na projeção) — passa pelos pontos reais, sem "degrau".
-  const H = years.length;
-  const obs = [...d.diabetes, ...futureYears.map(()=>null)];
+  // observado (com nulls na lacuna e no futuro); reta OLS cobrindo TODO o período
+  // (sólida no histórico, tracejada na projeção) — passa pelos pontos reais, sem "degrau".
+  const H = allYears.indexOf(years[years.length - 1]) + 1;
+  const obs = allYears.map(y => years.includes(y) ? d.diabetes[years.indexOf(y)] : null);
   const trend = allYears.map(y => +reg.predict(y).toFixed(2));
 
-  setText('forecastEq', `ŷ = ${reg.slope.toFixed(3)}·ano ${reg.intercept<0?'−':'+'} ${Math.abs(reg.intercept).toFixed(1)} · R² = ${reg.r2.toFixed(3)}`);
-  setText('kpiR2Forecast', reg.r2.toFixed(3));
+  setText('forecastEq', `ŷ = ${br(reg.slope, 3)}·ano ${reg.intercept<0?'−':'+'} ${br(Math.abs(reg.intercept), 1)} · R² = ${br(reg.r2, 3)}`);
+  setText('kpiR2Forecast', br(reg.r2, 3));
   // TCAC (intervalo efetivo de anos: 2006→2024 = 18 anos)
   const cagr = tcac(years, d.diabetes);
   setText('kpiCagr', '+'+cagr.toFixed(1).replace('.', ',')+'% a.a.');
@@ -1013,7 +1025,7 @@ function renderCorrHeatmap() {
         ? `rgba(26,86,219,${(0.12 + alpha*0.8).toFixed(2)})`
         : `rgba(231,76,60,${(0.12 + alpha*0.8).toFixed(2)})`;
       const txt = alpha > 0.55 ? '#fff' : '#1e293b';
-      html += `<div class="corr-cell" style="background:${bg};color:${txt}">${r.toFixed(2)}</div>`;
+      html += `<div class="corr-cell" style="background:${bg};color:${txt}">${br(r, 2)}</div>`;
     });
   });
   el.innerHTML = html;
@@ -1606,17 +1618,17 @@ function renderForecastCI() {
   let sse = 0; years.forEach((xi,i)=> sse += (y[i]-reg.predict(xi))**2);
   const s = Math.sqrt(sse/(n-2));
   const tval = 2.12; // t crítico 95%, df=16
-  const future = [2025,2026,2027,2028,2029,2030,2031,2032,2033,2034,2035];
-  const allYears = [...years, ...future];
+  // eixo com todos os anos (2022, sem coleta, fica como lacuna) até 2035
+  const allYears = yearRange(years[0], 2035);
 
-  const H = n;
-  const obs  = [...y, ...future.map(()=>null)];
+  const H = allYears.indexOf(years[n - 1]) + 1;
+  const obs  = allYears.map(yr => years.includes(yr) ? y[years.indexOf(yr)] : null);
   const trend = allYears.map(yr => +reg.predict(yr).toFixed(2));   // reta OLS em todo o período
   const seFit = yr => s * Math.sqrt(1/n + (yr-mx)**2/Sxx);
   const upper = allYears.map(yr => +(reg.predict(yr) + tval*seFit(yr)).toFixed(2));
   const lower = allYears.map(yr => +(reg.predict(yr) - tval*seFit(yr)).toFixed(2));
 
-  setText('forecastCiEq', `ŷ = ${reg.slope.toFixed(3)}·ano ${reg.intercept<0?'−':'+'} ${Math.abs(reg.intercept).toFixed(1)} · R² = ${reg.r2.toFixed(3)} · s = ${s.toFixed(2)}`);
+  setText('forecastCiEq', `ŷ = ${br(reg.slope, 3)}·ano ${reg.intercept<0?'−':'+'} ${br(Math.abs(reg.intercept), 1)} · R² = ${br(reg.r2, 3)} · s = ${br(s, 2)}`);
 
   saveChart(id, new Chart(document.getElementById(id), {
     type:'line',
@@ -1792,7 +1804,7 @@ function renderROC() {
         x:{ type:'linear', min:0, max:1, grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'1 − Especificidade (FPR)', color:TICK_COLOR, font:{size:11}} },
         y:{ min:0, max:1, grid:{color:GRID_COLOR}, ticks:{color:TICK_COLOR, font:{size:11}}, title:{display:true, text:'Sensibilidade (TPR)', color:TICK_COLOR, font:{size:11}} },
       },
-      plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{ label: ctx=> `FPR ${ctx.raw.x.toFixed(2)} · TPR ${ctx.raw.y.toFixed(2)}` } } }
+      plugins:{ ...baseOpts().plugins, tooltip:{ callbacks:{ label: ctx=> `FPR ${br(ctx.raw.x, 2)} · TPR ${br(ctx.raw.y, 2)}` } } }
     },
   }));
 }
@@ -1816,7 +1828,7 @@ function renderPRCurve() {
         x: { type: 'linear', min: 0, max: 1, grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } }, title: { display: true, text: 'Revocação / Sensibilidade (TPR)', color: TICK_COLOR, font: { size: 11 } } },
         y: { min: 0, max: 1, grid: { color: GRID_COLOR }, ticks: { color: TICK_COLOR, font: { size: 11 } }, title: { display: true, text: 'Precisão (VP / VP+FP)', color: TICK_COLOR, font: { size: 11 } } },
       },
-      plugins: { ...baseOpts({ display: true }).plugins, tooltip: { callbacks: { label: ctx => `Revocação ${ctx.raw.x.toFixed(2)} · Precisão ${ctx.raw.y.toFixed(2)}` } } }
+      plugins: { ...baseOpts({ display: true }).plugins, tooltip: { callbacks: { label: ctx => `Revocação ${br(ctx.raw.x, 2)} · Precisão ${br(ctx.raw.y, 2)}` } } }
     },
   }));
 }
