@@ -22,7 +22,7 @@ Painel web estático (sem backend) que reúne, de forma navegável, os principai
 | **Censo / estimativas** | IBGE / MS | População (denominadores de taxas) | 2022; 2024 |
 | **Pima Indians Diabetes** | NIDDK | Dados clínicos (benchmark de ML) | — |
 
-*2026 parcial (jan–jul), fora das séries anuais. A ANS/D-TISS foi avaliada (LAI NUP 25072.015811/2026-30) e excluída na auditoria, por não haver dado primário com recorte de diabetes.
+*2026 parcial (jan–jul), fora das séries anuais. A ANS/D-TISS foi avaliada (LAI NUP 25072.015811/2026-30) e excluída na auditoria: segundo a resposta da ANS (13/04/2026), a CID é opcional nas internações e não pode ser exigida nos atendimentos ambulatoriais (decisão judicial desde 2010), o que impede isolar o diabetes.
 
 Os dados do DATASUS foram extraídos via **TabNet** (os scripts de ETL estão em `notebooks/`, fora deste repositório por tamanho). O modelo de risco é treinado **ao vivo no navegador** sobre o Pima Indians Diabetes Dataset (NIDDK).
 

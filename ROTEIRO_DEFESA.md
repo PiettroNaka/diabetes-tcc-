@@ -73,7 +73,7 @@ Números-âncora:
 
 **Pergunta provável:** *"Qual número é o certo?"* → Depende da pergunta: tendência nas capitais → Vigitel; estimativa nacional → PNS; carga total incluindo não diagnosticados → IDF (modelada).
 
-**Fonte excluída:** ANS/D-TISS foi avaliada (pedido LAI NUP 25072.015811/2026-30) e **excluída na auditoria**, por não haver dado primário com recorte de diabetes. Os indicadores estimados de versões antigas foram removidos.
+**Fonte excluída:** ANS/D-TISS foi avaliada e **excluída na auditoria**. Na resposta ao pedido LAI (NUP 25072.015811/2026-30, 13/04/2026), a própria ANS informou que recebe a CID só nas internações, e de forma opcional, e que nos atendimentos ambulatoriais está **impedida por decisão judicial desde 2010** de exigi-la (ACP nº 2007.51.01.022606-4). Sem CID, não há como isolar o diabetes. Os indicadores estimados de versões antigas foram removidos.
 
 ## 9. Análise Estatística
 **Mostrar:** CRISP-DM, correlações com IC e p, projeção OLS, matriz de correlação, distribuição por região, bolhas, carga estimada, estatística descritiva.

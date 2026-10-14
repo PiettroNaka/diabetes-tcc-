@@ -527,7 +527,7 @@
           <tr><td>Censo / estimativas</td><td>IBGE / MS</td><td>População (denominadores p/ taxas)</td><td>UF; região × faixa etária</td><td>2022; 2024</td></tr>
           <tr><td>Pima Indians Diabetes</td><td>NIDDK (EUA)</td><td>Dados clínicos individuais (benchmark de ML)</td><td>768 mulheres</td><td>—</td></tr>
           <tr><td>SBD</td><td>Soc. Bras. de Diabetes</td><td>Diretrizes clínicas (classificação e critérios)</td><td>Nacional</td><td>—</td></tr>
-          <tr><td>ANS / D-TISS</td><td>ANS</td><td>Saúde suplementar — <em>avaliada e excluída</em> (sem recorte de diabetes)</td><td>—</td><td>LAI 25072.015811/2026-30</td></tr>
+          <tr><td>ANS / D-TISS</td><td>ANS</td><td>Saúde suplementar — <em>avaliada e excluída</em>: a CID não é exigida nos atendimentos ambulatoriais (decisão judicial) e é opcional nas internações</td><td>—</td><td>LAI 25072.015811/2026-30 (resp. 13/04/2026)</td></tr>
           <tr><td>Portal Dados Abertos</td><td>dados.gov.br</td><td>Catálogo de datasets públicos</td><td>Nacional</td><td>Contínuo</td></tr>
         </tbody>
       </table>
@@ -1021,7 +1021,7 @@
   <div class="footer-inner">
     <p><strong>Fontes:</strong> DATASUS (SIM — mortalidade; SIH — internações/procedimentos, via TabNet) · Vigitel/MS 2006–2024 · PNS 2013/2019 (IBGE/Fiocruz) · IBGE Censo 2022 · IDF Diabetes Atlas 9ª–11ª ed. (2019–2025) · Pima Indians Diabetes Dataset (NIDDK) · SBD (diretrizes clínicas)</p>
     <p><strong>Metodologia:</strong> CRISP-DM · estatística inferencial (Pearson com IC 95% de Fisher e p-valor da distribuição t) · regressão OLS com IC 95% · decomposição aditiva de série temporal · <strong>regressão logística treinada ao vivo</strong> (gradiente descendente, split estratificado treino/teste) com avaliação real (matriz de confusão, ROC, AUC). Todos os cálculos são executados no navegador; modelo reproduzível (seed fixa).</p>
-    <p><strong>Reprodutibilidade:</strong> extração via TabNet e modelagem em Python (<code>baixar_anual_mortalidade.py</code>, <code>baixar_sim_dim.py</code>, <code>baixar_sih.py</code>, <code>rodar_pns.py</code>, <code>rodar_sarima.py</code> — mantidos fora do repositório público pelo volume dos microdados); estatísticas, modelo Pima e hipóteses recalculados no navegador a partir de <code>data.js</code>.</p>
+    <p><strong>Reprodutibilidade:</strong> pipeline em Python documentado nos notebooks <code>etl_diabetes.ipynb</code> e <code>modelagem_pns.ipynb</code> (com <code>requirements.txt</code>) e nos scripts de extração e modelagem (<code>baixar_anual_mortalidade.py</code>, <code>baixar_sim_dim.py</code>, <code>baixar_sih.py</code>, <code>rodar_pns.py</code>, <code>rodar_sarima.py</code>), mantidos fora do repositório público pelo volume dos microdados; estatísticas, modelo Pima e hipóteses recalculados no navegador a partir de <code>data.js</code>.</p>
     <p>Dashboard desenvolvido para o TCC de Piettro Pevidor Nakashoji — Ciência de Dados · IESB · 2026 | Modelo treinado sobre o Pima Indians Diabetes Dataset (NIDDK), dado clínico real. Valores epidemiológicos seguem as fontes citadas; estimativas sinalizadas quando aplicável. Ferramenta acadêmica — não substitui avaliação clínica.</p>
   </div>
 </footer>
