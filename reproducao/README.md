@@ -8,11 +8,12 @@ Esta pasta reúne três coisas: os *scripts* que produziram os dados e os modelo
 |--------|-----------|---------|
 | `baixar_anual_mortalidade.py` | Monta a consulta ao TabNet do SIM (`sim/cnv/obt10br.def`; Grupo CID-10 47 = E10–E14; óbitos por residência; 2000–2026) e lê a tabela de resposta | Óbitos anuais por diabetes → `mortalidade` em `data.js` |
 | `baixar_sim_dim.py` | Mesma consulta, para um único ano, com uma dimensão na linha da tabela (região ou faixa etária) | Perfis da mortalidade → `mortalidadeRegiao`, `mortalidadeFaixaEtaria` |
+| `baixar_serie_mensal.py` | Mesma consulta, com o mês do óbito na linha (arquivos de 2015 a 2022), e guarda a maior sequência contínua de meses a partir de janeiro de 2015 | `dados_brutos/serie_mensal_obitos.json`, entrada do `rodar_sarima.py` (a série usada no TCC está em `fontes/sim/`) |
 | `baixar_sih.py` | Consulta ao TabNet do SIH/SUS (`sih/cnv/niuf.def`; Lista de Morbidade CID-10 124 = diabetes; 2010–2025, por ano de processamento), com o número de internações ou o valor total | `internacoes` em `data.js` |
 | `rodar_sarima.py` | Ajusta o SARIMA(1,1,1)(1,1,1)12 à série mensal de óbitos (2015–2020), faz a avaliação retrospectiva de 2020 e prevê 18 meses | `serie_mensal.js` |
 | `rodar_pns.py` | Lê os microdados da PNS 2019 nas posições do *input* SAS oficial e treina a regressão logística, o *Random Forest* e o XGBoost, com validação cruzada estratificada em 5 partições | `pns_results.js` |
 
-Os três `baixar_*.py` funcionam em duas etapas:
+Os quatro `baixar_*.py` funcionam em duas etapas:
 
 1. `build` grava o corpo da requisição em `dados_brutos/`.
 2. `parse` lê o HTML devolvido pelo TabNet.
@@ -26,9 +27,11 @@ curl -s -X POST --data-binary @dados_brutos/post_anual.txt \
 python baixar_anual_mortalidade.py parse
 ```
 
+O `baixar_serie_mensal.py` segue o mesmo fluxo, com outros nomes de arquivo: `build` grava `dados_brutos/post_body.txt`, e `parse` lê `dados_brutos/tabnet_result.html`. Na extração usada no TCC, a resposta trouxe 72 meses contínuos (2015–2020; o comentário do *script* registra que 2021 estava ausente). Uma consulta feita hoje pode trazer também 2021 e 2022; para reproduzir o modelo do TCC, use a série de `fontes/sim/serie_mensal_obitos.json`.
+
 Os *scripts* usam caminhos relativos (`dados_brutos/`, `../serie_mensal.js`) e devem ser executados de dentro de `reproducao/`. O `rodar_pns.py` é a exceção e pode ser executado de qualquer pasta.
 
-Os *scripts* estão como foram recebidos do autor; o histórico do git registra a versão original. A única alteração foi no `rodar_pns.py`: ele procurava os microdados numa pasta `notebooks/` e agora usa a sua própria pasta (`reproducao/dados_brutos/`). Com os mesmos dados, a saída é idêntica à do original.
+Os *scripts* estão como foram recebidos do autor; o histórico do git registra a versão original. A única alteração foi no `rodar_pns.py`: ele procurava os microdados numa pasta `notebooks/` e agora usa a sua própria pasta (`reproducao/dados_brutos/`). Com os mesmos dados, a saída é idêntica à do original. O `baixar_serie_mensal.py` foi incluído depois, a partir da cópia do autor no Google Drive, sem alterações.
 
 ### O que foi verificado nesta revisão
 
@@ -39,6 +42,7 @@ Os *scripts* estão como foram recebidos do autor; o histórico do git registra 
 | `modelagem_pns.ipynb` × `rodar_pns.py` | Os dois executados sobre a mesma base sintética | Resultados idênticos em todas as chaves: métricas, ROC, matriz de confusão, razões de chances e importâncias |
 | `rodar_pns_raca.py` | Executado no Google Colab sobre os microdados reais | Na especificação anterior, reproduz exatamente a saída original (`fontes/pns/pns_raca.json`): prevalências, tamanhos de amostra e total de 8,6%. Na definição do IBGE, reproduz exatamente o total oficial de 7,7% |
 | `baixar_*.py` | Etapa `build` executada; etapa `parse` testada com uma tabela HTML de exemplo | Corpos das requisições gerados e tabela lida corretamente. As consultas não foram reenviadas ao TabNet, porque o DATASUS não é acessível deste ambiente |
+| `baixar_serie_mensal.py` | Etapa `parse` executada sobre uma tabela no formato do TabNet montada com os 72 valores publicados | Gera um `serie_mensal_obitos.json` idêntico ao de `fontes/sim/` (mesmos rótulos, valores e campo de fonte) |
 
 Os dois *scripts* da PNS leem o peso amostral, mas nenhum o usa no treinamento. Os modelos são ajustados sem ponderação, e o desbalanceamento das classes é tratado por `class_weight='balanced'`.
 
@@ -115,7 +119,7 @@ Nenhum desses comandos acessa a rede.
 ## Dados de entrada não versionados
 
 - **Microdados da PNS 2019** (`PNS_2019.txt`, cerca de 434 MB, e o dicionário `.xls`): são públicos no site do IBGE. Para executar `rodar_pns.py` ou o *notebook*, coloque-os em `reproducao/dados_brutos/` (pasta ignorada pelo git).
-- **Série mensal de óbitos** (`dados_brutos/serie_mensal_obitos.json`, entrada do `rodar_sarima.py`): os mesmos 72 valores estão versionados em `serie_mensal.js`, e `verificar_sarima.py` reestima o modelo a partir deles.
+- **Série mensal de óbitos** (`dados_brutos/serie_mensal_obitos.json`, entrada do `rodar_sarima.py`, gerada por `baixar_serie_mensal.py`): a versão usada no TCC está em `fontes/sim/` (copie-a para `dados_brutos/` para executar `rodar_sarima.py`); os mesmos 72 valores estão em `serie_mensal.js`, e `verificar_sarima.py` reestima o modelo a partir deles.
 
 ## O que não está nesta pasta
 
